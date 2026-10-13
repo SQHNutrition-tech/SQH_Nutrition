@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQH Clinical Nutrition Toolkit</title>
+<meta name="description" content="Bedside nutrition assessment, screening, enteral feeding and patient education toolkit for the Clinical Nutrition Department.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg: #f4f7f6;
+        --surface: #ffffff;
+        --surface-2: #eef3f1;
+        --text: #17312b;
+        --muted: #55706a;
+        --border: #d3e0dc;
+        --accent: #0f766e;
+        --accent-ink: #ffffff;
+        --accent-soft: #d8efeb;
+        --ok: #15803d;
+        --ok-soft: #dcfce7;
+        --warn: #a16207;
+        --warn-soft: #fef3c7;
+        --danger: #b91c1c;
+        --danger-soft: #fee2e2;
+        --radius: 14px;
+        --shadow: 0 1px 2px rgba(16, 40, 34, 0.06), 0 4px 16px rgba(16, 40, 34, 0.05);
+    }
+    @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+            --bg: #0e1715;
+            --surface: #15211e;
+            --surface-2: #1b2a26;
+            --text: #e3eeeb;
+            --muted: #9db4ae;
+            --border: #2a3d38;
+            --accent: #2dd4bf;
+            --accent-ink: #062a25;
+            --accent-soft: #123a34;
+            --ok: #4ade80;
+            --ok-soft: #12321f;
+            --warn: #fbbf24;
+            --warn-soft: #3a2e0c;
+            --danger: #f87171;
+            --danger-soft: #3b1515;
+            --shadow: none;
+        }
+    }
+    :root[data-theme="dark"] {
+        --bg: #0e1715;
+        --surface: #15211e;
+        --surface-2: #1b2a26;
+        --text: #e3eeeb;
+        --muted: #9db4ae;
+        --border: #2a3d38;
+        --accent: #2dd4bf;
+        --accent-ink: #062a25;
+        --accent-soft: #123a34;
+        --ok: #4ade80;
+        --ok-soft: #12321f;
+        --warn: #fbbf24;
+        --warn-soft: #3a2e0c;
+        --danger: #f87171;
+        --danger-soft: #3b1515;
+        --shadow: none;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Tajawal", sans-serif;
+    }
+    [lang="ar"], .ar { font-family: "Tajawal", system-ui, sans-serif; }
+    h1, h2, h3 { line-height: 1.25; margin: 0; }
+    h2 { font-size: 1.15rem; }
+    h3 { font-size: 1rem; }
+    a { color: var(--accent); }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+
+    header.top {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+    }
+    header.top .wrap {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding-top: 14px; padding-bottom: 14px; flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+        width: 40px; height: 40px; border-radius: 10px; background: var(--accent); color: var(--accent-ink);
+        display: grid; place-items: center; flex-shrink: 0;
+    }
+    .brand h1 { font-size: 1.1rem; }
+    .brand p { margin: 0; color: var(--muted); font-size: 0.85rem; }
+
+    .privacy {
+        margin: 16px 0 0; padding: 10px 14px; border-radius: var(--radius);
+        background: var(--warn-soft); color: var(--text); border: 1px solid var(--border);
+        font-size: 0.88rem; display: flex; gap: 10px; align-items: flex-start;
+    }
+    .privacy strong { color: var(--warn); }
+
+    .card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        box-shadow: var(--shadow); padding: 18px; margin-top: 16px;
+    }
+    .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .card-head p { margin: 0; color: var(--muted); font-size: 0.85rem; }
+
+    .grid { display: grid; gap: 12px; }
+    .g2 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .g3 { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    .g6 { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+
+    label.field { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; color: var(--muted); font-weight: 500; }
+    input[type="number"], input[type="text"], select, textarea {
+        font: inherit; color: var(--text); background: var(--surface-2);
+        border: 1px solid var(--border); border-radius: 10px; padding: 9px 10px; width: 100%; min-width: 0;
+    }
+    textarea { resize: vertical; }
+    input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
+        outline: 2px solid var(--accent); outline-offset: 2px;
+    }
+    .check { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; font-size: 0.92rem; cursor: pointer; }
+    .check input { margin-top: 4px; width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; }
+
+    button {
+        font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid var(--border);
+        background: var(--surface-2); color: var(--text); padding: 8px 14px; font-weight: 500;
+    }
+    button:hover { border-color: var(--accent); }
+    button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    button.small { padding: 5px 10px; font-size: 0.82rem; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+    nav.tabs {
+        display: flex; gap: 6px; overflow-x: auto; margin-top: 16px; padding-bottom: 2px;
+        scrollbar-width: thin;
+    }
+    nav.tabs button {
+        white-space: nowrap; border-radius: 999px; background: var(--surface);
+    }
+    nav.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    [role="tabpanel"][hidden] { display: none; }
+
+    .stat-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    .stat {
+        background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px;
+    }
+    .stat .k { font-size: 0.78rem; color: var(--muted); }
+    .stat .v { font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .stat .s { font-size: 0.78rem; color: var(--muted); }
+
+    .result {
+        margin-top: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border);
+        background: var(--surface-2);
+    }
+    .result.ok { background: var(--ok-soft); }
+    .result.warn { background: var(--warn-soft); }
+    .result.danger { background: var(--danger-soft); }
+    .result .big { font-size: 1.15rem; font-weight: 700; }
+    .result ul { margin: 6px 0 0; padding-inline-start: 20px; }
+
+    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+    .muted { color: var(--muted); }
+    .small-text { font-size: 0.82rem; }
+    .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 18px 0 8px; font-weight: 700; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    table.calc { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    table.calc th, table.calc td { text-align: start; padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    table.calc td.num { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+    .table-scroll { overflow-x: auto; }
+
+    .handout {
+        background: #ffffff; color: #17312b; border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 22px; margin-top: 12px;
+    }
+    .handout h2 { font-size: 1.2rem; margin-bottom: 6px; }
+    .handout .lang-block + .lang-block { border-top: 1px dashed #c6d6d1; margin-top: 16px; padding-top: 16px; }
+    .handout ul { padding-inline-start: 22px; margin: 8px 0 0; }
+    .handout li { margin-bottom: 6px; }
+    .handout .foot { margin-top: 16px; font-size: 0.82rem; color: #55706a; }
+
+    footer { color: var(--muted); font-size: 0.8rem; padding: 28px 0 40px; }
+
+    #toast {
+        position: fixed; inset-inline-start: 16px; bottom: 16px; z-index: 10;
+        background: var(--text); color: var(--bg); padding: 10px 14px; border-radius: 10px;
+        opacity: 0; transform: translateY(10px); transition: opacity .2s, transform .2s; pointer-events: none;
+        font-size: 0.9rem;
+    }
+    #toast.show { opacity: 1; transform: none; }
+
+    @media print {
+        body.print-handout > *:not(#print-area) { display: none !important; }
+        body.print-handout #print-area { display: block !important; }
+        #print-area .handout { border: none; padding: 0; }
+    }
+    #print-area { display: none; }
+</style>
+</head>
+<body>
+
+<header class="top">
+    <div class="wrap">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+            </div>
+            <div>
+                <h1 id="dept-name">Clinical Nutrition Toolkit</h1>
+                <p id="dept-sub">Clinical Nutrition Department · bedside calculators &amp; patient education</p>
+            </div>
+        </div>
+        <button id="theme-btn" class="small" type="button" aria-label="Toggle dark mode">Theme</button>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <div class="privacy" role="note">
+        <span aria-hidden="true">🔒</span>
+        <div><strong>Privacy:</strong> do not type patient names, MRNs or phone numbers here. Nothing you enter is saved or sent anywhere; it is cleared when you close the page. These tools support, and never replace, clinical judgement and hospital protocols.</div>
+    </div>
+
+    <!-- Shared patient parameters -->
+    <section class="card" aria-labelledby="pt-title">
+        <div class="card-head">
+            <h2 id="pt-title">Patient parameters</h2>
+            <p>Used by every tab · no identifiers</p>
+        </div>
+        <div class="grid g6">
+            <label class="field">Sex
+                <select id="sex">
+                    <option value="F">Female</option>
+                    <option value="M">Male</option>
+                </select>
+            </label>
+            <label class="field">Age (years)
+                <input type="number" id="age" min="0" max="120" step="1" inputmode="numeric" placeholder="e.g. 54">
+            </label>
+            <label class="field">Height (cm)
+                <input type="number" id="ht" min="40" max="230" step="0.1" inputmode="decimal" placeholder="e.g. 160">
+            </label>
+            <label class="field">Current weight (kg)
+                <input type="number" id="wt" min="1" max="350" step="0.1" inputmode="decimal" placeholder="e.g. 62">
+            </label>
+            <label class="field">Usual weight (kg)
+                <input type="number" id="uwt" min="1" max="350" step="0.1" inputmode="decimal" placeholder="optional">
+            </label>
+            <label class="field">Weight lost over
+                <select id="period">
+                    <option value="1">1 month</option>
+                    <option value="2">2 months</option>
+                    <option value="3" selected>3 months</option>
+                    <option value="6">6 months</option>
+                    <option value="12">&gt; 6 months</option>
+                </select>
+            </label>
+        </div>
+        <div class="stat-grid" style="margin-top:14px" aria-live="polite">
+            <div class="stat"><div class="k">BMI</div><div class="v" id="o-bmi">–</div><div class="s" id="o-bmi-cat">&nbsp;</div></div>
+            <div class="stat"><div class="k">Ideal body weight (Hamwi)</div><div class="v" id="o-ibw">–</div><div class="s" id="o-pibw">&nbsp;</div></div>
+            <div class="stat"><div class="k">Adjusted body weight</div><div class="v" id="o-adj">–</div><div class="s">IBW + 0.25 × (actual − IBW)</div></div>
+            <div class="stat"><div class="k">Weight change</div><div class="v" id="o-wl">–</div><div class="s" id="o-wl-s">&nbsp;</div></div>
+        </div>
+    </section>
+
+    <nav class="tabs" role="tablist" aria-label="Tools">
+        <button role="tab" id="tab-req" aria-controls="p-req" aria-selected="true">Requirements</button>
+        <button role="tab" id="tab-scr" aria-controls="p-scr" aria-selected="false" tabindex="-1">Screening</button>
+        <button role="tab" id="tab-en" aria-controls="p-en" aria-selected="false" tabindex="-1">Enteral feeding</button>
+        <button role="tab" id="tab-rf" aria-controls="p-rf" aria-selected="false" tabindex="-1">Refeeding risk</button>
+        <button role="tab" id="tab-note" aria-controls="p-note" aria-selected="false" tabindex="-1">ADIME note</button>
+        <button role="tab" id="tab-edu" aria-controls="p-edu" aria-selected="false" tabindex="-1">Patient education</button>
+    </nav>
+
+    <!-- ===================== REQUIREMENTS ===================== -->
+    <section role="tabpanel" id="p-req" aria-labelledby="tab-req">
+        <div class="card">
+            <div class="card-head">
+                <h2>Estimated requirements</h2>
+                <p>Adults · edit any default to match your protocol</p>
+            </div>
+
+            <div class="grid g3">
+                <label class="field">Dosing weight
+                    <select id="dosewt">
+                        <option value="auto">Auto (adjusted if &gt;120% IBW)</option>
+                        <option value="actual">Actual weight</option>
+                        <option value="ibw">Ideal body weight</option>
+                        <option value="adj">Adjusted body weight</option>
+                    </select>
+                </label>
+                <label class="field">Energy (kcal/kg) from
+                    <input type="number" id="kcal-lo" value="25" step="1" inputmode="numeric">
+                </label>
+                <label class="field">to
+                    <input type="number" id="kcal-hi" value="30" step="1" inputmode="numeric">
+                </label>
+                <label class="field">Activity / stress factor
+                    <select id="factor">
+                        <option value="1.0">1.0 – none</option>
+                        <option value="1.1">1.1 – bed-bound / mild stress</option>
+                        <option value="1.2" selected>1.2 – ambulatory in ward</option>
+                        <option value="1.3">1.3 – moderate stress / infection</option>
+                        <option value="1.5">1.5 – severe stress / burns</option>
+                    </select>
+                </label>
+                <label class="field">Protein condition
+                    <select id="prot-preset">
+                        <option value="0.8,1.0">Healthy / maintenance (0.8–1.0)</option>
+                        <option value="1.0,1.2">Older adult (1.0–1.2)</option>
+                        <option value="1.2,1.5" selected>Acute illness / hospitalised (1.2–1.5)</option>
+                        <option value="1.2,2.0">Critically ill (1.2–2.0)</option>
+                        <option value="1.25,1.5">Pressure injury / wounds (1.25–1.5)</option>
+                        <option value="1.5,2.0">Burns / major trauma (1.5–2.0)</option>
+                        <option value="0.55,0.8">CKD 3–5, not on dialysis (0.55–0.8)</option>
+                        <option value="1.0,1.2">Haemodialysis / peritoneal dialysis (1.0–1.2)</option>
+                        <option value="custom">Custom…</option>
+                    </select>
+                </label>
+                <label class="field">Protein (g/kg) from
+                    <input type="number" id="prot-lo" value="1.2" step="0.05" inputmode="decimal">
+                </label>
+                <label class="field">to
+                    <input type="number" id="prot-hi" value="1.5" step="0.05" inputmode="decimal">
+                </label>
+                <label class="field">Fluid (mL/kg) from
+                    <input type="number" id="fl-lo" value="30" step="1" inputmode="numeric">
+                </label>
+                <label class="field">to
+                    <input type="number" id="fl-hi" value="35" step="1" inputmode="numeric">
+                </label>
+            </div>
+            <label class="check"><input type="checkbox" id="icu"> Critically ill (ICU) – show ASPEN/SCCM obesity guidance when BMI ≥ 30</label>
+
+            <div class="table-scroll">
+                <table class="calc" aria-live="polite">
+                    <thead><tr><th>Method</th><th>Result</th><th>Notes</th></tr></thead>
+                    <tbody>
+                        <tr><td>Weight-based energy</td><td class="num" id="r-kcalkg">–</td><td class="muted small-text" id="r-kcalkg-n"></td></tr>
+                        <tr><td>Mifflin-St Jeor × factor</td><td class="num" id="r-msj">–</td><td class="muted small-text" id="r-msj-n"></td></tr>
+                        <tr><td>Harris-Benedict × factor</td><td class="num" id="r-hb">–</td><td class="muted small-text" id="r-hb-n"></td></tr>
+                        <tr><td>Protein</td><td class="num" id="r-prot">–</td><td class="muted small-text" id="r-prot-n"></td></tr>
+                        <tr><td>Fluid</td><td class="num" id="r-fl">–</td><td class="muted small-text" id="r-fl-n"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="r-icu-obese" class="result warn" hidden></div>
+            <div id="r-peds" class="result warn" hidden></div>
+        </div>
+    </section>
+
+    <!-- ===================== SCREENING ===================== -->
+    <section role="tabpanel" id="p-scr" aria-labelledby="tab-scr" hidden>
+        <div class="grid g2">
+            <div class="card">
+                <div class="card-head"><h2>MUST</h2><p>Malnutrition Universal Screening Tool (BAPEN)</p></div>
+                <p class="small-text muted" style="margin-top:0">Steps 1–2 are scored from the patient parameters above.</p>
+                <div class="stat-grid">
+                    <div class="stat"><div class="k">Step 1 · BMI score</div><div class="v" id="m-bmi">–</div></div>
+                    <div class="stat"><div class="k">Step 2 · weight-loss score</div><div class="v" id="m-wl">–</div></div>
+                    <div class="stat"><div class="k">Step 3 · acute disease</div><div class="v" id="m-ad">0</div></div>
+                </div>
+                <label class="check"><input type="checkbox" id="m-acute"> Acutely ill <em>and</em> there has been, or is likely to be, no nutritional intake for &gt; 5 days (+2)</label>
+                <div id="m-out" class="result" aria-live="polite"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-head"><h2>NRS-2002</h2><p>Nutritional Risk Screening (Kondrup, ESPEN)</p></div>
+                <div class="section-title" style="margin-top:0">Initial screening</div>
+                <label class="check"><input type="checkbox" id="n-q1" disabled> BMI &lt; 20.5 <span class="muted small-text">(from parameters)</span></label>
+                <label class="check"><input type="checkbox" id="n-q2"> Weight lost within the last 3 months</label>
+                <label class="check"><input type="checkbox" id="n-q3"> Reduced dietary intake in the last week</label>
+                <label class="check"><input type="checkbox" id="n-q4"> Severely ill (e.g. in intensive therapy)</label>
+                <div class="section-title">Final screening</div>
+                <div class="grid">
+                    <label class="field">Impaired nutritional status
+                        <select id="n-status">
+                            <option value="0">0 – Normal nutritional status</option>
+                            <option value="1">1 – Mild: wt loss &gt;5% in 3 mo, or intake 50–75% of requirement last week</option>
+                            <option value="2">2 – Moderate: wt loss &gt;5% in 2 mo, or BMI 18.5–20.5 + impaired general condition, or intake 25–60%</option>
+                            <option value="3">3 – Severe: wt loss &gt;5% in 1 mo (&gt;15% in 3 mo), or BMI &lt;18.5 + impaired general condition, or intake 0–25%</option>
+                        </select>
+                    </label>
+                    <label class="field">Severity of disease
+                        <select id="n-sev">
+                            <option value="0">0 – Normal nutritional requirements</option>
+                            <option value="1">1 – Mild: hip fracture, chronic disease with acute complication (cirrhosis, COPD), chronic haemodialysis, diabetes, oncology</option>
+                            <option value="2">2 – Moderate: major abdominal surgery, stroke, severe pneumonia, haematological malignancy</option>
+                            <option value="3">3 – Severe: head injury, bone marrow transplant, ICU (APACHE &gt; 10)</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="n-out" class="result" aria-live="polite"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== ENTERAL ===================== -->
+    <section role="tabpanel" id="p-en" aria-labelledby="tab-en" hidden>
+        <div class="card">
+            <div class="card-head"><h2>Enteral feeding regimen</h2><p>Check composition against your formulary label</p></div>
+            <div class="grid g3">
+                <label class="field">Goal energy (kcal/day)
+                    <input type="number" id="e-kcal" step="10" inputmode="numeric">
+                </label>
+                <label class="field">Goal protein (g/day)
+                    <input type="number" id="e-prot" step="1" inputmode="numeric">
+                </label>
+                <label class="field">Fluid requirement (mL/day)
+                    <input type="number" id="e-fluid" step="50" inputmode="numeric">
+                </label>
+            </div>
+            <div class="btn-row" style="margin-top:8px"><button type="button" class="small" id="e-fill">Fill from Requirements tab (mid-range)</button></div>
+
+            <div class="section-title">Formula</div>
+            <div class="grid g3">
+                <label class="field">Formula type
+                    <select id="e-preset">
+                        <option value="1.0,40,84">Standard 1.0 kcal/mL</option>
+                        <option value="1.0,40,85">Peptide-based 1.0 kcal/mL</option>
+                        <option value="1.25,63,81">High-protein 1.25 kcal/mL</option>
+                        <option value="1.5,60,76">Energy-dense 1.5 kcal/mL</option>
+                        <option value="2.0,84,70">Concentrated 2.0 kcal/mL</option>
+                        <option value="custom">Custom…</option>
+                    </select>
+                </label>
+                <label class="field">Energy density (kcal/mL)
+                    <input type="number" id="e-dens" value="1.0" step="0.05" inputmode="decimal">
+                </label>
+                <label class="field">Protein (g/L)
+                    <input type="number" id="e-pl" value="40" step="1" inputmode="numeric">
+                </label>
+                <label class="field">Free water (% of volume)
+                    <input type="number" id="e-water" value="84" step="1" inputmode="numeric">
+                </label>
+                <label class="field">Method
+                    <select id="e-mode">
+                        <option value="cont">Continuous pump</option>
+                        <option value="bolus">Bolus / intermittent</option>
+                    </select>
+                </label>
+                <label class="field" id="e-hours-wrap">Hours per day
+                    <input type="number" id="e-hours" value="20" min="1" max="24" step="1" inputmode="numeric">
+                </label>
+                <label class="field" id="e-feeds-wrap" hidden>Feeds per day
+                    <input type="number" id="e-feeds" value="6" min="1" max="12" step="1" inputmode="numeric">
+                </label>
+                <label class="field">Water flushes per day
+                    <input type="number" id="e-flushes" value="6" min="1" max="12" step="1" inputmode="numeric">
+                </label>
+            </div>
+            <div id="e-out" class="result" aria-live="polite"></div>
+        </div>
+    </section>
+
+    <!-- ===================== REFEEDING ===================== -->
+    <section role="tabpanel" id="p-rf" aria-labelledby="tab-rf" hidden>
+        <div class="card">
+            <div class="card-head"><h2>Refeeding syndrome risk</h2><p>NICE CG32 criteria</p></div>
+            <div class="grid g2">
+                <div>
+                    <div class="section-title" style="margin-top:0">One or more of</div>
+                    <label class="check"><input type="checkbox" id="rf-a1" disabled> BMI &lt; 16 <span class="muted small-text">(from parameters)</span></label>
+                    <label class="check"><input type="checkbox" id="rf-a2"> Unintentional weight loss &gt; 15% in the last 3–6 months</label>
+                    <label class="check"><input type="checkbox" id="rf-a3"> Little or no nutritional intake for &gt; 10 days</label>
+                    <label class="check"><input type="checkbox" id="rf-a4"> Low potassium, phosphate or magnesium before feeding</label>
+                </div>
+                <div>
+                    <div class="section-title" style="margin-top:0">Or two or more of</div>
+                    <label class="check"><input type="checkbox" id="rf-b1" disabled> BMI &lt; 18.5 <span class="muted small-text">(from parameters)</span></label>
+                    <label class="check"><input type="checkbox" id="rf-b2"> Unintentional weight loss &gt; 10% in the last 3–6 months</label>
+                    <label class="check"><input type="checkbox" id="rf-b3"> Little or no nutritional intake for &gt; 5 days</label>
+                    <label class="check"><input type="checkbox" id="rf-b4"> History of alcohol misuse, or drugs incl. insulin, chemotherapy, antacids or diuretics</label>
+                </div>
+            </div>
+            <div class="section-title">Extreme risk markers</div>
+            <label class="check"><input type="checkbox" id="rf-x1" disabled> BMI &lt; 14 <span class="muted small-text">(from parameters)</span></label>
+            <label class="check"><input type="checkbox" id="rf-x2"> Negligible intake for &gt; 15 days</label>
+            <div id="rf-out" class="result" aria-live="polite"></div>
+        </div>
+    </section>
+
+    <!-- ===================== ADIME NOTE ===================== -->
+    <section role="tabpanel" id="p-note" aria-labelledby="tab-note" hidden>
+        <div class="card">
+            <div class="card-head"><h2>ADIME note builder</h2><p>Pulls in the numbers from the other tabs · paste into the EMR</p></div>
+            <div class="grid g2">
+                <label class="field">Medical diagnosis / reason for referral
+                    <input type="text" id="t-dx" placeholder="e.g. Ischaemic stroke, NG-fed">
+                </label>
+                <label class="field">Diet / feeding history
+                    <input type="text" id="t-hx" placeholder="e.g. Intake ~50% of meals for 1 week">
+                </label>
+                <label class="field">Relevant labs / meds / NFPE
+                    <input type="text" id="t-labs" placeholder="e.g. Na 131, PO4 0.7; mild temporal wasting">
+                </label>
+                <label class="field">Nutrition diagnosis (problem)
+                    <select id="t-prob">
+                        <option>Inadequate oral intake</option>
+                        <option>Inadequate energy intake</option>
+                        <option>Increased nutrient needs (protein)</option>
+                        <option>Malnutrition (undernutrition)</option>
+                        <option>Unintended weight loss</option>
+                        <option>Swallowing difficulty</option>
+                        <option>Inadequate enteral nutrition infusion</option>
+                        <option>Excessive carbohydrate intake</option>
+                        <option>Altered nutrition-related laboratory values</option>
+                        <option>Food- and nutrition-related knowledge deficit</option>
+                        <option>Obesity</option>
+                    </select>
+                </label>
+                <label class="field">Related to (etiology)
+                    <input type="text" id="t-etio" placeholder="e.g. dysphagia post-stroke">
+                </label>
+                <label class="field">As evidenced by (signs / symptoms)
+                    <input type="text" id="t-signs" placeholder="e.g. 7% weight loss in 1 month, intake <50%">
+                </label>
+                <label class="field">Intervention
+                    <input type="text" id="t-int" placeholder="e.g. Start EN per regimen below; ONS BID">
+                </label>
+                <label class="field">Monitoring &amp; evaluation
+                    <input type="text" id="t-mon" placeholder="e.g. Weight 2×/week, K/PO4/Mg daily ×3 days, tolerance">
+                </label>
+            </div>
+            <div class="section-title">Include</div>
+            <div class="grid g3">
+                <label class="check"><input type="checkbox" id="inc-must" checked> MUST</label>
+                <label class="check"><input type="checkbox" id="inc-nrs" checked> NRS-2002</label>
+                <label class="check"><input type="checkbox" id="inc-en"> Enteral regimen</label>
+                <label class="check"><input type="checkbox" id="inc-rf"> Refeeding risk</label>
+            </div>
+            <div class="btn-row">
+                <button type="button" class="primary" id="t-build">Build note</button>
+                <button type="button" id="t-copy">Copy</button>
+            </div>
+            <label class="field" style="margin-top:12px">Note
+                <textarea id="t-out" rows="16" spellcheck="false"></textarea>
+            </label>
+        </div>
+    </section>
+
+    <!-- ===================== EDUCATION ===================== -->
+    <section role="tabpanel" id="p-edu" aria-labelledby="tab-edu" hidden>
+        <div class="card">
+            <div class="card-head"><h2>Patient education handouts</h2><p>Arabic &amp; English · general advice only</p></div>
+            <div class="grid g3">
+                <label class="field">Topic
+                    <select id="h-topic"></select>
+                </label>
+                <label class="field">Language
+                    <select id="h-lang">
+                        <option value="both">Arabic + English</option>
+                        <option value="ar">العربية فقط</option>
+                        <option value="en">English only</option>
+                    </select>
+                </label>
+                <label class="field">Dietitian &amp; extension (optional)
+                    <input type="text" id="h-contact" placeholder="e.g. Dietitian Ext. 1234">
+                </label>
+            </div>
+            <label class="field" style="margin-top:12px">Personal note for this patient (optional, not saved)
+                <textarea id="h-extra" rows="2" placeholder="e.g. Your target is 1 cup of rice at lunch."></textarea>
+            </label>
+            <div class="btn-row">
+                <button type="button" class="primary" id="h-print">Print</button>
+                <button type="button" id="h-copy">Copy text</button>
+                <button type="button" id="h-wa">Share via WhatsApp</button>
+            </div>
+            <p class="small-text muted">WhatsApp opens without a number, so you pick the contact yourself and no phone number is stored here. Check your hospital's policy on messaging patients first.</p>
+            <div id="h-preview" class="handout"></div>
+        </div>
+    </section>
+
+    <footer>
+        <p><span id="foot-dept">Clinical Nutrition Department</span> · Calculations follow published formulas (Mifflin-St Jeor, Harris-Benedict, Hamwi, MUST, NRS-2002, NICE CG32, ASPEN/SCCM 2016, KDOQI 2020). Verify every result against your local protocol before acting on it.</p>
+    </footer>
+</main>
+
+<div id="print-area"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ---------------------------------------------------------------
+// Department settings: edit these to rebrand the page.
+// ---------------------------------------------------------------
+const CONFIG = {
+    deptName: "SQH Clinical Nutrition Toolkit",
+    deptSub: "Clinical Nutrition Department · bedside calculators & patient education",
+    footerDept: "Clinical Nutrition Department",
+    handoutFooterEn: "Clinical Nutrition Department. This leaflet gives general advice; follow the plan your dietitian gave you.",
+    handoutFooterAr: "قسم التغذية العلاجية. هذه النشرة إرشادات عامة؛ يرجى اتباع الخطة الغذائية التي وضعها لك أخصائي التغذية."
+};
+
+const $ = (id) => document.getElementById(id);
+const num = (id) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : NaN; };
+const ok = (...xs) => xs.every(Number.isFinite);
+const r0 = (x) => Math.round(x);
+const r1 = (x) => Math.round(x * 10) / 10;
+const fmtRange = (lo, hi, unit) => `${r0(lo)}–${r0(hi)} ${unit}`;
+
+function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function copyText(text) {
+    if (!text) { toast('Nothing to copy'); return; }
+    navigator.clipboard.writeText(text).then(() => toast('Copied'), () => toast('Copy failed – select and copy manually'));
+}
+
+function setResult(el, tone, html) {
+    el.className = 'result' + (tone ? ' ' + tone : '');
+    el.innerHTML = html;
+}
+
+// Everything computed is kept here so the note builder can reuse it.
+const R = {};
+
+// ---------------------------------------------------------------
+// Anthropometrics
+// ---------------------------------------------------------------
+function bmiCategory(bmi) {
+    if (bmi < 16) return 'Underweight – severe';
+    if (bmi < 18.5) return 'Underweight';
+    if (bmi < 25) return 'Normal';
+    if (bmi < 30) return 'Overweight';
+    if (bmi < 35) return 'Obesity class I';
+    if (bmi < 40) return 'Obesity class II';
+    return 'Obesity class III';
+}
+
+function computeAnthro() {
+    const sex = $('sex').value, age = num('age'), ht = num('ht'), wt = num('wt'), uwt = num('uwt');
+    const months = parseInt($('period').value, 10);
+    Object.assign(R, { sex, age, ht, wt, uwt, months, bmi: NaN, ibw: NaN, adj: NaN, pibw: NaN, wlPct: NaN });
+
+    if (ok(ht, wt)) {
+        R.bmi = wt / Math.pow(ht / 100, 2);
+        $('o-bmi').textContent = r1(R.bmi) + ' kg/m²';
+        $('o-bmi-cat').textContent = bmiCategory(R.bmi);
+    } else {
+        $('o-bmi').textContent = '–';
+        $('o-bmi-cat').innerHTML = '&nbsp;';
+    }
+
+    if (ok(ht)) {
+        // Hamwi: 48 kg (M) / 45.5 kg (F) for 5 ft, plus 2.7 / 2.2 kg per inch over 5 ft.
+        const inchesOver5ft = ht / 2.54 - 60;
+        R.ibw = sex === 'M' ? 48 + 2.7 * inchesOver5ft : 45.5 + 2.2 * inchesOver5ft;
+        $('o-ibw').textContent = r1(R.ibw) + ' kg';
+        if (ok(wt)) {
+            R.pibw = (wt / R.ibw) * 100;
+            R.adj = R.ibw + 0.25 * (wt - R.ibw);
+            $('o-pibw').textContent = r0(R.pibw) + '% of IBW';
+            $('o-adj').textContent = r1(R.adj) + ' kg';
+        } else {
+            $('o-pibw').innerHTML = '&nbsp;';
+            $('o-adj').textContent = '–';
+        }
+    } else {
+        $('o-ibw').textContent = '–';
+        $('o-pibw').innerHTML = '&nbsp;';
+        $('o-adj').textContent = '–';
+    }
+
+    if (ok(wt, uwt) && uwt > 0) {
+        R.wlPct = ((uwt - wt) / uwt) * 100;
+        const label = $('period').selectedOptions[0].textContent;
+        if (R.wlPct >= 0) {
+            $('o-wl').textContent = r1(R.wlPct) + '% loss';
+            $('o-wl-s').textContent = `${r1(uwt - wt)} kg over ${label}`;
+        } else {
+            $('o-wl').textContent = r1(-R.wlPct) + '% gain';
+            $('o-wl-s').textContent = `${r1(wt - uwt)} kg over ${label}`;
+        }
+    } else {
+        $('o-wl').textContent = '–';
+        $('o-wl-s').innerHTML = '&nbsp;';
+    }
+}
+
+// Weight used for kcal/kg and g/kg dosing.
+function dosingWeight() {
+    const mode = $('dosewt').value;
+    if (!ok(R.wt)) return { w: NaN, label: '' };
+    if (mode === 'actual' || !ok(R.ibw)) return { w: R.wt, label: 'actual weight' };
+    if (mode === 'ibw') return { w: R.ibw, label: 'IBW' };
+    if (mode === 'adj') return { w: R.adj, label: 'adjusted weight' };
+    return R.pibw > 120 ? { w: R.adj, label: 'adjusted weight (>120% IBW)' } : { w: R.wt, label: 'actual weight' };
+}
+
+// ---------------------------------------------------------------
+// Requirements
+// ---------------------------------------------------------------
+function computeRequirements() {
+    const dw = dosingWeight();
+    const factor = parseFloat($('factor').value);
+    const kLo = num('kcal-lo'), kHi = num('kcal-hi');
+    const pLo = num('prot-lo'), pHi = num('prot-hi');
+    const fLo = num('fl-lo'), fHi = num('fl-hi');
+    Object.assign(R, { dose: dw, kcalLo: NaN, kcalHi: NaN, protLo: NaN, protHi: NaN, flLo: NaN, flHi: NaN, msj: NaN, hb: NaN });
+
+    if (ok(dw.w, kLo, kHi)) {
+        R.kcalLo = dw.w * kLo; R.kcalHi = dw.w * kHi;
+        $('r-kcalkg').textContent = fmtRange(R.kcalLo, R.kcalHi, 'kcal/day');
+        $('r-kcalkg-n').textContent = `${kLo}–${kHi} kcal/kg × ${r1(dw.w)} kg ${dw.label}`;
+    } else {
+        $('r-kcalkg').textContent = '–'; $('r-kcalkg-n').textContent = 'Needs weight';
+    }
+
+    if (ok(R.wt, R.ht, R.age)) {
+        const msj = 10 * R.wt + 6.25 * R.ht - 5 * R.age + (R.sex === 'M' ? 5 : -161);
+        const hb = R.sex === 'M'
+            ? 66.47 + 13.75 * R.wt + 5.003 * R.ht - 6.755 * R.age
+            : 655.1 + 9.563 * R.wt + 1.850 * R.ht - 4.676 * R.age;
+        R.msj = msj * factor; R.hb = hb * factor;
+        $('r-msj').textContent = r0(R.msj) + ' kcal/day';
+        $('r-msj-n').textContent = `REE ${r0(msj)} × ${factor} · uses actual weight`;
+        $('r-hb').textContent = r0(R.hb) + ' kcal/day';
+        $('r-hb-n').textContent = `BEE ${r0(hb)} × ${factor} · uses actual weight`;
+    } else {
+        ['r-msj', 'r-hb'].forEach(id => $(id).textContent = '–');
+        ['r-msj-n', 'r-hb-n'].forEach(id => $(id).textContent = 'Needs age, height and weight');
+    }
+
+    if (ok(dw.w, pLo, pHi)) {
+        R.protLo = dw.w * pLo; R.protHi = dw.w * pHi;
+        $('r-prot').textContent = fmtRange(R.protLo, R.protHi, 'g/day');
+        $('r-prot-n').textContent = `${pLo}–${pHi} g/kg × ${r1(dw.w)} kg ${dw.label}`;
+    } else {
+        $('r-prot').textContent = '–'; $('r-prot-n').textContent = 'Needs weight';
+    }
+
+    if (ok(R.wt, fLo, fHi)) {
+        R.flLo = R.wt * fLo; R.flHi = R.wt * fHi;
+        $('r-fl').textContent = fmtRange(R.flLo, R.flHi, 'mL/day');
+        $('r-fl-n').textContent = `${fLo}–${fHi} mL/kg × ${r1(R.wt)} kg actual weight. Adjust for fluid restriction or losses.`;
+    } else {
+        $('r-fl').textContent = '–'; $('r-fl-n').textContent = 'Needs weight';
+    }
+
+    // ASPEN/SCCM 2016 hypocaloric high-protein guidance for obese ICU patients.
+    const icuBox = $('r-icu-obese');
+    if ($('icu').checked && ok(R.bmi, R.wt, R.ibw) && R.bmi >= 30) {
+        const lines = [];
+        if (R.bmi <= 50) lines.push(`Energy: 11–14 kcal/kg actual weight = <strong>${fmtRange(11 * R.wt, 14 * R.wt, 'kcal/day')}</strong>`);
+        else lines.push(`Energy: 22–25 kcal/kg IBW = <strong>${fmtRange(22 * R.ibw, 25 * R.ibw, 'kcal/day')}</strong>`);
+        if (R.bmi < 40) lines.push(`Protein: 2.0 g/kg IBW = <strong>${r0(2 * R.ibw)} g/day</strong>`);
+        else lines.push(`Protein: up to 2.5 g/kg IBW = <strong>${r0(2.5 * R.ibw)} g/day</strong>`);
+        icuBox.innerHTML = `<div class="big">Critically ill with obesity (BMI ${r1(R.bmi)})</div><ul><li>${lines.join('</li><li>')}</li></ul><div class="small-text muted" style="margin-top:6px">ASPEN/SCCM 2016 hypocaloric, high-protein approach. Use instead of the table above if it fits your unit's protocol.</div>`;
+        icuBox.hidden = false;
+    } else {
+        icuBox.hidden = true;
+    }
+
+    // Holliday-Segar for under-18s; adult kcal/kg defaults don't apply.
+    const pedsBox = $('r-peds');
+    if (ok(R.age, R.wt) && R.age < 18) {
+        const w = R.wt;
+        const hs = w <= 10 ? 100 * w : w <= 20 ? 1000 + 50 * (w - 10) : 1500 + 20 * (w - 20);
+        pedsBox.innerHTML = `<div class="big">Patient is under 18</div>Adult equations above do not apply. Holliday-Segar maintenance fluid: <strong>${r0(hs)} mL/day</strong>. Use paediatric references (e.g. Schofield, DRIs) for energy and protein.`;
+        pedsBox.hidden = false;
+    } else {
+        pedsBox.hidden = true;
+    }
+}
+
+// ---------------------------------------------------------------
+// MUST
+// ---------------------------------------------------------------
+function computeMUST() {
+    let bmiScore = NaN, wlScore = NaN;
+    if (ok(R.bmi)) bmiScore = R.bmi > 20 ? 0 : R.bmi >= 18.5 ? 1 : 2;
+    if (ok(R.wlPct)) {
+        // MUST scores unplanned loss over the past 3–6 months.
+        const loss = Math.max(0, R.wlPct);
+        wlScore = R.months > 6 ? 0 : loss > 10 ? 2 : loss >= 5 ? 1 : 0;
+    }
+    const ad = $('m-acute').checked ? 2 : 0;
+    $('m-bmi').textContent = ok(bmiScore) ? bmiScore : '–';
+    $('m-wl').textContent = ok(wlScore) ? wlScore : (ok(R.wt) ? '0*' : '–');
+    $('m-ad').textContent = ad;
+
+    const out = $('m-out');
+    R.must = null;
+    if (!ok(bmiScore)) { setResult(out, '', 'Enter height and weight to score MUST.'); return; }
+    const total = bmiScore + (ok(wlScore) ? wlScore : 0) + ad;
+    const wlNote = ok(wlScore) ? '' : '<div class="small-text muted">* No usual weight entered; weight-loss score taken as 0.</div>';
+    let risk, tone, plan;
+    if (total === 0) {
+        risk = 'Low risk'; tone = 'ok';
+        plan = ['Routine clinical care', 'Repeat screening weekly in hospital'];
+    } else if (total === 1) {
+        risk = 'Medium risk'; tone = 'warn';
+        plan = ['Observe: document dietary intake for 3 days', 'If intake adequate, re-screen weekly; if inadequate, set goals and improve intake', 'Review the care plan regularly'];
+    } else {
+        risk = 'High risk'; tone = 'danger';
+        plan = ['Treat: refer to dietitian / nutrition support team', 'Set goals, improve and increase overall nutritional intake', 'Monitor and review the care plan weekly'];
+    }
+    R.must = { total, risk, bmiScore, wlScore: ok(wlScore) ? wlScore : 0, ad };
+    setResult(out, tone, `<div class="big">MUST ${total} · ${risk}</div><ul><li>${plan.join('</li><li>')}</li></ul>${wlNote}`);
+}
+
+// ---------------------------------------------------------------
+// NRS-2002
+// ---------------------------------------------------------------
+function computeNRS() {
+    $('n-q1').checked = ok(R.bmi) && R.bmi < 20.5;
+    const anyYes = ['n-q1', 'n-q2', 'n-q3', 'n-q4'].some(id => $(id).checked);
+    const status = parseInt($('n-status').value, 10);
+    const sev = parseInt($('n-sev').value, 10);
+    const ageAdd = ok(R.age) && R.age >= 70 ? 1 : 0;
+    const total = status + sev + ageAdd;
+    const out = $('n-out');
+
+    if (!anyYes) {
+        R.nrs = { total: null, risk: 'Initial screen negative' };
+        setResult(out, 'ok', '<div class="big">Initial screen negative</div>Re-screen weekly. If major surgery is planned, consider a preventive nutrition care plan.');
+        return;
+    }
+    const atRisk = total >= 3;
+    R.nrs = { total, risk: atRisk ? 'At nutritional risk' : 'Not currently at risk', status, sev, ageAdd };
+    setResult(out, atRisk ? 'danger' : 'ok',
+        `<div class="big">NRS-2002 ${total} · ${R.nrs.risk}</div>` +
+        `<div class="small-text">Nutritional status ${status} + disease severity ${sev}${ageAdd ? ' + age ≥ 70 (1)' : ''}</div>` +
+        (atRisk ? '<ul><li>Start a nutrition care plan</li></ul>' : '<ul><li>Re-screen weekly</li></ul>'));
+}
+
+// ---------------------------------------------------------------
+// Enteral feeding
+// ---------------------------------------------------------------
+function computeEnteral() {
+    const kcal = num('e-kcal'), protGoal = num('e-prot'), fluid = num('e-fluid');
+    const dens = num('e-dens'), pl = num('e-pl'), water = num('e-water');
+    const mode = $('e-mode').value;
+    const hours = num('e-hours'), feeds = num('e-feeds'), flushes = num('e-flushes');
+    const out = $('e-out');
+    R.en = null;
+
+    if (!ok(kcal, dens) || dens <= 0) { setResult(out, '', 'Enter a goal energy and formula density.'); return; }
+
+    const lines = [];
+    let vol;
+    let regimen;
+    if (mode === 'cont') {
+        if (!ok(hours) || hours <= 0 || hours > 24) { setResult(out, 'warn', 'Hours per day must be 1–24.'); return; }
+        const exactRate = kcal / dens / hours;
+        const rate = Math.max(5, Math.round(exactRate / 5) * 5); // pumps are set in whole numbers; round to 5 mL/h
+        vol = rate * hours;
+        regimen = `${rate} mL/h × ${hours} h`;
+        lines.push(`Rate: <strong>${rate} mL/h</strong> for ${hours} h/day (exact ${r1(exactRate)} mL/h, rounded to nearest 5)`);
+    } else {
+        if (!ok(feeds) || feeds <= 0) { setResult(out, 'warn', 'Enter feeds per day.'); return; }
+        const perFeed = Math.round(kcal / dens / feeds / 10) * 10;
+        vol = perFeed * feeds;
+        regimen = `${perFeed} mL × ${feeds} feeds/day`;
+        lines.push(`Bolus: <strong>${perFeed} mL × ${feeds} feeds/day</strong> (every ${r1(24 / feeds)} h)`);
+    }
+
+    const kcalDel = vol * dens;
+    const protDel = ok(pl) ? vol * pl / 1000 : NaN;
+    const freeWater = ok(water) ? vol * water / 100 : NaN;
+    lines.push(`Volume: <strong>${r0(vol)} mL/day</strong> → ${r0(kcalDel)} kcal (${r0(kcalDel / kcal * 100)}% of goal)`);
+
+    let tone = 'ok';
+    if (ok(protDel)) {
+        let pLine = `Protein: <strong>${r0(protDel)} g/day</strong>`;
+        if (ok(protGoal) && protGoal > 0) {
+            const gap = protGoal - protDel;
+            pLine += ` (${r0(protDel / protGoal * 100)}% of ${r0(protGoal)} g goal)`;
+            if (gap > 5) { pLine += ` – add ≈ <strong>${r0(gap)} g</strong> protein modular or choose a higher-protein formula`; tone = 'warn'; }
+        }
+        lines.push(pLine);
+    }
+    if (ok(freeWater)) {
+        let wLine = `Free water from formula: <strong>${r0(freeWater)} mL/day</strong>`;
+        if (ok(fluid) && fluid > 0) {
+            const extra = fluid - freeWater;
+            if (extra > 0 && ok(flushes) && flushes > 0) {
+                const perFlush = Math.round(extra / flushes / 10) * 10;
+                wLine += ` → additional water ≈ <strong>${r0(extra)} mL/day</strong> (e.g. ${perFlush} mL × ${flushes} flushes, including medication flushes)`;
+            } else if (extra <= 0) {
+                wLine += ' → formula alone meets the fluid target; review if fluid-restricted';
+            }
+        }
+        lines.push(wLine);
+    }
+    R.en = { regimen, vol, kcalDel, protDel, freeWater, formula: $('e-preset').selectedOptions[0].textContent, dens };
+    setResult(out, tone, `<div class="big">${regimen}</div><ul><li>${lines.join('</li><li>')}</li></ul>` +
+        '<div class="small-text muted" style="margin-top:6px">Start and advance per local protocol. If refeeding risk is present, start low (see Refeeding tab).</div>');
+}
+
+// ---------------------------------------------------------------
+// Refeeding (NICE CG32)
+// ---------------------------------------------------------------
+function computeRefeeding() {
+    $('rf-a1').checked = ok(R.bmi) && R.bmi < 16;
+    $('rf-b1').checked = ok(R.bmi) && R.bmi < 18.5;
+    $('rf-x1').checked = ok(R.bmi) && R.bmi < 14;
+    // Auto-tick weight-loss criteria when the loss period is 3–6 months.
+    const inWindow = ok(R.wlPct) && R.months >= 3 && R.months <= 6;
+    if (inWindow) {
+        $('rf-a2').checked = R.wlPct > 15;
+        $('rf-b2').checked = R.wlPct > 10;
+    }
+
+    const major = ['rf-a1', 'rf-a2', 'rf-a3', 'rf-a4'].filter(id => $(id).checked).length;
+    const minor = ['rf-b1', 'rf-b2', 'rf-b3', 'rf-b4'].filter(id => $(id).checked).length;
+    const extreme = $('rf-x1').checked || $('rf-x2').checked;
+    const high = major >= 1 || minor >= 2;
+    const out = $('rf-out');
+
+    if (!high && !extreme) {
+        R.rf = { level: 'Not high risk by NICE criteria' };
+        setResult(out, 'ok', '<div class="big">Not high risk by NICE criteria</div>Feed to requirements and monitor clinically.');
+        return;
+    }
+    const kcalPerKg = extreme ? 5 : 10;
+    const startKcal = ok(R.wt) ? `${r0(kcalPerKg * R.wt)} kcal/day` : `${kcalPerKg} kcal/kg/day`;
+    R.rf = { level: extreme ? 'Extreme refeeding risk' : 'High refeeding risk', start: startKcal, kcalPerKg };
+    setResult(out, 'danger',
+        `<div class="big">${R.rf.level}</div><ul>` +
+        `<li>Start at max <strong>${kcalPerKg} kcal/kg/day</strong>${ok(R.wt) ? ` ≈ <strong>${startKcal}</strong>` : ''}, increasing slowly to full needs over 4–7 days</li>` +
+        '<li>Thiamine and vitamin supplementation before and during the first 10 days, per hospital protocol</li>' +
+        '<li>Check and replace potassium, phosphate and magnesium; monitor daily initially</li>' +
+        '<li>Monitor fluid balance and cardiovascular status</li></ul>');
+}
+
+// ---------------------------------------------------------------
+// ADIME note
+// ---------------------------------------------------------------
+function buildNote() {
+    const v = (id) => $(id).value.trim();
+    const L = [];
+    const today = new Date().toLocaleDateString('en-GB');
+    L.push(`CLINICAL NUTRITION NOTE – ${today}`);
+    L.push('');
+    L.push('A – ASSESSMENT');
+    if (v('t-dx')) L.push(`Dx / referral: ${v('t-dx')}`);
+    const anthro = [];
+    if (ok(R.age)) anthro.push(`${r0(R.age)} y ${R.sex === 'M' ? 'M' : 'F'}`);
+    if (ok(R.ht)) anthro.push(`Ht ${r1(R.ht)} cm`);
+    if (ok(R.wt)) anthro.push(`Wt ${r1(R.wt)} kg`);
+    if (ok(R.bmi)) anthro.push(`BMI ${r1(R.bmi)} (${bmiCategory(R.bmi)})`);
+    if (ok(R.ibw)) anthro.push(`IBW ${r1(R.ibw)} kg (${ok(R.pibw) ? r0(R.pibw) + '%' : '–'})`);
+    if (anthro.length) L.push('Anthropometrics: ' + anthro.join(', '));
+    if (ok(R.wlPct)) L.push(`Weight change: ${R.wlPct >= 0 ? '−' : '+'}${r1(Math.abs(R.wlPct))}% (usual ${r1(R.uwt)} kg) over ${$('period').selectedOptions[0].textContent}`);
+    if (v('t-hx')) L.push(`Intake history: ${v('t-hx')}`);
+    if (v('t-labs')) L.push(`Labs / meds / NFPE: ${v('t-labs')}`);
+    if ($('inc-must').checked && R.must) L.push(`MUST: ${R.must.total} (${R.must.risk})`);
+    if ($('inc-nrs').checked && R.nrs) L.push(`NRS-2002: ${R.nrs.total === null ? R.nrs.risk : R.nrs.total + ' (' + R.nrs.risk + ')'}`);
+    if ($('inc-rf').checked && R.rf) L.push(`Refeeding risk (NICE): ${R.rf.level}`);
+
+    const est = [];
+    if (ok(R.kcalLo)) est.push(`Energy ${fmtRange(R.kcalLo, R.kcalHi, 'kcal/day')}`);
+    if (ok(R.protLo)) est.push(`Protein ${fmtRange(R.protLo, R.protHi, 'g/day')}`);
+    if (ok(R.flLo)) est.push(`Fluid ${fmtRange(R.flLo, R.flHi, 'mL/day')}`);
+    if (est.length) L.push(`Estimated needs (${R.dose && R.dose.label ? R.dose.label : 'weight-based'}): ${est.join('; ')}`);
+
+    L.push('');
+    L.push('D – NUTRITION DIAGNOSIS');
+    let pes = $('t-prob').value;
+    if (v('t-etio')) pes += ` related to ${v('t-etio')}`;
+    if (v('t-signs')) pes += ` as evidenced by ${v('t-signs')}`;
+    L.push(pes + '.');
+
+    L.push('');
+    L.push('I – INTERVENTION');
+    if (v('t-int')) L.push(v('t-int'));
+    if ($('inc-en').checked && R.en) {
+        L.push(`EN: ${R.en.formula}, ${R.en.regimen} = ${r0(R.en.vol)} mL/day providing ${r0(R.en.kcalDel)} kcal` +
+            (ok(R.en.protDel) ? `, ${r0(R.en.protDel)} g protein` : '') +
+            (ok(R.en.freeWater) ? `, ${r0(R.en.freeWater)} mL free water` : '') + '.');
+    }
+    if ($('inc-rf').checked && R.rf && R.rf.start) L.push(`Refeeding precautions: start ≤ ${R.rf.start}, advance over 4–7 days; thiamine per protocol; monitor K/PO4/Mg.`);
+
+    L.push('');
+    L.push('M/E – MONITORING & EVALUATION');
+    L.push(v('t-mon') || 'Weight, intake/tolerance, relevant labs; review in 48–72 h.');
+
+    $('t-out').value = L.join('\n');
+}
+
+// ---------------------------------------------------------------
+// Patient education content
+// ---------------------------------------------------------------
+const HANDOUTS = [
+    {
+        id: 'diabetes',
+        en: { title: 'Healthy eating with diabetes', items: [
+            'Eat 3 regular meals at similar times each day. Do not skip meals, especially if you take insulin or diabetes tablets.',
+            'Use the healthy plate: half vegetables, a quarter protein (fish, chicken, beans, eggs) and a quarter starch (rice, bread, potato). Choose wholegrain when you can.',
+            'Keep your portions of rice, bread and dates the same from day to day. Dates and fruit contain sugar, so stick to the amount your dietitian advised.',
+            'Avoid sugary drinks, juices and sweets. Drink water, or tea and coffee without sugar.',
+            'Have whole fruit instead of juice: 2–3 small portions a day, spread out.',
+            'Cut down on fried food and ghee; use small amounts of vegetable oil.',
+            'Walk for about 30 minutes on most days, if your doctor agrees.',
+            'If your blood sugar is below 4 mmol/L, take 15 g of fast sugar (3 teaspoons of sugar in water, or 150 mL juice) and re-check after 15 minutes.'
+        ] },
+        ar: { title: 'التغذية الصحية لمرضى السكري', items: [
+            'تناول ثلاث وجبات منتظمة في أوقات متقاربة كل يوم، ولا تترك أي وجبة، خاصة إذا كنت تستخدم الإنسولين أو حبوب السكري.',
+            'استخدم الطبق الصحي: نصف الطبق خضروات، وربعه بروتين (سمك، دجاج، بقوليات، بيض)، وربعه نشويات (أرز، خبز، بطاطس). واختر الحبوب الكاملة متى أمكن.',
+            'حافظ على كميات ثابتة من الأرز والخبز والتمر يومياً. التمر والفواكه تحتوي على سكر، فالتزم بالكمية التي حددها لك أخصائي التغذية.',
+            'تجنب المشروبات المحلاة والعصائر والحلويات، واشرب الماء أو الشاي والقهوة بدون سكر.',
+            'تناول الفاكهة كاملة بدلاً من العصير: 2–3 حصص صغيرة يومياً موزعة على اليوم.',
+            'قلل من الأطعمة المقلية والسمن، واستخدم كميات قليلة من الزيت النباتي.',
+            'امشِ حوالي 30 دقيقة في معظم أيام الأسبوع، بعد موافقة طبيبك.',
+            'إذا انخفض السكر عن 4 ملمول/لتر، تناول 15 غراماً من السكر سريع الامتصاص (3 ملاعق صغيرة سكر في الماء، أو 150 مل عصير)، ثم أعد الفحص بعد 15 دقيقة.'
+        ] }
+    },
+    {
+        id: 'lowsalt',
+        en: { title: 'Low-salt diet', items: [
+            'Aim for less than 5 g of salt a day in total (about 1 level teaspoon), including salt already in food, unless your doctor set a different limit.',
+            'Do not add salt at the table. Flavour food with lemon, garlic, onion, herbs and spices instead.',
+            'Limit processed foods: canned soups, instant noodles, pickles, olives, processed cheese, sausages, salty snacks, stock cubes, ketchup and soy sauce.',
+            'Read food labels: 120 mg sodium or less per 100 g is low; more than 600 mg per 100 g is high.',
+            'Choose fresh or frozen vegetables and fresh meat, chicken and fish.',
+            'Bread contains salt – keep to the portions you were advised.',
+            'Salt substitutes often contain potassium. Ask your doctor before using one, especially if you have kidney disease.'
+        ] },
+        ar: { title: 'النظام الغذائي قليل الملح', items: [
+            'اجعل مجموع الملح أقل من 5 غرامات يومياً (حوالي ملعقة صغيرة مستوية)، بما في ذلك الملح الموجود في الطعام، ما لم يحدد طبيبك كمية أخرى.',
+            'لا تضف الملح على المائدة، واستخدم الليمون والثوم والبصل والأعشاب والبهارات لإعطاء النكهة.',
+            'قلل من الأطعمة المصنعة: الشوربات المعلبة، والنودلز سريعة التحضير، والمخللات، والزيتون، والجبن المطبوخ، والنقانق، والوجبات الخفيفة المالحة، ومكعبات المرق، والكاتشب وصلصة الصويا.',
+            'اقرأ الملصق الغذائي: 120 ملغ صوديوم أو أقل لكل 100 غرام يعني منخفض، وأكثر من 600 ملغ لكل 100 غرام يعني مرتفع.',
+            'اختر الخضروات الطازجة أو المجمدة، واللحوم والدجاج والأسماك الطازجة.',
+            'الخبز يحتوي على ملح، فالتزم بالكمية التي نُصحت بها.',
+            'بدائل الملح تحتوي غالباً على البوتاسيوم، فاستشر طبيبك قبل استخدامها، خاصة إذا كنت تعاني من مرض في الكلى.'
+        ] }
+    },
+    {
+        id: 'ckd',
+        en: { title: 'Eating well with kidney disease (not on dialysis)', items: [
+            'Your protein, potassium, phosphate and fluid limits are personal. Follow your dietitian\'s plan and your latest blood results.',
+            'Keep salt below 5 g a day.',
+            'If your potassium is high: limit bananas, dates, oranges, dried fruit, tomatoes, potatoes and coconut water. Peel and cut vegetables, boil them in plenty of water, and throw the water away.',
+            'If your phosphate is high: limit processed cheese, cola drinks and processed meats. Take phosphate binders with meals if prescribed.',
+            'Eat moderate portions of protein as advised. Do not take protein powders unless your dietitian recommends them.',
+            'Do not use herbal remedies or supplements without asking your kidney doctor.',
+            'If you have diabetes, keeping your blood sugar controlled protects your kidneys.'
+        ] },
+        ar: { title: 'التغذية السليمة لمرضى الكلى (غير الخاضعين للغسيل)', items: [
+            'كميات البروتين والبوتاسيوم والفوسفور والسوائل المسموحة لك تختلف من شخص لآخر، فاتبع خطة أخصائي التغذية ونتائج تحاليلك الأخيرة.',
+            'اجعل الملح أقل من 5 غرامات يومياً.',
+            'إذا كان البوتاسيوم مرتفعاً: قلل من الموز والتمر والبرتقال والفواكه المجففة والطماطم والبطاطس وماء جوز الهند. قشّر الخضروات وقطّعها واسلقها في كمية كبيرة من الماء ثم تخلص من الماء.',
+            'إذا كان الفوسفور مرتفعاً: قلل من الجبن المطبوخ والمشروبات الغازية الداكنة (الكولا) واللحوم المصنعة، وتناول أدوية ربط الفوسفات مع الوجبات إذا وُصفت لك.',
+            'تناول كميات معتدلة من البروتين حسب التوصية، ولا تستخدم مساحيق البروتين إلا بتوصية من أخصائي التغذية.',
+            'لا تستخدم الأعشاب أو المكملات الغذائية دون استشارة طبيب الكلى.',
+            'إذا كنت مصاباً بالسكري، فإن ضبط مستوى السكر يحمي كليتيك.'
+        ] }
+    },
+    {
+        id: 'hehp',
+        en: { title: 'High-energy, high-protein eating (poor appetite or weight loss)', items: [
+            'Eat little and often: 3 small meals and 2–3 snacks every day.',
+            'Include protein at every meal: eggs, milk, laban, yoghurt, cheese, chicken, fish, lentils or beans.',
+            'Enrich your food: add milk powder to milk and soups, olive oil or butter to rice and vegetables, and cheese to eggs.',
+            'Have nourishing drinks between meals (milk, smoothies, or supplement drinks if prescribed) rather than filling up on water at mealtimes.',
+            'Eat the main part of the meal first, before clear soups and salads.',
+            'Weigh yourself once a week and tell your dietitian if you keep losing weight.',
+            'If you have diabetes or kidney disease, check these tips with your dietitian first.'
+        ] },
+        ar: { title: 'تغذية عالية السعرات والبروتين (ضعف الشهية أو نقص الوزن)', items: [
+            'تناول كميات صغيرة على فترات متقاربة: 3 وجبات صغيرة و2–3 وجبات خفيفة يومياً.',
+            'أضف البروتين إلى كل وجبة: البيض، الحليب، اللبن، الزبادي، الجبن، الدجاج، السمك، العدس أو البقوليات.',
+            'دعّم طعامك: أضف الحليب المجفف إلى الحليب والشوربات، وزيت الزيتون أو الزبدة إلى الأرز والخضروات، والجبن إلى البيض.',
+            'اشرب مشروبات مغذية بين الوجبات (حليب، عصائر بالحليب، أو المكملات الغذائية إذا وُصفت لك) بدلاً من شرب الماء بكثرة أثناء الأكل.',
+            'ابدأ بالطبق الرئيسي قبل الشوربة الصافية والسلطة.',
+            'قِس وزنك مرة في الأسبوع، وأخبر أخصائي التغذية إذا استمر نقص الوزن.',
+            'إذا كنت مصاباً بالسكري أو بمرض في الكلى، راجع هذه النصائح مع أخصائي التغذية أولاً.'
+        ] }
+    },
+    {
+        id: 'heart',
+        en: { title: 'Heart-healthy eating', items: [
+            'Eat fish at least twice a week. Choose skinless chicken and beans or lentils; limit red and processed meat.',
+            'Replace ghee and butter with small amounts of olive or canola oil.',
+            'Choose low-fat milk, laban and yoghurt.',
+            'Eat more fibre: oats, wholegrain bread, vegetables, fruit and pulses.',
+            'Limit fried food, pastries, sweets and fast food.',
+            'Keep salt below 5 g a day.',
+            'A small handful of unsalted nuts makes a good snack.'
+        ] },
+        ar: { title: 'التغذية الصحية للقلب', items: [
+            'تناول السمك مرتين في الأسبوع على الأقل، واختر الدجاج بدون جلد والبقوليات، وقلل من اللحوم الحمراء والمصنعة.',
+            'استبدل السمن والزبدة بكميات قليلة من زيت الزيتون أو زيت الكانولا.',
+            'اختر الحليب واللبن والزبادي قليلة الدسم.',
+            'أكثر من الألياف: الشوفان، والخبز الأسمر، والخضروات، والفواكه، والبقوليات.',
+            'قلل من الأطعمة المقلية والمعجنات والحلويات والوجبات السريعة.',
+            'اجعل الملح أقل من 5 غرامات يومياً.',
+            'حفنة صغيرة من المكسرات غير المملحة وجبة خفيفة مناسبة.'
+        ] }
+    },
+    {
+        id: 'ramadan',
+        en: { title: 'Fasting in Ramadan with diabetes', items: [
+            'Talk to your doctor before Ramadan. Your medicine doses or times may need to change.',
+            'Suhoor: eat it as late as possible. Include slow-release starch (wholegrain bread, oats, beans), protein, and water.',
+            'Iftar: break your fast with 1–3 dates and water, then eat a balanced meal using the healthy plate. Avoid overeating and sweets.',
+            'Drink plenty of water between iftar and suhoor. Limit sugary drinks and caffeine.',
+            'Check your blood sugar during the day. A finger-prick test does not break the fast.',
+            'Break your fast straight away if your blood sugar is below 3.9 mmol/L (70 mg/dL) or above 16.7 mmol/L (300 mg/dL), or if you feel dizzy, sweaty, confused or unwell.'
+        ] },
+        ar: { title: 'الصيام في رمضان لمرضى السكري', items: [
+            'استشر طبيبك قبل رمضان، فقد تحتاج جرعات الأدوية أو مواعيدها إلى تعديل.',
+            'السحور: أخّره قدر الإمكان، واحرص على النشويات بطيئة الامتصاص (الخبز الأسمر، الشوفان، البقوليات) مع البروتين وشرب الماء.',
+            'الإفطار: ابدأ بـ 1–3 تمرات مع الماء، ثم تناول وجبة متوازنة حسب الطبق الصحي، وتجنب الإفراط في الأكل والحلويات.',
+            'اشرب كمية كافية من الماء بين الإفطار والسحور، وقلل من المشروبات المحلاة والكافيين.',
+            'افحص مستوى السكر خلال النهار، ففحص وخز الإصبع لا يفطّر.',
+            'أفطر فوراً إذا انخفض السكر عن 3.9 ملمول/لتر (70 ملغ/دل) أو ارتفع عن 16.7 ملمول/لتر (300 ملغ/دل)، أو إذا شعرت بدوخة أو تعرق أو تشوش أو توعك.'
+        ] }
+    },
+    {
+        id: 'iron',
+        en: { title: 'Iron-rich eating (iron-deficiency anaemia)', items: [
+            'Eat iron-rich foods: red meat, liver, chicken, fish, lentils, beans, chickpeas, spinach and iron-fortified cereals.',
+            'Have vitamin C with these foods to absorb more iron: orange, lemon, guava, tomato or peppers.',
+            'Avoid tea and coffee with meals, and for 1 hour before and after.',
+            'Take iron tablets as prescribed, with water or juice, not with milk, tea or calcium. They can make your stool dark; this is normal.',
+            'Keep taking them for as long as your doctor advises, even when you feel better.'
+        ] },
+        ar: { title: 'التغذية الغنية بالحديد (فقر الدم بسبب نقص الحديد)', items: [
+            'تناول الأطعمة الغنية بالحديد: اللحوم الحمراء، الكبدة، الدجاج، السمك، العدس، الفاصوليا، الحمص، السبانخ، والحبوب المدعمة بالحديد.',
+            'تناول مصدراً لفيتامين C مع هذه الأطعمة لزيادة امتصاص الحديد: البرتقال، الليمون، الجوافة، الطماطم أو الفلفل.',
+            'تجنب الشاي والقهوة مع الوجبات، وقبلها وبعدها بساعة.',
+            'تناول حبوب الحديد كما وُصفت لك مع الماء أو العصير، وليس مع الحليب أو الشاي أو الكالسيوم. قد يصبح لون البراز داكناً وهذا أمر طبيعي.',
+            'استمر في تناولها للمدة التي يحددها طبيبك حتى لو شعرت بتحسن.'
+        ] }
+    }
+];
+
+function el(tag, attrs, ...children) {
+    const node = document.createElement(tag);
+    Object.entries(attrs || {}).forEach(([k, v]) => node.setAttribute(k, v));
+    children.forEach(c => node.append(c));
+    return node;
+}
+
+function handoutBlocks() {
+    const h = HANDOUTS.find(x => x.id === $('h-topic').value) || HANDOUTS[0];
+    const lang = $('h-lang').value;
+    const order = lang === 'both' ? ['ar', 'en'] : [lang];
+    const extra = $('h-extra').value.trim();
+    const contact = $('h-contact').value.trim();
+    return order.map(code => ({
+        code,
+        title: h[code].title,
+        items: h[code].items,
+        extra,
+        contact,
+        footer: code === 'ar' ? CONFIG.handoutFooterAr : CONFIG.handoutFooterEn
+    }));
+}
+
+function renderHandout(target) {
+    target.replaceChildren();
+    handoutBlocks().forEach(b => {
+        const block = el('div', { class: 'lang-block', lang: b.code, dir: b.code === 'ar' ? 'rtl' : 'ltr' });
+        block.append(el('h2', {}, b.title));
+        const ul = el('ul');
+        b.items.forEach(t => ul.append(el('li', {}, t)));
+        block.append(ul);
+        if (b.extra) block.append(el('p', {}, el('strong', {}, b.code === 'ar' ? 'ملاحظة خاصة بك: ' : 'Your personal note: '), b.extra));
+        const foot = el('p', { class: 'foot' }, b.footer);
+        if (b.contact) foot.append(el('br'), b.contact);
+        block.append(foot);
+        target.append(block);
+    });
+}
+
+function handoutText() {
+    return handoutBlocks().map(b => {
+        const lines = [`*${b.title}*`, ...b.items.map(t => `• ${t}`)];
+        if (b.extra) lines.push('', (b.code === 'ar' ? 'ملاحظة خاصة بك: ' : 'Your personal note: ') + b.extra);
+        lines.push('', b.footer);
+        if (b.contact) lines.push(b.contact);
+        return lines.join('\n');
+    }).join('\n\n— — —\n\n');
+}
+
+// ---------------------------------------------------------------
+// Wiring
+// ---------------------------------------------------------------
+function recalcAll() {
+    computeAnthro();
+    computeRequirements();
+    computeMUST();
+    computeNRS();
+    computeEnteral();
+    computeRefeeding();
+}
+
+function initTabs() {
+    const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+    const select = (tab) => {
+        tabs.forEach(t => {
+            const on = t === tab;
+            t.setAttribute('aria-selected', on);
+            t.tabIndex = on ? 0 : -1;
+            $(t.getAttribute('aria-controls')).hidden = !on;
+        });
+        tab.focus();
+    };
+    tabs.forEach((tab, i) => {
+        tab.addEventListener('click', () => select(tab));
+        tab.addEventListener('keydown', (e) => {
+            const dir = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+            if (dir) { e.preventDefault(); select(tabs[(i + dir + tabs.length) % tabs.length]); }
+        });
+    });
+}
+
+function initTheme() {
+    const root = document.documentElement;
+    let saved = null;
+    try { saved = localStorage.getItem('cn_theme'); } catch (e) {}
+    if (saved) root.dataset.theme = saved;
+    $('theme-btn').addEventListener('click', () => {
+        const dark = root.dataset.theme
+            ? root.dataset.theme === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.dataset.theme = dark ? 'light' : 'dark';
+        try { localStorage.setItem('cn_theme', root.dataset.theme); } catch (e) {}
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.title = CONFIG.deptName;
+    $('dept-name').textContent = CONFIG.deptName;
+    $('dept-sub').textContent = CONFIG.deptSub;
+    $('foot-dept').textContent = CONFIG.footerDept;
+
+    initTabs();
+    initTheme();
+
+    // Any input change anywhere recalculates (cheap: a few dozen arithmetic ops).
+    document.querySelectorAll('main input, main select').forEach(n => {
+        if (n.closest('#p-note') || n.closest('#p-edu')) return;
+        n.addEventListener('input', recalcAll);
+        n.addEventListener('change', recalcAll);
+    });
+
+    $('prot-preset').addEventListener('change', (e) => {
+        if (e.target.value === 'custom') return;
+        const [lo, hi] = e.target.value.split(',');
+        $('prot-lo').value = lo; $('prot-hi').value = hi;
+        recalcAll();
+    });
+    ['prot-lo', 'prot-hi'].forEach(id => $(id).addEventListener('input', () => { $('prot-preset').value = 'custom'; }));
+
+    $('e-preset').addEventListener('change', (e) => {
+        if (e.target.value === 'custom') return;
+        const [d, p, w] = e.target.value.split(',');
+        $('e-dens').value = d; $('e-pl').value = p; $('e-water').value = w;
+        recalcAll();
+    });
+    ['e-dens', 'e-pl', 'e-water'].forEach(id => $(id).addEventListener('input', () => { $('e-preset').value = 'custom'; }));
+
+    $('e-mode').addEventListener('change', () => {
+        const bolus = $('e-mode').value === 'bolus';
+        $('e-hours-wrap').hidden = bolus;
+        $('e-feeds-wrap').hidden = !bolus;
+    });
+
+    $('e-fill').addEventListener('click', () => {
+        if (!ok(R.kcalLo)) { toast('Enter weight on the Requirements tab first'); return; }
+        $('e-kcal').value = r0((R.kcalLo + R.kcalHi) / 2 / 10) * 10;
+        if (ok(R.protLo)) $('e-prot').value = r0((R.protLo + R.protHi) / 2);
+        if (ok(R.flLo)) $('e-fluid').value = r0((R.flLo + R.flHi) / 2 / 50) * 50;
+        recalcAll();
+    });
+
+    $('t-build').addEventListener('click', () => { recalcAll(); buildNote(); });
+    $('t-copy').addEventListener('click', () => copyText($('t-out').value));
+
+    HANDOUTS.forEach(h => $('h-topic').append(el('option', { value: h.id }, h.en.title)));
+    ['h-topic', 'h-lang', 'h-extra', 'h-contact'].forEach(id => $(id).addEventListener('input', () => renderHandout($('h-preview'))));
+    $('h-copy').addEventListener('click', () => copyText(handoutText()));
+    $('h-wa').addEventListener('click', () => window.open('https://wa.me/?text=' + encodeURIComponent(handoutText()), '_blank', 'noopener'));
+    $('h-print').addEventListener('click', () => {
+        const area = $('print-area');
+        area.replaceChildren(el('div', { class: 'handout' }));
+        renderHandout(area.firstChild);
+        document.body.classList.add('print-handout');
+        window.print();
+    });
+    window.addEventListener('afterprint', () => document.body.classList.remove('print-handout'));
+
+    renderHandout($('h-preview'));
+    recalcAll();
+});
+</script>
+</body>
+</html>
