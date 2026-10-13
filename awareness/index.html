@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الوعي التغذوي · رحلة المريض التغذوية في ظفار</title>
+<meta name="description" content="مبادرة «الوعي التغذوي» من قسم التغذية العلاجية بمستشفى السلطان قابوس: رحلة المريض التغذوية والخدمات المتكاملة بين المراكز الصحية والعيادات التخصصية والمستشفى في محافظة ظفار.">
+<meta name="theme-color" content="#06393B">
+<link rel="icon" href="assets/img/mark.png">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/vendor/leaflet.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#integration"><span class="ar">تخطَّ إلى المحتوى</span><span class="en">Skip to content</span></a>
+<div id="progress"></div>
+
+<nav class="top" aria-label="Main">
+  <a href="#hero" aria-label="الوعي التغذوي"><img src="assets/img/logo-initiative.png" alt="مبادرة الوعي التغذوي"></a>
+  <div class="links">
+    <a href="#integration"><span class="ar">الدمج</span><span class="en">Integration</span></a>
+    <a href="#journey"><span class="ar">الرحلة</span><span class="en">Journey</span></a>
+    <a href="#services"><span class="ar">الخدمات</span><span class="en">Services</span></a>
+    <a href="#map-sec"><span class="ar">الخريطة</span><span class="en">Map</span></a>
+    <a href="#quiz"><span class="ar">صحّح وعيك</span><span class="en">Quiz</span></a>
+    <a href="#plate"><span class="ar">طبقك الصحي</span><span class="en">Your plate</span></a>
+    <a href="#resources"><span class="ar">المصادر</span><span class="en">Resources</span></a>
+  </div>
+  <div class="nav-ctl">
+    <button class="present-btn" id="presentBtn" type="button"><span class="ar">وضع العرض</span><span class="en">Present</span></button>
+    <button class="lang" id="lang" type="button"><span class="ar">English</span><span class="en">العربية</span></button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header id="hero">
+  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="auto" poster="assets/img/opening-poster.jpg" aria-hidden="true">
+    <source src="assets/video/opening.mp4" type="video/mp4">
+  </video>
+  <div class="hero-shade"></div>
+  <div class="stage3d"><div class="tilt" id="tilt"></div></div>
+  <div class="hero-copy">
+    <img class="hero-mark" src="assets/img/mark.png" alt="">
+    <div class="kicker">
+      <span class="ar">مبادرة «الوعي التغذوي»</span><span class="ar">قسم التغذية العلاجية</span><span class="ar">مستشفى السلطان قابوس</span>
+      <span class="en">Nutrition Awareness Initiative</span><span class="en">Department of Clinical Nutrition</span><span class="en">Sultan Qaboos Hospital</span>
+    </div>
+    <h1 class="hero-title ar" data-split>رحلة المريض التغذوية</h1>
+    <h1 class="hero-title en" data-split>The Patient Nutrition Journey</h1>
+    <p class="hero-sub"><span class="ar">خدمات تغذية متكاملة بين المراكز الصحية والعيادات التخصصية والمستشفى في محافظة ظفار: من الكشف والإحالة إلى العلاج والمتابعة، حتى ما بعد الخروج.</span><span class="en">Integrated nutrition services across health centres, specialist clinics and hospital care in Dhofar: from screening and referral to treatment and follow-up, and on after discharge.</span></p>
+    <p class="event" id="eventLine"></p>
+    <a class="cta" href="#integration"><span class="ar">ابدأ الرحلة</span><span class="en">Start the journey</span><span class="arr" aria-hidden="true">↓</span></a>
+  </div>
+  <div class="marquee" aria-hidden="true"><div class="row" id="mq"></div></div>
+</header>
+
+<main>
+<!-- TEAM -->
+<section class="block" id="team">
+  <div class="reveal">
+    <span class="eyebrow"><b></b><span class="ar">فريقنا</span><span class="en">Our team</span></span>
+    <div class="bignum"><span id="count">0</span><small><span class="ar">أخصائي وأخصائية تغذية علاجية في ظفار</span><span class="en">clinical dietitians across Dhofar</span></small></div>
+    <p class="lead"><span class="ar">يعمل الفريق في المستشفيات ومراكز الرعاية الصحية الأولية والمجمعات الصحية، ليصل المريض إلى أخصائي التغذية في أقرب مرفق إليه.</span><span class="en">The team works across hospitals, primary health care centres and health complexes, so every patient can reach a dietitian close to home.</span></p>
+  </div>
+  <div class="people" id="people" aria-hidden="true"></div>
+</section>
+
+<!-- INTEGRATION -->
+<section class="block" id="integration">
+  <span class="eyebrow"><b></b><span class="ar">الدمج والتكامل</span><span class="en">Integrated care</span></span>
+  <h2 class="h2 reveal"><span class="ar">رعاية تغذوية واحدة، في كل مستويات الرعاية</span><span class="en">One nutrition care pathway, at every level of care</span></h2>
+  <p class="lead reveal"><span class="ar">تعمل خدمات التغذية في الرعاية الصحية الأولية والمستشفيات بمحافظة ظفار معًا تحت مظلة قسم التغذية العلاجية بمستشفى السلطان قابوس، لينتقل المريض بين المراكز الصحية والعيادات التخصصية والمستشفى بإحالة منسقة ومتابعة متصلة.</span><span class="en">Primary health care and hospital nutrition services in Dhofar work together under the Department of Clinical Nutrition at Sultan Qaboos Hospital, so patients move between health centres, specialist clinics and hospital care with coordinated referral and continuous follow-up.</span></p>
+  <div class="tiers" id="tiers"></div>
+  <div class="flows reveal">
+    <div class="flowcard"><span class="ic" style="background:var(--coral)" aria-hidden="true">↗</span><div><h4><span class="ar">الإحالة</span><span class="en">Referral</span></h4><p><span class="ar">عندما يحتاج المريض رعاية أكثر تخصصًا، يُحال من المركز الصحي إلى العيادة التخصصية أو المستشفى.</span><span class="en">When a patient needs more specialised care, they are referred from the health centre to a specialist clinic or the hospital.</span></p></div></div>
+    <div class="flowcard"><span class="ic" style="background:var(--green)" aria-hidden="true">↙</span><div><h4><span class="ar">المتابعة</span><span class="en">Follow-up</span></h4><p><span class="ar">بعد العلاج أو الخروج من المستشفى، تعود المتابعة إلى العيادة المناسبة أو أقرب مركز صحي.</span><span class="en">After treatment or discharge, follow-up returns to the appropriate clinic or the nearest health centre.</span></p></div></div>
+  </div>
+  <div class="principles reveal">
+    <div class="pr"><h4><span class="ar">إحالة منسقة</span><span class="en">Coordinated referral</span></h4><p><span class="ar">يصل المريض إلى المستوى المناسب من الرعاية حسب حالته واحتياجه التغذوي.</span><span class="en">Patients reach the level of care that fits their condition and nutrition needs.</span></p></div>
+    <div class="pr"><h4><span class="ar">متابعة متصلة</span><span class="en">Continuous follow-up</span></h4><p><span class="ar">تستمر خطة التغذية مع المريض بين المستشفى والعيادات والمراكز الصحية.</span><span class="en">The nutrition plan continues with the patient between hospital, clinics and health centres.</span></p></div>
+    <div class="pr"><h4><span class="ar">قريبًا من المجتمع</span><span class="en">Close to the community</span></h4><p><span class="ar">تُقدَّم الاستشارة والمتابعة التغذوية في أقرب مرفق صحي إلى المريض.</span><span class="en">Nutrition counselling and follow-up happen at the health facility closest to the patient.</span></p></div>
+  </div>
+</section>
+
+<!-- JOURNEY -->
+<section id="journey" aria-label="رحلة المريض">
+  <div class="pin">
+    <div class="jhead">
+      <div>
+        <span class="eyebrow"><b></b><span class="ar">سبع محطات</span><span class="en">Seven stops</span></span>
+        <h2 class="h2"><span class="ar">رحلة المريض خطوة بخطوة</span><span class="en">The journey, step by step</span></h2>
+        <p class="journey-hint"><span class="ar">مرّر للأسفل، أو اضغط على رقم المحطة.</span><span class="en">Scroll down, or tap a stop number.</span></p>
+      </div>
+      <div class="rail" id="rail"></div>
+    </div>
+    <div class="track-wrap"><div class="track" id="track"></div></div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="block" id="services">
+  <span class="eyebrow"><b></b><span class="ar">مستكشف الخدمات</span><span class="en">Service explorer</span></span>
+  <h2 class="h2 reveal"><span class="ar">خدمات التغذية العلاجية</span><span class="en">Our nutrition services</span></h2>
+  <p class="lead reveal"><span class="ar">اختر مكان الرعاية، ثم اضغط على أي خدمة لمعرفة المزيد عنها.</span><span class="en">Choose a care setting, then tap any service to learn more.</span></p>
+  <div class="fchips" id="svcFilters" role="group" aria-label="تصفية الخدمات"></div>
+  <div class="svc-grid" id="svc"></div>
+</section>
+
+<dialog class="sheet" id="sheet" aria-labelledby="sheetTitle"></dialog>
+
+<!-- CLINICS -->
+<section class="block" id="clinics">
+  <span class="eyebrow"><b></b><span class="ar">العيادات التخصصية</span><span class="en">Specialist clinics</span></span>
+  <h2 class="h2 reveal"><span class="ar">تغذية لكل مرحلة ولكل حالة</span><span class="en">Nutrition for every stage and condition</span></h2>
+  <div class="clinic-row" id="clinicRow"></div>
+</section>
+
+<!-- MAP -->
+<section class="block" id="map-sec">
+  <span class="eyebrow"><b></b><span class="ar">شبكة متصلة</span><span class="en">A connected network</span></span>
+  <h2 class="h2 reveal"><span class="ar">أين تجد خدمات التغذية في ظفار</span><span class="en">Where to find nutrition services in Dhofar</span></h2>
+  <p class="lead reveal"><span class="ar">اضغط على أي مرفق لمعرفة أيام العيادة والخدمات. الخطوط تمثل مسار الإحالة والمتابعة بين المرافق ومستشفى السلطان قابوس.</span><span class="en">Tap any facility for clinic days and services. Lines show referral and follow-up paths between facilities and Sultan Qaboos Hospital.</span></p>
+  <div class="map-shell reveal">
+    <div class="panel">
+      <div class="filters" id="filters"></div>
+      <div class="flist" id="flist"></div>
+    </div>
+    <div class="mapbox" id="mapbox">
+      <div id="map"></div>
+      <div class="map-note"><span class="ar">وضع دون اتصال: تظهر الشبكة دون خلفية الخريطة</span><span class="en">Offline: network shown without the base map</span></div>
+      <div class="card" id="card"></div>
+    </div>
+  </div>
+  <div class="legend"><span><i></i><span class="ar">مسار الإحالة والمتابعة</span><span class="en">Referral &amp; follow-up path</span></span><span><i style="border-top-style:dotted;border-color:#fff"></i><span class="ar">مركز تابع للتغطية</span><span class="en">Covered centre</span></span></div>
+</section>
+
+<!-- QUIZ -->
+<section class="block" id="quiz">
+  <span class="eyebrow"><b></b><span class="ar">اختبار قصير</span><span class="en">Quick quiz</span></span>
+  <h2 class="h2 reveal"><span class="ar">صحّح وعيك التغذوي</span><span class="en">Check your nutrition facts</span></h2>
+  <p class="lead reveal"><span class="ar">حقيقة أم خرافة؟ اختر إجابتك وستظهر لك المعلومة الصحيحة مباشرة.</span><span class="en">Fact or myth? Pick an answer and the correct information appears straight away.</span></p>
+  <div class="quiz-card reveal" id="quizCard" aria-live="polite"></div>
+</section>
+
+<!-- PLATE -->
+<section class="block" id="plate">
+  <span class="eyebrow"><b></b><span class="ar">نشاط تفاعلي</span><span class="en">Interactive activity</span></span>
+  <h2 class="h2 reveal"><span class="ar">ابنِ طبقك الصحي</span><span class="en">Build your healthy plate</span></h2>
+  <p class="lead reveal"><span class="ar">اضغط على الأطعمة لتضعها في الطبق. نصف الطبق خضار وفواكه، وربعه حبوب كاملة، وربعه بروتين، والماء هو المشروب الأفضل.</span><span class="en">Tap foods to put them on the plate. Half the plate is vegetables and fruit, a quarter whole grains, a quarter protein, and water is the best drink.</span></p>
+  <div class="plate-grid">
+    <div class="plate-wrap reveal">
+      <div class="plate" id="plateEl" role="img" aria-label="الطبق الصحي"></div>
+      <div class="cup" id="cup"><span id="cupItems"></span><small><span class="ar">المشروب</span><span class="en">Drink</span></small></div>
+    </div>
+    <div>
+      <div class="foods" id="foods"></div>
+      <div class="verdict" id="verdict" aria-live="polite"></div>
+      <button class="reset" id="plateReset" type="button"><span class="ar">ابدأ طبقًا جديدًا</span><span class="en">Start a new plate</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- MUST -->
+<section class="block" id="must">
+  <span class="eyebrow"><b></b><span class="ar">جرّب بنفسك</span><span class="en">Try it yourself</span></span>
+  <h2 class="h2 reveal"><span class="ar">أداة الكشف MUST للبالغين</span><span class="en">MUST screening for adults</span></h2>
+  <p class="lead reveal"><span class="ar">أداة الكشف الشامل عن سوء التغذية (MUST) تُستخدم لكل بالغ في أول زيارة. ثلاثة أسئلة تحدّد مستوى الخطر والإجراء التالي.</span><span class="en">The Malnutrition Universal Screening Tool is used for every adult at first contact. Three questions decide the risk level and the next step.</span></p>
+  <div class="must-grid">
+    <div>
+      <div class="q reveal"><div class="t"><b>1</b><span class="ar">مؤشر كتلة الجسم (كغ/م²)</span><span class="en">Body mass index (kg/m²)</span></div>
+        <div class="opts" data-q="bmi">
+          <button class="opt sel" data-v="0" type="button">&gt; 20<small>0</small></button>
+          <button class="opt" data-v="1" type="button">18.5 – 20<small>1</small></button>
+          <button class="opt" data-v="2" type="button">&lt; 18.5<small>2</small></button>
+        </div></div>
+      <div class="q reveal"><div class="t"><b>2</b><span class="ar">فقدان الوزن غير المقصود خلال ٣–٦ أشهر</span><span class="en">Unplanned weight loss in 3–6 months</span></div>
+        <div class="opts" data-q="wl">
+          <button class="opt sel" data-v="0" type="button">&lt; 5%<small>0</small></button>
+          <button class="opt" data-v="1" type="button">5 – 10%<small>1</small></button>
+          <button class="opt" data-v="2" type="button">&gt; 10%<small>2</small></button>
+        </div></div>
+      <div class="q reveal"><div class="t"><b>3</b><span class="ar">مرض حاد مع انقطاع الأكل أكثر من ٥ أيام</span><span class="en">Acute illness with no intake for over 5 days</span></div>
+        <div class="opts two" data-q="ad">
+          <button class="opt sel" data-v="0" type="button"><span class="ar">لا</span><span class="en">No</span><small>0</small></button>
+          <button class="opt" data-v="2" type="button"><span class="ar">نعم</span><span class="en">Yes</span><small>2</small></button>
+        </div></div>
+      <div class="peds reveal"><div class="ic"><span class="ar">طفل</span><span class="en">Kids</span></div><p><b><span class="ar">للأطفال: منحنيات النمو.</span><span class="en">Children: growth charts.</span></b> <span class="ar">يُقاس الوزن والطول ومحيط الرأس ويُتابع على منحنيات النمو؛ أي انحراف عن المسار يستدعي الإحالة لأخصائي التغذية.</span><span class="en">Weight, length/height and head circumference are plotted on growth charts; any drop across centiles triggers a dietitian referral.</span></p></div>
+    </div>
+    <div class="gauge reveal">
+      <svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="86" stroke="rgba(255,255,255,.1)"></circle><circle id="garc" cx="100" cy="100" r="86" stroke="#B5D98A" stroke-dasharray="540" stroke-dashoffset="540" style="transition:stroke-dashoffset 1s cubic-bezier(.2,.9,.2,1),stroke .5s"></circle></svg>
+      <div class="val" aria-live="polite"><div class="score" id="gscore">0</div><div class="risk" id="grisk"></div><div class="act" id="gact"></div></div>
+    </div>
+  </div>
+  <p class="must-note"><span class="ar">هذا عرض توعوي لطريقة عمل الأداة، ولا يغني عن الكشف والتقييم من الفريق الصحي. إذا كانت لديك مخاوف بشأن وزنك أو تغذيتك فاستشر طبيبك أو المركز الصحي.</span><span class="en">This is an awareness demonstration of how the tool works and does not replace screening and assessment by the health care team. If you are worried about your weight or nutrition, speak to your doctor or health centre.</span></p>
+</section>
+
+<!-- FUTURE -->
+<section class="block" id="future">
+  <span class="eyebrow"><b></b><span class="ar">الخطط المستقبلية</span><span class="en">Future plans</span></span>
+  <h2 class="h2 reveal"><span class="ar">الخطوة القادمة للتغذية في ظفار</span><span class="en">What comes next for nutrition in Dhofar</span></h2>
+  <p class="lead reveal"><span class="ar">مشاريع قيد التخطيط لتوسيع الوصول إلى أخصائي التغذية.</span><span class="en">Projects in planning to widen access to a dietitian.</span></p>
+  <div class="fut-grid">
+    <div class="fut-ph reveal"><img src="assets/img/future-telenutrition.jpg" alt="" loading="lazy" onerror="this.remove()"></div>
+    <div class="fut-list" id="futList"></div>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section class="block" id="resources">
+  <span class="eyebrow"><b></b><span class="ar">خذها معك</span><span class="en">Take it with you</span></span>
+  <h2 class="h2 reveal"><span class="ar">المصادر والمطويات</span><span class="en">Resources and handouts</span></h2>
+  <p class="lead reveal"><span class="ar">امسح الرمز لفتح هذا الموقع على جوالك، أو تصفّح المصادر الموثوقة أدناه.</span><span class="en">Scan the code to open this site on your phone, or browse the trusted resources below.</span></p>
+  <div class="res-grid">
+    <div class="qr-card reveal">
+      <div class="qr-box" id="qrMain" aria-label="QR"></div>
+      <p><span class="ar">امسح الرمز بكاميرا الجوال</span><span class="en">Scan with your phone camera</span></p>
+      <div class="url" id="qrUrl"></div>
+    </div>
+    <div class="res-list reveal" id="resList"></div>
+  </div>
+</section>
+</main>
+
+<!-- FINALE -->
+<section id="finale">
+  <div class="bg" id="fbg"></div><div class="shade"></div>
+  <div class="in">
+    <h2 class="reveal"><span class="ar">رعاية تغذوية متصلة<br>في كل ظفار</span><span class="en">Connected nutrition care<br>across Dhofar</span></h2>
+    <div class="credits reveal">
+      <span class="ar">مبادرة «الوعي التغذوي»</span><span class="ar">قسم التغذية العلاجية</span><span class="ar">مستشفى السلطان قابوس</span><span class="ar">المديرية العامة للخدمات الصحية بمحافظة ظفار</span>
+      <span class="en">Nutrition Awareness Initiative</span><span class="en">Department of Clinical Nutrition</span><span class="en">Sultan Qaboos Hospital</span><span class="en">Directorate General of Health Services, Dhofar</span>
+    </div>
+    <div class="foot"><span style="display:flex;gap:20px;align-items:center"><img src="assets/img/logo-initiative.png" alt="مبادرة الوعي التغذوي"><span id="deptLogo"></span></span><span class="mono">MAP DATA © OPENSTREETMAP CONTRIBUTORS</span></div>
+  </div>
+</section>
+
+<div class="qr-float" aria-hidden="true"><div class="qr-box" id="qrFloat"></div><b><span class="ar">امسح الرمز وتصفّح الموقع على جوالك</span><span class="en">Scan to explore on your phone</span></b></div>
+<button id="__pause" type="button"></button>
+
+<script src="assets/vendor/leaflet.js"></script>
+<script src="assets/vendor/qrcode.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

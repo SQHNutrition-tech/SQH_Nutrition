@@ -1,5 +1,7 @@
 # SQH Clinical Nutrition Toolkit
 
+> **Public site:** the Nutrition Awareness (الوعي التغذوي) initiative site for visitors lives in [`awareness/`](awareness/). It is separate from this staff toolkit. See [`awareness/README.md`](awareness/README.md).
+
 A single-page web app for the Clinical Nutrition Department. It has bedside calculators and bilingual (Arabic / English) patient education handouts. Everything is in one `index.html` with no build step, so it can be hosted free on GitHub Pages.
 
 > **Privacy by design:** the page stores no patient data and sends nothing anywhere. Staff are told not to enter names, MRNs or phone numbers. The only thing kept in the browser is the light/dark theme choice.
