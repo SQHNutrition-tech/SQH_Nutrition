@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Follow-ups · Nutrition Hub</title>
+<link rel="stylesheet" href="/css/app.css">
+<style>
+    .views { display: flex; gap: 4px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .views button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; color: var(--muted); font-weight: 500; white-space: nowrap; padding: 10px 12px; }
+    .views button[aria-selected="true"] { color: var(--accent); border-color: var(--accent); font-weight: 700; }
+    .views .count { font-size: .76rem; background: var(--accent-soft); color: var(--accent); border-radius: 8px; padding: 0 6px; margin-inline-start: 4px; }
+    .filters { display: grid; grid-template-columns: 1fr 200px 160px auto; gap: 8px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+    .case { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+    .case.urgent { border-inline-start: 4px solid var(--danger); }
+    .case-body { padding: 16px; flex: 1; }
+    .case-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+    .hn { font-size: 1.12rem; font-weight: 800; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+    .loc { color: var(--muted); font-size: .9rem; margin: 2px 0 10px; }
+    .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .next small { display: block; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+    .meta { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .85rem; margin-top: 10px; }
+    .plan { margin-top: 10px; font-size: .86rem; background: var(--surface-2); border-radius: 10px; padding: 8px 10px; }
+    .plan b { font-weight: 700; }
+    .pending { margin-top: 10px; background: var(--warn-soft); border-radius: 10px; padding: 8px 10px; font-size: .86rem; }
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid var(--border); padding: 10px 12px; }
+    details.activity { padding: 0 16px 10px; font-size: .84rem; color: var(--muted); }
+    details.activity summary { cursor: pointer; padding: 6px 0; }
+    details.activity p { margin: 6px 0; }
+    .empty { grid-column: 1 / -1; text-align: center; padding: 36px; border: 1px dashed var(--border); border-radius: var(--radius); color: var(--muted); background: var(--surface); }
+    .loc-group + .loc-group { margin-top: 10px; }
+    .loc-group .small { margin: 0 0 4px; }
+    .plan-box { border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+    .plan-box summary { cursor: pointer; font-weight: 700; font-size: .9rem; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 640px) { .filters { grid-template-columns: 1fr 1fr; } .filters input { grid-column: 1 / -1; } .cards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main class="wrap stack" style="padding-top:20px">
+    <div class="section-head" style="margin:0">
+        <div>
+            <p class="eyebrow" id="date"></p>
+            <h1>Follow-ups &amp; handovers</h1>
+        </div>
+        <button class="primary" id="add-btn" disabled>＋ Add patient</button>
+    </div>
+
+    <div class="views" role="tablist" aria-label="Lists">
+        <button role="tab" data-view="mine" aria-selected="true">My patients</button>
+        <button role="tab" data-view="handovers" aria-selected="false">Handovers<span class="count" id="ho-count" hidden></span></button>
+        <button role="tab" data-view="team" aria-selected="false">Department</button>
+        <button role="tab" data-view="closed" aria-selected="false">Closed</button>
+    </div>
+
+    <div class="metrics" aria-label="Review timing">
+        <button class="metric" data-filter="overdue"><span class="k k-red">Overdue</span><div class="v" id="c-overdue">0</div></button>
+        <button class="metric" data-filter="today"><span class="k k-amber">Due today</span><div class="v" id="c-today">0</div></button>
+        <button class="metric" data-filter="upcoming"><span class="k k-teal">Upcoming</span><div class="v" id="c-upcoming">0</div></button>
+    </div>
+
+    <div class="notice" id="notice" role="status">Loading…</div>
+
+    <div class="filters">
+        <input type="search" id="search" placeholder="Search hospital number, ward or dietitian" aria-label="Search">
+        <select id="loc-filter" aria-label="Filter by ward or clinic"><option value="">All wards &amp; clinics</option></select>
+        <select id="setting-filter" aria-label="Filter by setting">
+            <option value="">In- &amp; outpatients</option>
+            <option value="inpatient">Inpatients</option>
+            <option value="outpatient">Outpatients</option>
+        </select>
+        <button id="export-btn" type="button">Export CSV</button>
+    </div>
+
+    <div class="row small muted" style="justify-content:space-between">
+        <span id="list-count"></span>
+        <span><span id="sync">Connecting…</span> · <button class="link small" id="refresh-btn" type="button">Refresh</button></span>
+    </div>
+
+    <section class="cards" id="list" aria-live="polite"></section>
+
+    <footer class="site">Hospital numbers and follow-up tasks only. Keep patient names, diagnoses and clinical notes in Al Shifa. Closed cases are deleted automatically <span id="retention"></span> after closing. Every change records who made it.</footer>
+</main>
+
+<dialog id="dlg">
+    <form id="form" novalidate>
+        <div class="dialog-head">
+            <div><p class="eyebrow" id="dlg-eyebrow"></p><h2 id="dlg-title"></h2></div>
+            <button type="button" class="link" id="dlg-x" aria-label="Close">✕</button>
+        </div>
+        <div class="form-grid" id="fields"></div>
+        <p class="form-error" id="form-error" role="alert"></p>
+        <div class="dialog-actions">
+            <button type="button" id="dlg-cancel">Cancel</button>
+            <button type="submit" class="primary" id="dlg-submit">Save</button>
+        </div>
+    </form>
+</dialog>
+
+<script type="module" src="/js/followup.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nutrition Hub</title>
+<meta name="description" content="Clinical Nutrition Department hub: today's follow-ups, quick links, phone directory and calculators.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css">
+<style>
+    .hero { display: grid; gap: 16px; grid-template-columns: 1.3fr 1fr; align-items: stretch; }
+    .quote { display: flex; flex-direction: column; justify-content: center; gap: 8px; background: var(--accent-soft); border-color: transparent; }
+    .quote p { margin: 0; }
+    .quote .en { font-size: 1.05rem; font-weight: 600; }
+    .quote .ar { font-size: 1.05rem; color: var(--muted); }
+    .links { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+    .link-tile { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); text-decoration: none; color: var(--text); font-weight: 600; min-height: 56px; }
+    .link-tile:hover { border-color: var(--accent); }
+    .link-tile .ico { width: 30px; height: 30px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; flex-shrink: 0; font-size: .85rem; font-weight: 700; }
+    .dir-cat { margin-top: 14px; }
+    .dir-cat h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+    .dir-row { display: flex; align-items: center; gap: 10px; padding: 8px 4px; border-bottom: 1px solid var(--border); }
+    .dir-row .nm { flex: 1; min-width: 0; }
+    .dir-row .nm small { display: block; color: var(--muted); }
+    .dir-row .ext { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 1.05rem; white-space: nowrap; }
+    .dir-urgent .ext { color: var(--danger); }
+    .star { background: transparent; border: none; min-height: 32px; padding: 2px 6px; color: var(--muted); font-size: 1.1rem; }
+    .star[aria-pressed="true"] { color: #d99a06; }
+    @media (max-width: 760px) { .hero { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main class="wrap stack" style="padding-top:20px">
+
+    <section class="hero">
+        <div class="card">
+            <p class="eyebrow" id="today-label"></p>
+            <h1 id="greeting">Good morning</h1>
+            <p class="muted" id="day-summary" style="margin:6px 0 14px">Loading your day…</p>
+            <div class="metrics" id="metrics">
+                <a class="metric" href="/followup.html?filter=overdue"><span class="k k-red">Overdue</span><div class="v" id="m-overdue">–</div></a>
+                <a class="metric" href="/followup.html?filter=today"><span class="k k-amber">Due today</span><div class="v" id="m-today">–</div></a>
+                <a class="metric" href="/followup.html?view=handovers"><span class="k k-teal">Handovers to accept</span><div class="v" id="m-incoming">–</div></a>
+                <a class="metric" href="/followup.html?view=team"><span class="k">Department open cases</span><div class="v" id="m-department">–</div></a>
+            </div>
+            <div class="row" style="margin-top:14px">
+                <a class="btn primary" href="/followup.html">Open my follow-ups</a>
+                <a class="btn" href="/tools.html">Calculators &amp; handouts</a>
+            </div>
+        </div>
+        <figure class="card quote" style="margin:0">
+            <p class="eyebrow">Today's thought</p>
+            <p class="en" id="q-en"></p>
+            <p class="ar" id="q-ar" lang="ar" dir="rtl"></p>
+        </figure>
+    </section>
+
+    <section class="card" aria-labelledby="links-title">
+        <div class="section-head">
+            <h2 id="links-title">Quick links</h2>
+            <span class="small muted" id="links-hint"></span>
+        </div>
+        <div class="links" id="links"></div>
+    </section>
+
+    <section class="card" aria-labelledby="dir-title">
+        <div class="section-head">
+            <h2 id="dir-title">Phone directory</h2>
+            <span class="small muted">☆ star the numbers you call most · saved on this device</span>
+        </div>
+        <input type="search" id="dir-search" placeholder="Search ward, department or name… (e.g. ICU, pharmacy, kitchen)" aria-label="Search the phone directory">
+        <div id="directory"></div>
+    </section>
+
+    <footer class="site">SQH · Clinical Nutrition Department. Keep patient names, diagnoses and notes in Al Shifa; this hub holds hospital numbers and follow-up tasks only.</footer>
+</main>
+<script type="module" src="/js/hub.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+name = "sqh-nutrition-hub"
+main = "src/worker.js"
+compatibility_date = "2025-09-01"
+
+# Pages, scripts and styles in ./public. run_worker_first makes every request,
+# including static pages, pass the Worker's sign-in check, so nothing is
+# readable even if the Cloudflare Access application is misconfigured.
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = true
+
+# Turn off the public *.workers.dev address and preview URLs: the hub should
+# only be reachable on the custom domain protected by Cloudflare Access.
+workers_dev = false
+preview_urls = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sqh-nutrition-hub"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+# Daily retention clean-up at 02:00 Oman time (22:00 UTC).
+[triggers]
+crons = ["0 22 * * *"]
+
+[vars]
+# Your Zero Trust team domain, e.g. "sqh-nutrition.cloudflareaccess.com"
+ACCESS_TEAM_DOMAIN = "REPLACE_ME.cloudflareaccess.com"
+# "Application Audience (AUD) Tag" from the Access application's settings
+ACCESS_AUD = "REPLACE_WITH_ACCESS_AUD_TAG"
+# Comma-separated emails that are always admins (bootstrap)
+ADMIN_EMAILS = "REPLACE_WITH_ADMIN_EMAIL"
