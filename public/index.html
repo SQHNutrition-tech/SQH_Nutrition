@@ -43,33 +43,7 @@
     .stat .v { font-family: var(--display); font-size: 2.2rem; font-weight: 400; line-height: 1.15; margin-top: 4px; font-variant-numeric: tabular-nums; }
     .dot-coral { background: var(--coral) !important; } .dot-amber { background: #D9A23B !important; } .dot-teal { background: var(--teal) !important; }
 
-    /* Links + directory */
-    .two-col { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.4fr); gap: 22px; align-items: start; }
-    .linklist { display: flex; flex-direction: column; }
-    .linkrow { display: flex; align-items: center; gap: 14px; padding: 12px 6px; text-decoration: none; color: var(--ink); border-radius: 14px; transition: background .2s; }
-    .linkrow + .linkrow { border-top: 1px solid var(--line); }
-    .linkrow:hover { background: var(--surface-2); }
-    .linkrow .ico { width: 38px; height: 38px; border-radius: 12px; background: var(--teal-soft); color: var(--teal); display: grid; place-items: center; font-family: var(--display); font-weight: 600; font-size: .82rem; flex-shrink: 0; }
-    .linkrow .lbl { flex: 1; font-weight: 500; }
-    .linkrow .arr { color: var(--muted); transition: transform .2s; }
-    .linkrow:hover .arr { transform: translateX(3px); color: var(--teal); }
-
-    .urgent-strip { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0 6px; }
-    .urgent-pill { display: flex; align-items: center; gap: 10px; background: var(--coral-soft); color: var(--coral); border-radius: 14px; padding: 10px 14px; }
-    .urgent-pill b { font-family: var(--mono); font-size: 1.05rem; }
-    .urgent-pill span { font-size: .88rem; font-weight: 500; }
-    .dir-cat { margin-top: 18px; }
-    .dir-cat h3 { font-family: var(--body); font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 4px; }
-    .dir-row { display: flex; align-items: center; gap: 8px; padding: 9px 2px; }
-    .dir-row + .dir-row { border-top: 1px solid var(--line); }
-    .dir-row .nm { flex: 1; min-width: 0; }
-    .dir-row .nm small { display: block; color: var(--muted); font-size: .8rem; }
-    .dir-row .ext { font-family: var(--mono); font-weight: 500; font-size: 1rem; letter-spacing: .04em; white-space: nowrap; }
-    .star { background: transparent; border: 0; min-height: 30px; width: 30px; padding: 0; color: var(--line-strong); font-size: 1rem; border-radius: 50%; }
-    .star:hover { background: var(--surface-2); color: #D9A23B; }
-    .star[aria-pressed="true"] { color: #D9A23B; }
-    .empty-note { color: var(--muted); font-size: .9rem; padding: 10px 0; }
-
+    .two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 22px; align-items: start; }
     @media (max-width: 860px) {
         .hero { grid-template-columns: 1fr; }
         .quote { border-inline-start: 0; padding-inline-start: 0; border-top: 1px solid rgba(181, 217, 138, .3); padding-top: 20px; }
@@ -119,8 +93,8 @@
 
         <section class="card" aria-labelledby="dir-title">
             <div class="section-head">
-                <h2 id="dir-title">Phone directory</h2>
-                <span class="small muted">☆ Star the ones you call most</span>
+                <h2 id="dir-title">Find an extension</h2>
+                <a class="small" href="/directory.html">Full directory →</a>
             </div>
             <input type="search" id="dir-search" placeholder="Search ward, department or name" aria-label="Search the phone directory">
             <div id="directory"></div>

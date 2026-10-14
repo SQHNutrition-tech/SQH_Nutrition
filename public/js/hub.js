@@ -1,4 +1,5 @@
 import { $, esc, api, initPage } from './common.js';
+import { mountDirectory } from './directory-view.js';
 
 // One thought per day, the same for everyone. Unattributed on purpose.
 const QUOTES = [
@@ -25,11 +26,6 @@ const QUOTES = [
     ['Thank you for the care no one sees.', 'شكراً على الرعاية التي لا يراها أحد.']
 ];
 
-const FAV_KEY = 'hub_fav_ext';
-let favs = new Set();
-try { favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]')); } catch { /* storage unavailable */ }
-let entries = [];
-
 function greeting() {
     const hour = Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Muscat', hour: 'numeric', hour12: false }).format(new Date()));
     return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
@@ -42,44 +38,6 @@ function dayOfYear() {
 
 function initials(label) {
     return label.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-}
-
-function dirRow(e) {
-    return `<div class="dir-row">
-        <button class="star" data-id="${e.id}" aria-pressed="${favs.has(e.id)}" aria-label="${favs.has(e.id) ? 'Unstar' : 'Star'} ${esc(e.name)}">${favs.has(e.id) ? '★' : '☆'}</button>
-        <div class="nm">${esc(e.name)}${e.notes ? `<small>${esc(e.notes)}</small>` : ''}</div>
-        <span class="ext">${esc(e.ext)}</span>
-    </div>`;
-}
-
-function renderDirectory() {
-    const q = $('#dir-search').value.trim().toLowerCase();
-    const box = $('#directory');
-    if (!entries.length) {
-        box.innerHTML = '<p class="empty-note">No numbers yet. An admin can add them under Admin → Phone directory.</p>';
-        return;
-    }
-    const match = entries.filter(e => !q || [e.name, e.category, e.ext, e.notes].join(' ').toLowerCase().includes(q));
-    if (!match.length) {
-        box.innerHTML = '<p class="empty-note">Nothing matches that search.</p>';
-        return;
-    }
-    let html = '';
-    // Urgent numbers sit at the top as a strip so they are never scrolled past.
-    const urgent = match.filter(e => e.category === 'Urgent');
-    if (urgent.length) {
-        html += `<div class="urgent-strip" aria-label="Urgent numbers">${urgent.map(e =>
-            `<div class="urgent-pill"><b>${esc(e.ext)}</b><span>${esc(e.name)}</span></div>`).join('')}</div>`;
-    }
-    const groups = [];
-    const starred = match.filter(e => favs.has(e.id) && e.category !== 'Urgent');
-    if (starred.length && !q) groups.push(['★ My numbers', starred]);
-    for (const cat of ['Our department', 'Wards', 'Clinics', 'Support services', 'Other']) {
-        const list = match.filter(e => e.category === cat && (q || !favs.has(e.id)));
-        if (list.length) groups.push([cat, list]);
-    }
-    html += groups.map(([cat, list]) => `<div class="dir-cat"><h3>${esc(cat)}</h3>${list.map(dirRow).join('')}</div>`).join('');
-    box.innerHTML = html;
 }
 
 async function main() {
@@ -101,22 +59,14 @@ async function main() {
         ? `${due} review${due === 1 ? '' : 's'} due today${c.urgent ? `, ${c.urgent} marked urgent` : ''}${c.incoming ? `, and ${c.incoming} handover${c.incoming === 1 ? '' : 's'} waiting for you` : ''}.`
         : c.incoming ? `No reviews due. ${c.incoming} handover${c.incoming === 1 ? ' is' : 's are'} waiting for you.` : 'Your list is clear today. Have a good shift.';
 
-    $('#links').innerHTML = links.links.length
-        ? links.links.map(l => `<a class="linkrow" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer"><span class="ico">${esc(initials(l.label))}</span><span class="lbl">${esc(l.label)}</span><span class="arr" aria-hidden="true">↗</span></a>`).join('')
-        : '<p class="empty-note">No links yet.</p>';
+    // Built-in pages first, then the admin-managed external links.
+    const internal = [['/directory.html', 'Phone directory', '☎']];
+    $('#links').innerHTML =
+        internal.map(([href, label, ico]) => `<a class="linkrow" href="${href}"><span class="ico">${ico}</span><span class="lbl">${label}</span><span class="arr" aria-hidden="true">→</span></a>`).join('') +
+        links.links.map(l => `<a class="linkrow" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer"><span class="ico">${esc(initials(l.label))}</span><span class="lbl">${esc(l.label)}</span><span class="arr" aria-hidden="true">↗</span></a>`).join('');
     if (!links.links.length && me.me.role === 'admin') $('#links-hint').innerHTML = 'Add the Ministry email, HR and other sites in <a href="/admin.html#links">Admin</a>.';
 
-    entries = dir.entries;
-    renderDirectory();
-    $('#dir-search').addEventListener('input', renderDirectory);
-    $('#directory').addEventListener('click', (e) => {
-        const b = e.target.closest('.star');
-        if (!b) return;
-        const id = Number(b.dataset.id);
-        favs.has(id) ? favs.delete(id) : favs.add(id);
-        try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch { /* ignore */ }
-        renderDirectory();
-    });
+    mountDirectory({ search: $('#dir-search'), box: $('#directory'), entries: dir.entries, compact: true });
 }
 
 main().catch(e => {
