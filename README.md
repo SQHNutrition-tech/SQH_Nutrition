@@ -1,5 +1,7 @@
 # SQH Nutrition Hub
 
+> **Public site:** the Nutrition Awareness (الوعي التغذوي) initiative site for visitors lives in [`awareness/`](awareness/). It is separate from this staff hub. See [`awareness/README.md`](awareness/README.md).
+
 The Clinical Nutrition Department's daily home page. Each dietitian opens it in the morning and finds:
 
 - **Their day:** a greeting, the quote of the day (Arabic and English), and their overdue / due-today reviews and incoming handovers.
