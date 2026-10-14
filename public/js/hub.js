@@ -44,41 +44,49 @@ function initials(label) {
     return label.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 }
 
+function dirRow(e) {
+    return `<div class="dir-row">
+        <button class="star" data-id="${e.id}" aria-pressed="${favs.has(e.id)}" aria-label="${favs.has(e.id) ? 'Unstar' : 'Star'} ${esc(e.name)}">${favs.has(e.id) ? '★' : '☆'}</button>
+        <div class="nm">${esc(e.name)}${e.notes ? `<small>${esc(e.notes)}</small>` : ''}</div>
+        <span class="ext">${esc(e.ext)}</span>
+    </div>`;
+}
+
 function renderDirectory() {
     const q = $('#dir-search').value.trim().toLowerCase();
     const box = $('#directory');
     if (!entries.length) {
-        box.innerHTML = '<p class="muted small">No numbers yet. An admin can add them under Admin → Phone directory.</p>';
+        box.innerHTML = '<p class="empty-note">No numbers yet. An admin can add them under Admin → Phone directory.</p>';
         return;
     }
     const match = entries.filter(e => !q || [e.name, e.category, e.ext, e.notes].join(' ').toLowerCase().includes(q));
     if (!match.length) {
-        box.innerHTML = '<p class="muted small">Nothing matches that search.</p>';
+        box.innerHTML = '<p class="empty-note">Nothing matches that search.</p>';
         return;
     }
+    let html = '';
+    // Urgent numbers sit at the top as a strip so they are never scrolled past.
+    const urgent = match.filter(e => e.category === 'Urgent');
+    if (urgent.length) {
+        html += `<div class="urgent-strip" aria-label="Urgent numbers">${urgent.map(e =>
+            `<div class="urgent-pill"><b>${esc(e.ext)}</b><span>${esc(e.name)}</span></div>`).join('')}</div>`;
+    }
     const groups = [];
-    const starred = match.filter(e => favs.has(e.id));
+    const starred = match.filter(e => favs.has(e.id) && e.category !== 'Urgent');
     if (starred.length && !q) groups.push(['★ My numbers', starred]);
-    const order = ['Urgent', 'Our department', 'Wards', 'Clinics', 'Support services', 'Other'];
-    for (const cat of order) {
-        const list = match.filter(e => e.category === cat);
+    for (const cat of ['Our department', 'Wards', 'Clinics', 'Support services', 'Other']) {
+        const list = match.filter(e => e.category === cat && (q || !favs.has(e.id)));
         if (list.length) groups.push([cat, list]);
     }
-    box.innerHTML = groups.map(([cat, list]) => `
-        <div class="dir-cat ${cat === 'Urgent' ? 'dir-urgent' : ''}">
-            <h3>${esc(cat)}</h3>
-            ${list.map(e => `
-                <div class="dir-row">
-                    <button class="star" data-id="${e.id}" aria-pressed="${favs.has(e.id)}" aria-label="${favs.has(e.id) ? 'Unstar' : 'Star'} ${esc(e.name)}">${favs.has(e.id) ? '★' : '☆'}</button>
-                    <div class="nm">${esc(e.name)}${e.notes ? `<small>${esc(e.notes)}</small>` : ''}</div>
-                    <span class="ext">${esc(e.ext)}</span>
-                </div>`).join('')}
-        </div>`).join('');
+    html += groups.map(([cat, list]) => `<div class="dir-cat"><h3>${esc(cat)}</h3>${list.map(dirRow).join('')}</div>`).join('');
+    box.innerHTML = html;
 }
 
 async function main() {
     const me = await initPage('/');
-    $('#greeting').textContent = `${greeting()}, ${me.me.name.split(' ')[0]}`;
+    const first = document.createElement('b');
+    first.textContent = me.me.name.split(' ')[0];
+    $('#greeting').replaceChildren(`${greeting()}, `, first);
     $('#today-label').textContent = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Muscat', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const [en, ar] = QUOTES[dayOfYear() % QUOTES.length];
     $('#q-en').textContent = en;
@@ -90,12 +98,12 @@ async function main() {
     for (const k of ['overdue', 'today', 'incoming', 'department']) $('#m-' + k).textContent = c[k];
     const due = c.overdue + c.today;
     $('#day-summary').textContent = due
-        ? `You have ${due} review${due === 1 ? '' : 's'} due${c.urgent ? `, ${c.urgent} flagged urgent` : ''}${c.incoming ? ` and ${c.incoming} handover${c.incoming === 1 ? '' : 's'} waiting for you` : ''}.`
-        : c.incoming ? `No reviews due. ${c.incoming} handover${c.incoming === 1 ? ' is' : 's are'} waiting for you.` : 'Your list is clear for today.';
+        ? `${due} review${due === 1 ? '' : 's'} due today${c.urgent ? `, ${c.urgent} marked urgent` : ''}${c.incoming ? `, and ${c.incoming} handover${c.incoming === 1 ? '' : 's'} waiting for you` : ''}.`
+        : c.incoming ? `No reviews due. ${c.incoming} handover${c.incoming === 1 ? ' is' : 's are'} waiting for you.` : 'Your list is clear today. Have a good shift.';
 
     $('#links').innerHTML = links.links.length
-        ? links.links.map(l => `<a class="link-tile" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer"><span class="ico">${esc(initials(l.label))}</span>${esc(l.label)}</a>`).join('')
-        : '<p class="muted small">No links yet.</p>';
+        ? links.links.map(l => `<a class="linkrow" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer"><span class="ico">${esc(initials(l.label))}</span><span class="lbl">${esc(l.label)}</span><span class="arr" aria-hidden="true">↗</span></a>`).join('')
+        : '<p class="empty-note">No links yet.</p>';
     if (!links.links.length && me.me.role === 'admin') $('#links-hint').innerHTML = 'Add the Ministry email, HR and other sites in <a href="/admin.html#links">Admin</a>.';
 
     entries = dir.entries;

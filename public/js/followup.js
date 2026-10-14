@@ -69,13 +69,12 @@ function visible() {
 
 function planSummary(p) {
     if (!p || (!p.route && !p.kcal && !p.protein && !p.notes && !p.diet)) return '';
-    const bits = [];
-    if (p.route) bits.push(`<b>${esc(p.route)}</b>`);
-    if (p.diet) bits.push(esc(p.diet));
-    const targets = [p.kcal ? `${p.kcal} kcal` : '', p.protein ? `${p.protein} g protein` : '', p.fluid ? `${p.fluid} mL fluid` : ''].filter(Boolean).join(' · ');
-    if (targets) bits.push(targets);
-    return `<div class="plan">${bits.join('<br>')}${p.notes ? `<br><span class="muted">${esc(p.notes)}</span>` : ''}</div>`;
+    const head = [p.route ? `<b>${esc(p.route)}</b>` : '', p.diet ? esc(p.diet) : ''].filter(Boolean).join(' · ');
+    const targets = [p.kcal ? `${p.kcal} kcal` : '', p.protein ? `${p.protein} g protein` : '', p.fluid ? `${p.fluid} mL` : ''].filter(Boolean).join(' · ');
+    return `<div class="plan">${[head, targets, p.notes ? esc(p.notes) : ''].filter(Boolean).join('<br>')}</div>`;
 }
+
+const initialsOf = (name) => String(name).split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 
 function card(c) {
     const st = timing(c);
@@ -83,35 +82,51 @@ function card(c) {
     const canManage = (mine || me.role === 'admin') && c.status === 'active';
     const incoming = c.pendingTo === me.email && c.status === 'active';
     const btn = (action, label, cls = '') => `<button class="small ${cls}" data-action="${action}" data-id="${c.id}">${label}</button>`;
-    let actions = '';
-    if (incoming) actions += btn('accept', 'Accept handover', 'primary') + btn('decline', 'Decline');
-    if (canManage) {
-        actions += btn('review', 'Reviewed', incoming ? '' : 'primary') + btn('transfer', c.setting === 'inpatient' ? 'Move / discharge' : 'Move / admit');
-        actions += c.pendingTo ? btn('withdraw', 'Cancel handover', 'link') : btn('handover', 'Hand over');
-        actions += btn('edit', 'Edit', 'link') + btn('close', 'Close', 'link');
-    }
-    if (c.status === 'closed' && (mine || me.role === 'admin')) actions += btn('reopen', 'Reopen');
-    if (!actions) actions = `<span class="small muted">With ${esc(nameOf(members, c.owner))}</span>`;
+    const item = (action, label, cls = '') => `<button class="${cls}" data-action="${action}" data-id="${c.id}">${label}</button>`;
 
-    return `<article class="case ${c.urgent && c.status === 'active' ? 'urgent' : ''}">
+    // One clear main action, one secondary, everything else in the menu.
+    let main = '';
+    const menu = [];
+    if (incoming) main += btn('accept', 'Accept handover', 'primary') + btn('decline', 'Decline', 'ghost');
+    if (canManage) {
+        if (!incoming) main += btn('review', 'Reviewed', 'primary') + btn('transfer', c.setting === 'inpatient' ? 'Move' : 'Move / admit', 'ghost');
+        else menu.push(item('review', 'Record review'), item('transfer', 'Move ward / discharge'));
+        menu.push(c.pendingTo ? item('withdraw', 'Cancel handover') : item('handover', 'Hand over to a colleague'));
+        menu.push(item('edit', 'Edit details'));
+        menu.push('<hr>', item('close', 'Close case', 'danger'));
+    }
+    if (c.status === 'closed' && (mine || me.role === 'admin')) main += btn('reopen', 'Reopen', 'ghost');
+    if (!main && !menu.length) main = `<span class="small muted">Assigned to ${esc(nameOf(members, c.owner))}</span>`;
+    menu.push(menu.length ? '<hr>' : '', item('activity', 'Activity log'));
+
+    const owner = nameOf(members, c.owner);
+    return `<article class="case ${c.urgent && c.status === 'active' ? 'urgent' : ''}" data-case="${c.id}">
         <div class="case-body">
             <div class="case-top">
-                <span class="hn">${esc(c.hospitalNo)}</span>
+                <div>
+                    <div class="hn">${esc(c.hospitalNo)}</div>
+                    <div class="loc">${esc(where(c))}${c.setting === 'outpatient' ? ' · Outpatient' : ''}</div>
+                </div>
                 <span class="badge b-${st}">${TIMING_LABEL[st]}</span>
             </div>
-            <p class="loc">${esc(where(c))}</p>
             <div class="tags">
-                <span class="badge b-${c.risk || 'unset'}">${RISK[c.risk] || 'Risk not set'}</span>
-                ${c.setting === 'outpatient' ? '<span class="badge b-opd">Outpatient</span>' : ''}
-                ${c.urgent && c.status === 'active' ? '<span class="badge b-urgent">! Urgent</span>' : ''}
+                ${c.urgent && c.status === 'active' ? '<span class="badge b-urgent">Urgent</span>' : ''}
+                <span class="badge b-${c.risk || 'plain'}">${RISK[c.risk] || 'Risk not set'}</span>
             </div>
-            <div class="next"><small>${c.status === 'closed' ? 'Closure reason' : 'Next action'}</small>${esc(c.status === 'closed' ? c.closeReason : c.nextAction)}</div>
+            <div class="next">
+                <span class="what">${esc(c.status === 'closed' ? c.closeReason : c.nextAction)}</span>
+                <span class="when">${c.status === 'closed' ? 'Closed ' + fmtDate(c.closedAt) : fmtDate(c.due)}</span>
+            </div>
             ${planSummary(c.plan)}
-            ${c.pendingTo ? `<div class="pending">${incoming ? `<b>${esc(nameOf(members, c.owner))}</b> is handing this case to you.` : `Handover to <b>${esc(nameOf(members, c.pendingTo))}</b> · waiting for acceptance.`}${c.pendingNote ? `<br>“${esc(c.pendingNote)}”` : ''}</div>` : ''}
-            <div class="meta"><span>${esc(nameOf(members, c.owner))}</span><span>${c.status === 'closed' ? 'Closed ' + fmtDate(c.closedAt) : 'Review ' + fmtDate(c.due)}</span></div>
+            ${c.pendingTo ? `<div class="pending">${incoming ? `<b>${esc(owner)}</b> is handing this case to you.` : `Waiting for <b>${esc(nameOf(members, c.pendingTo))}</b> to accept.`}${c.pendingNote ? `<q>${esc(c.pendingNote)}</q>` : ''}</div>` : ''}
+            <div class="owner"><span class="avatar" aria-hidden="true">${esc(initialsOf(owner))}</span>${esc(owner)}</div>
         </div>
-        <div class="actions">${actions}</div>
-        <details class="activity" data-id="${c.id}"><summary>Activity</summary><div class="ev">Loading…</div></details>
+        <div class="actions">
+            ${main}
+            <span class="spacer"></span>
+            <details class="menu"><summary aria-label="More actions for ${esc(c.hospitalNo)}">···</summary><div class="menu-pop">${menu.join('')}</div></details>
+        </div>
+        <div class="activity" hidden></div>
     </article>`;
 }
 
@@ -131,18 +146,18 @@ function render() {
     locSel.innerHTML = '<option value="">All wards &amp; clinics</option>' + locs.map(l => `<option ${l === keep ? 'selected' : ''}>${esc(l)}</option>`).join('');
 
     const dueMine = cases.filter(c => c.owner === me.email && c.status === 'active' && c.due <= today).length;
-    $('#notice').className = 'notice' + (incoming ? ' warn' : '');
-    $('#notice').textContent =
-        view === 'handovers' ? 'The sending dietitian stays responsible until the receiver accepts. Declining returns the case to the sender.'
-        : view === 'team' ? 'All open cases in the department. Only the responsible dietitian (or an admin) can change a case.'
+    $('#lede').textContent =
+        view === 'handovers' ? 'The sending dietitian stays responsible until the receiver accepts. Declining returns the case.'
+        : view === 'team' ? 'Every open case in the department. Only the responsible dietitian or an admin can change a case.'
         : view === 'closed' ? 'Cases closed in the last 30 days. You can reopen your own.'
-        : incoming ? `${incoming} handover${incoming === 1 ? ' is' : 's are'} waiting for you in the Handovers tab.`
-        : dueMine ? `You have ${dueMine} review${dueMine === 1 ? '' : 's'} due or overdue. Urgent cases are shown first.`
+        : dueMine ? `${dueMine} review${dueMine === 1 ? '' : 's'} due or overdue. Urgent cases come first.`
         : 'Your due list is clear.';
+    $('#notice').hidden = !(incoming && view !== 'handovers');
+    $('#notice').textContent = `${incoming} handover${incoming === 1 ? ' is' : 's are'} waiting for you in Handovers.`;
 
     const rows = visible();
     $('#list-count').textContent = `${rows.length} case${rows.length === 1 ? '' : 's'}`;
-    $('#list').innerHTML = rows.map(card).join('') || '<div class="empty"><strong>No cases here.</strong><br>Try another tab or filter, or add a patient.</div>';
+    $('#list').innerHTML = rows.map(card).join('') || '<div class="empty"><strong>Nothing here</strong>Try another tab or filter, or add a patient.</div>';
 }
 
 // ---------------------------------------------------------------------------
@@ -300,6 +315,8 @@ $('#list').addEventListener('click', async (e) => {
     if (!b || busy) return;
     const c = cases.find(x => x.id === Number(b.dataset.id));
     const action = b.dataset.action;
+    b.closest('details.menu')?.removeAttribute('open');
+    if (action === 'activity') return toggleActivity(c);
     if (['accept', 'decline', 'withdraw'].includes(action)) {
         busy = true;
         b.disabled = true;
@@ -318,17 +335,23 @@ $('#list').addEventListener('click', async (e) => {
     openForm(action, c);
 });
 
-$('#list').addEventListener('toggle', async (e) => {
-    const d = e.target;
-    if (!d.matches('details.activity') || !d.open) return;
-    const box = d.querySelector('.ev');
+async function toggleActivity(c) {
+    const box = $(`article[data-case="${c.id}"] .activity`);
+    if (!box.hidden) { box.hidden = true; return; }
+    box.hidden = false;
+    box.textContent = 'Loading…';
     try {
-        const { events } = await api(`/api/cases/${d.dataset.id}/events`);
-        box.innerHTML = events.map(ev => `<p>${esc(ev.text)}<br><small>${esc(nameOf(members, ev.actor))} · ${fmtDateTime(ev.at)}</small></p>`).join('') || 'No activity.';
+        const { events } = await api(`/api/cases/${c.id}/events`);
+        box.innerHTML = events.map(ev => `<p>${esc(ev.text)}<br><small>${esc(nameOf(members, ev.actor))} · ${fmtDateTime(ev.at)}</small></p>`).join('') || 'No activity yet.';
     } catch (err) {
         box.textContent = err.message;
     }
-}, true);
+}
+
+// Close any open "More" menu when clicking elsewhere.
+document.addEventListener('click', (e) => {
+    $$('details.menu[open]').forEach(d => { if (!d.contains(e.target)) d.open = false; });
+});
 
 $$('[data-view]').forEach(b => b.addEventListener('click', () => { view = b.dataset.view; filter = ''; render(); }));
 $$('[data-filter]').forEach(b => b.addEventListener('click', () => { filter = filter === b.dataset.filter ? '' : b.dataset.filter; render(); }));

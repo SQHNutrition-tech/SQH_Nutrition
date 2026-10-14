@@ -71,11 +71,16 @@ export async function initPage(current) {
     header.innerHTML = `
         <div class="wrap">
             <a class="brand" href="/">
-                <span class="brand-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span>
+                <img src="/img/mark.png" alt="" width="36" height="36">
                 <span><strong>Nutrition Hub</strong><small>SQH · Clinical Nutrition</small></span>
             </a>
             <nav class="mainnav" aria-label="Main"></nav>
-            <div class="who"><span id="me-name">Signing in…</span><button class="small" id="theme-btn" type="button">Theme</button></div>
+            <div class="who">
+                <button class="icon-btn" id="theme-btn" type="button" aria-label="Switch light or dark mode" title="Light / dark">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                </button>
+                <span class="avatar" id="me-avatar" title="Signing in…">·</span>
+            </div>
         </div>`;
     document.body.prepend(header);
     $('#theme-btn').onclick = toggleTheme;
@@ -84,7 +89,9 @@ export async function initPage(current) {
     $('.mainnav').innerHTML = NAV
         .filter(n => !n.admin || me.me.role === 'admin')
         .map(n => `<a href="${n.href}" ${n.href === current ? 'aria-current="page"' : ''}>${n.label}</a>`).join('');
-    $('#me-name').textContent = me.me.name;
+    const avatar = $('#me-avatar');
+    avatar.textContent = me.me.name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    avatar.title = `${me.me.name} · ${me.me.email}`;
     return me;
 }
 

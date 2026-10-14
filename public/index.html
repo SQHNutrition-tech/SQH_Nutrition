@@ -5,76 +5,129 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nutrition Hub</title>
 <meta name="description" content="Clinical Nutrition Department hub: today's follow-ups, quick links, phone directory and calculators.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="icon" href="/img/mark.png">
 <link rel="stylesheet" href="/css/app.css">
 <style>
-    .hero { display: grid; gap: 16px; grid-template-columns: 1.3fr 1fr; align-items: stretch; }
-    .quote { display: flex; flex-direction: column; justify-content: center; gap: 8px; background: var(--accent-soft); border-color: transparent; }
-    .quote p { margin: 0; }
-    .quote .en { font-size: 1.05rem; font-weight: 600; }
-    .quote .ar { font-size: 1.05rem; color: var(--muted); }
-    .links { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
-    .link-tile { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); text-decoration: none; color: var(--text); font-weight: 600; min-height: 56px; }
-    .link-tile:hover { border-color: var(--accent); }
-    .link-tile .ico { width: 30px; height: 30px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; flex-shrink: 0; font-size: .85rem; font-weight: 700; }
-    .dir-cat { margin-top: 14px; }
-    .dir-cat h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
-    .dir-row { display: flex; align-items: center; gap: 10px; padding: 8px 4px; border-bottom: 1px solid var(--border); }
+    /* Welcome panel */
+    .hero {
+        position: relative; overflow: hidden; border-radius: 28px; color: var(--deep-ink);
+        background: radial-gradient(120% 140% at 100% 0%, #0A4C4F 0%, #06393B 55%, #052F31 100%);
+        padding: clamp(24px, 4vw, 44px); display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(20px, 4vw, 48px); align-items: center;
+    }
+    .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; border: 1px solid rgba(181, 217, 138, .16); pointer-events: none; }
+    .hero::before { width: 520px; height: 520px; inset-inline-end: -160px; top: -220px; }
+    .hero::after { width: 340px; height: 340px; inset-inline-end: -70px; top: -130px; border-color: rgba(181, 217, 138, .22); }
+    .hero > * { position: relative; }
+    .hero .date { color: var(--lime); font-size: .78rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+    .hero h1 { font-size: clamp(1.9rem, 4vw, 2.9rem); font-weight: 400; margin-top: 10px; color: #fff; }
+    .hero h1 b { font-weight: 600; }
+    .hero .summary { color: #CFE2D6; margin-top: 10px; font-size: 1.02rem; max-width: 46ch; }
+    .hero .row { margin-top: 24px; }
+    .btn-lime { background: var(--lime); color: #06393B; border-color: var(--lime); font-weight: 600; }
+    .btn-lime:hover { background: #C6E5A1; border-color: #C6E5A1; color: #06393B; }
+    .btn-glass { background: rgba(255, 255, 255, .08); color: #fff; border-color: rgba(255, 255, 255, .18); }
+    .btn-glass:hover { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .28); color: #fff; }
+    .quote { border-inline-start: 1px solid rgba(181, 217, 138, .3); padding-inline-start: clamp(18px, 3vw, 36px); }
+    .quote .mark { font-family: var(--display); font-size: 3.4rem; line-height: .6; color: var(--lime); display: block; height: 28px; }
+    .quote .en { font-family: var(--display); font-weight: 300; font-size: clamp(1.1rem, 1.8vw, 1.35rem); line-height: 1.5; color: #fff; }
+    .quote .ar { margin-top: 12px; color: #CFE2D6; font-size: 1.02rem; line-height: 1.8; }
+    .quote .tag { margin-top: 16px; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(207, 226, 214, .7); }
+
+    /* Today strip */
+    .today { display: grid; grid-template-columns: repeat(4, 1fr); padding: 0; overflow: hidden; }
+    .stat { display: block; padding: 20px 24px; text-decoration: none; color: inherit; position: relative; transition: background .2s; }
+    .stat + .stat { border-inline-start: 1px solid var(--line); }
+    .stat:hover { background: var(--surface-2); }
+    .stat .k { display: flex; align-items: center; gap: 8px; font-size: .84rem; color: var(--ink-2); }
+    .stat .k i { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+    .stat .v { font-family: var(--display); font-size: 2.2rem; font-weight: 400; line-height: 1.15; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .dot-coral { background: var(--coral) !important; } .dot-amber { background: #D9A23B !important; } .dot-teal { background: var(--teal) !important; }
+
+    /* Links + directory */
+    .two-col { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.4fr); gap: 22px; align-items: start; }
+    .linklist { display: flex; flex-direction: column; }
+    .linkrow { display: flex; align-items: center; gap: 14px; padding: 12px 6px; text-decoration: none; color: var(--ink); border-radius: 14px; transition: background .2s; }
+    .linkrow + .linkrow { border-top: 1px solid var(--line); }
+    .linkrow:hover { background: var(--surface-2); }
+    .linkrow .ico { width: 38px; height: 38px; border-radius: 12px; background: var(--teal-soft); color: var(--teal); display: grid; place-items: center; font-family: var(--display); font-weight: 600; font-size: .82rem; flex-shrink: 0; }
+    .linkrow .lbl { flex: 1; font-weight: 500; }
+    .linkrow .arr { color: var(--muted); transition: transform .2s; }
+    .linkrow:hover .arr { transform: translateX(3px); color: var(--teal); }
+
+    .urgent-strip { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0 6px; }
+    .urgent-pill { display: flex; align-items: center; gap: 10px; background: var(--coral-soft); color: var(--coral); border-radius: 14px; padding: 10px 14px; }
+    .urgent-pill b { font-family: var(--mono); font-size: 1.05rem; }
+    .urgent-pill span { font-size: .88rem; font-weight: 500; }
+    .dir-cat { margin-top: 18px; }
+    .dir-cat h3 { font-family: var(--body); font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 4px; }
+    .dir-row { display: flex; align-items: center; gap: 8px; padding: 9px 2px; }
+    .dir-row + .dir-row { border-top: 1px solid var(--line); }
     .dir-row .nm { flex: 1; min-width: 0; }
-    .dir-row .nm small { display: block; color: var(--muted); }
-    .dir-row .ext { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 1.05rem; white-space: nowrap; }
-    .dir-urgent .ext { color: var(--danger); }
-    .star { background: transparent; border: none; min-height: 32px; padding: 2px 6px; color: var(--muted); font-size: 1.1rem; }
-    .star[aria-pressed="true"] { color: #d99a06; }
-    @media (max-width: 760px) { .hero { grid-template-columns: 1fr; } }
+    .dir-row .nm small { display: block; color: var(--muted); font-size: .8rem; }
+    .dir-row .ext { font-family: var(--mono); font-weight: 500; font-size: 1rem; letter-spacing: .04em; white-space: nowrap; }
+    .star { background: transparent; border: 0; min-height: 30px; width: 30px; padding: 0; color: var(--line-strong); font-size: 1rem; border-radius: 50%; }
+    .star:hover { background: var(--surface-2); color: #D9A23B; }
+    .star[aria-pressed="true"] { color: #D9A23B; }
+    .empty-note { color: var(--muted); font-size: .9rem; padding: 10px 0; }
+
+    @media (max-width: 860px) {
+        .hero { grid-template-columns: 1fr; }
+        .quote { border-inline-start: 0; padding-inline-start: 0; border-top: 1px solid rgba(181, 217, 138, .3); padding-top: 20px; }
+        .two-col { grid-template-columns: 1fr; }
+        .today { grid-template-columns: 1fr 1fr; }
+        .stat:nth-child(3) { border-inline-start: 0; }
+        .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+    }
 </style>
 </head>
 <body>
-<main class="wrap stack" style="padding-top:20px">
+<main class="wrap stack page">
 
-    <section class="hero">
-        <div class="card">
-            <p class="eyebrow" id="today-label"></p>
+    <section class="hero" aria-labelledby="greeting">
+        <div>
+            <p class="date" id="today-label">&nbsp;</p>
             <h1 id="greeting">Good morning</h1>
-            <p class="muted" id="day-summary" style="margin:6px 0 14px">Loading your day…</p>
-            <div class="metrics" id="metrics">
-                <a class="metric" href="/followup.html?filter=overdue"><span class="k k-red">Overdue</span><div class="v" id="m-overdue">–</div></a>
-                <a class="metric" href="/followup.html?filter=today"><span class="k k-amber">Due today</span><div class="v" id="m-today">–</div></a>
-                <a class="metric" href="/followup.html?view=handovers"><span class="k k-teal">Handovers to accept</span><div class="v" id="m-incoming">–</div></a>
-                <a class="metric" href="/followup.html?view=team"><span class="k">Department open cases</span><div class="v" id="m-department">–</div></a>
-            </div>
-            <div class="row" style="margin-top:14px">
-                <a class="btn primary" href="/followup.html">Open my follow-ups</a>
-                <a class="btn" href="/tools.html">Calculators &amp; handouts</a>
+            <p class="summary" id="day-summary">Getting your day ready…</p>
+            <div class="row">
+                <a class="btn btn-lime" href="/followup.html">Open my follow-ups <span aria-hidden="true">→</span></a>
+                <a class="btn btn-glass" href="/tools.html">Calculators &amp; handouts</a>
             </div>
         </div>
-        <figure class="card quote" style="margin:0">
-            <p class="eyebrow">Today's thought</p>
+        <figure class="quote" style="margin:0">
+            <span class="mark" aria-hidden="true">“</span>
             <p class="en" id="q-en"></p>
             <p class="ar" id="q-ar" lang="ar" dir="rtl"></p>
+            <p class="tag">Thought for today</p>
         </figure>
     </section>
 
-    <section class="card" aria-labelledby="links-title">
-        <div class="section-head">
-            <h2 id="links-title">Quick links</h2>
-            <span class="small muted" id="links-hint"></span>
-        </div>
-        <div class="links" id="links"></div>
+    <section class="card today" aria-label="Today">
+        <a class="stat" href="/followup.html?filter=overdue"><span class="k"><i class="dot-coral"></i>Overdue</span><div class="v" id="m-overdue">–</div></a>
+        <a class="stat" href="/followup.html?filter=today"><span class="k"><i class="dot-amber"></i>Due today</span><div class="v" id="m-today">–</div></a>
+        <a class="stat" href="/followup.html?view=handovers"><span class="k"><i class="dot-teal"></i>Handovers for you</span><div class="v" id="m-incoming">–</div></a>
+        <a class="stat" href="/followup.html?view=team"><span class="k"><i></i>Open in department</span><div class="v" id="m-department">–</div></a>
     </section>
 
-    <section class="card" aria-labelledby="dir-title">
-        <div class="section-head">
-            <h2 id="dir-title">Phone directory</h2>
-            <span class="small muted">☆ star the numbers you call most · saved on this device</span>
-        </div>
-        <input type="search" id="dir-search" placeholder="Search ward, department or name… (e.g. ICU, pharmacy, kitchen)" aria-label="Search the phone directory">
-        <div id="directory"></div>
-    </section>
+    <div class="two-col">
+        <section class="card" aria-labelledby="links-title">
+            <div class="section-head" style="margin-bottom:6px">
+                <h2 id="links-title">Quick links</h2>
+            </div>
+            <div class="linklist" id="links"></div>
+            <p class="small muted" id="links-hint"></p>
+        </section>
 
-    <footer class="site">SQH · Clinical Nutrition Department. Keep patient names, diagnoses and notes in Al Shifa; this hub holds hospital numbers and follow-up tasks only.</footer>
+        <section class="card" aria-labelledby="dir-title">
+            <div class="section-head">
+                <h2 id="dir-title">Phone directory</h2>
+                <span class="small muted">☆ Star the ones you call most</span>
+            </div>
+            <input type="search" id="dir-search" placeholder="Search ward, department or name" aria-label="Search the phone directory">
+            <div id="directory"></div>
+        </section>
+    </div>
+
+    <footer class="site">SQH · Clinical Nutrition Department. Patient names, diagnoses and notes stay in Al Shifa; this hub holds hospital numbers and follow-up tasks only.</footer>
 </main>
 <script type="module" src="/js/hub.js"></script>
 </body>
