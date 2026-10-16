@@ -195,6 +195,7 @@ footer.site { color: var(--muted); font-size: .82rem; padding: 36px 0 48px; max-
     .topbar .wrap { flex-wrap: wrap; row-gap: 10px; }
     .mainnav { order: 3; width: 100%; justify-content: space-between; }
     .mainnav a { padding: 7px 6px; flex: 1; text-align: center; font-size: .82rem; }
+    .mainnav a[href="/"] { display: none; } /* the logo already links home */
     .brand small { display: none; }
     .segmented { display: flex; width: 100%; }
     .segmented button { flex: 1; padding: 6px 6px; font-size: .84rem; }

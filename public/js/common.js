@@ -59,6 +59,7 @@ export function toggleTheme() {
 const NAV = [
     { href: '/', label: 'Home' },
     { href: '/followup.html', label: 'Follow-ups' },
+    { href: '/formulas.html', label: 'Formulary' },
     { href: '/directory.html', label: 'Directory' },
     { href: '/tools.html', label: 'Tools' },
     { href: '/admin.html', label: 'Admin', admin: true }

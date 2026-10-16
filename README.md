@@ -11,7 +11,13 @@ The Clinical Nutrition Department's daily home page. Each dietitian opens it in 
   - discharging from a ward to a clinic, with the nutrition plan travelling with the case
   - admitting from a clinic back to a ward
 - **Quick links:** Ministry email, HR, Al Shifa, protocols. Admins edit these in the app.
-- **Phone directory:** searchable extensions for the department, wards and support services, with urgent numbers at the top. Each person can star their favourites. Admins edit it in the app.
+- **Phone directory:** its own page and the first quick link. Searchable extensions for the department, wards and support services, with urgent numbers at the top. Each person can star their favourites, which then appear on their home page. Admins edit it in the app.
+- **Formulary:** every feed and module the department stocks, with photo and label values. Includes:
+  - **compare** up to three side by side
+  - **which formula fits** a patient's energy, protein and fluid targets
+  - **concentrate** a powder to a target kcal per 100 mL
+  - **use in enteral calculator**, which opens the calculator pre-filled
+  - suggestions in the follow-up plan's diet/formula field
 - **Calculators and handouts:** requirements, MUST, NRS-2002, enteral regimen, refeeding risk, ADIME note, and Arabic/English patient handouts.
 
 It runs on **Cloudflare** (a Worker plus a D1 database), in the department's own account, with sign-in through **Cloudflare Access**. It no longer depends on ChatGPT. See **[DEPLOY.md](DEPLOY.md)** for step-by-step setup.
@@ -36,6 +42,18 @@ It runs on **Cloudflare** (a Worker plus a D1 database), in the department's own
   - Only the receiving dietitian can accept or decline a handover.
   - If two people edit the same case at once, the second is asked to refresh instead of overwriting the first.
 
+## Formulary: entering label values
+
+Products only feed the calculators once their values come from the pack label and a dietitian has verified them.
+
+1. **Add the photo:** save the product photo as `public/img/formulas/<name>.webp`, about 440 px tall.
+2. **Enter the label:** go to **Admin → Formulary → Edit** and type the label's **per 100 mL** column. For powders, enter values as prepared at the standard dilution, plus grams of powder per 100 mL and the scoop size. For modules, choose "per 100 g".
+3. **Check for typos:** the hub rejects an energy value that doesn't match protein, carbohydrate and fat (4/4/9 kcal per g).
+4. **Verify:** click **Verify** only after checking every value against the pack in your hand. The hub records who verified it and when.
+5. **Re-verify after changes:** changing any number later removes the verification automatically, so it must be checked again.
+
+The first 16 products were added from front-of-pack photos (October 2026). Only Infatrini, PaediaSure Peptide and PaediaSure Plus show any numbers on the front. Every product still needs its nutrition panel.
+
 ## How handovers work
 
 | Situation | What to do | What happens |
@@ -56,7 +74,12 @@ src/config.js        Wards and clinics, next actions, feeding routes, closure re
 migrations/          D1 database schema
 public/index.html    Home: greeting, quote, today's counts, quick links, phone directory
 public/followup.html Follow-up list and handovers
-public/admin.html    Members, quick links, phone directory, import from the old pilot
+public/admin.html    Members, quick links, phone directory, formulary editor, import from the old pilot
+public/formulas.html Formulary: library, compare, best fit, concentration
+public/directory.html Phone directory
+public/js/formula-math.js Feed calculations (unit-tested)
+src/formulary.js     Formulary validation and verification rules
+public/img/formulas/ Product photos
 public/tools.html    Calculators and patient handouts
 test/                Unit tests (npm test)
 docs/                Earlier review of the "Be With Us" school platform

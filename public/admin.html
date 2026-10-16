@@ -11,6 +11,9 @@
     td input[type="text"] { min-height: 34px; padding: 5px 8px; }
     td select { min-height: 34px; padding: 4px 8px; width: auto; }
     .off td { opacity: .55; }
+    .fgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    @media (max-width: 640px) { .fgrid { grid-template-columns: 1fr 1fr; } .fgrid [style*="span 2"] { grid-column: 1 / -1 !important; } }
+    .thumb { width: 40px; height: 40px; object-fit: contain; }
 </style>
 </head>
 <body>
@@ -58,6 +61,15 @@
         </form>
     </section>
 
+    <section class="card" id="formulary" aria-labelledby="form-title">
+        <div class="section-head">
+            <h2 id="form-title">Formulary</h2>
+            <button class="small primary" type="button" id="f-add">＋ Add product</button>
+        </div>
+        <p class="small muted" style="margin-top:-6px">Enter values exactly as printed in the label's <b>per 100 mL</b> column (modules: per 100 g). Changing any number removes the verification, so a second check is always needed. Photos go in <code>public/img/formulas/</code>.</p>
+        <div class="table-scroll"><table class="list"><thead><tr><th></th><th>Product</th><th>Group</th><th>kcal</th><th>Protein</th><th>Status</th><th></th></tr></thead><tbody id="f-body"></tbody></table></div>
+    </section>
+
     <section class="card" aria-labelledby="imp-title">
         <div class="section-head"><h2 id="imp-title">Import from the old pilot</h2></div>
         <p class="small muted" style="margin-top:0">In the old Nutrition Follow-up app, open <b>Department</b>, clear all filters and use <b>Export CSV</b>. Choose that file here. Only active cases are imported. Cases go to their original dietitian if that person has already signed in to this hub, otherwise to you; reassign them later above. Delete the CSV afterwards.</p>
@@ -67,6 +79,51 @@
         <pre class="small muted" id="import-report" style="white-space:pre-wrap"></pre>
     </section>
 </main>
+<dialog id="f-dlg" style="width:min(720px, calc(100% - 24px))">
+    <form id="f-form" novalidate>
+        <div class="dialog-head">
+            <div><span class="eyebrow">Formulary</span><h2 id="f-title">Product</h2></div>
+            <button type="button" class="icon-btn" id="f-x" aria-label="Close">✕</button>
+        </div>
+        <div class="form-grid">
+            <div class="fgrid">
+                <label class="field" style="grid-column: span 2">Name<input type="text" name="name" required maxlength="80"></label>
+                <label class="field">Maker<input type="text" name="maker" maxlength="60"></label>
+                <label class="field">Group<select name="grp"><option value="infant">Infant</option><option value="paediatric">Paediatric</option><option value="adult">Adult</option><option value="module">Module</option></select></label>
+                <label class="field">Form<select name="form"><option value="liquid">Liquid</option><option value="powder">Powder</option></select></label>
+                <label class="field">Values given<select name="basis"><option value="100ml">per 100 mL (as prepared)</option><option value="100g">per 100 g (modules)</option></select></label>
+                <label class="field">Type<input type="text" name="category" maxlength="60" placeholder="e.g. Peptide-based"></label>
+                <label class="field">Age / weight<input type="text" name="age" maxlength="60"></label>
+                <label class="field">Pack<input type="text" name="pack" maxlength="40" placeholder="e.g. 400 g"></label>
+                <label class="field">Photo file<input type="text" name="photo" maxlength="80" placeholder="e.g. my-feed.webp"></label>
+                <label class="field" style="grid-column: span 2">Tags (comma-separated)<input type="text" name="flags" maxlength="200" placeholder="FSMP, Lactose-free, Tube or sip"></label>
+            </div>
+            <fieldset><legend>Nutrition panel</legend>
+                <div class="fgrid">
+                    <label class="field">Energy kcal<input type="number" step="any" name="kcal"></label>
+                    <label class="field">Protein g<input type="number" step="any" name="protein"></label>
+                    <label class="field">Carbohydrate g<input type="number" step="any" name="cho"></label>
+                    <label class="field">Fat g<input type="number" step="any" name="fat"></label>
+                    <label class="field">Fibre g<input type="number" step="any" name="fibre"></label>
+                    <label class="field">Free water mL<input type="number" step="any" name="water"></label>
+                    <label class="field">Sodium mg<input type="number" step="any" name="sodium"></label>
+                    <label class="field">Potassium mg<input type="number" step="any" name="potassium"></label>
+                    <label class="field">Phosphate mg<input type="number" step="any" name="phosphate"></label>
+                    <label class="field">Osmolality mOsm/kg<input type="number" step="any" name="osmolality"></label>
+                    <label class="field">Powder g per 100 mL<input type="number" step="any" name="g_per_100ml"></label>
+                    <label class="field">Scoop g<input type="number" step="any" name="scoop_g"></label>
+                </div>
+            </fieldset>
+            <label class="field">Source<input type="text" name="source" maxlength="120" placeholder="e.g. Pack label, Oct 2026 / Manufacturer datasheet v3"></label>
+            <label class="field">Notes<textarea name="notes" rows="2" maxlength="600"></textarea></label>
+        </div>
+        <p class="form-error" id="f-error" role="alert"></p>
+        <div class="dialog-actions">
+            <button type="button" class="ghost" id="f-cancel">Cancel</button>
+            <button type="submit" class="primary">Save</button>
+        </div>
+    </form>
+</dialog>
 <script type="module" src="/js/admin.js"></script>
 </body>
 </html>

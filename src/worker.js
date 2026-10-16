@@ -4,6 +4,7 @@
 import { getUser } from './auth.js';
 import { applyAction, importRow, InputError, today } from './model.js';
 import * as CONFIG from './config.js';
+import { parseFormula, nutrientsChanged, canVerify, slugify, NUTRIENTS } from './formulary.js';
 
 const SECURITY_HEADERS = {
     'X-Content-Type-Options': 'nosniff',
@@ -353,6 +354,61 @@ async function api(request, env, member, path) {
             }
         }
         return json(report);
+    }
+
+    // ----- Formulary -----
+    if (path === '/api/formulas' && method === 'GET') {
+        const all = new URL(request.url).searchParams.get('all') === '1' && member.role === 'admin';
+        const { results } = await db.prepare(
+            `SELECT f.*, m.name AS verified_by_name FROM formulas f LEFT JOIN members m ON m.email = f.verified_by
+             ${all ? '' : 'WHERE f.active = 1'} ORDER BY f.grp, f.name`
+        ).all();
+        return json({ formulas: results.map(r => ({ ...r, active: !!r.active, verified: !!r.verified_on })) });
+    }
+
+    if (path === '/api/admin/formulas' && method === 'POST') {
+        requireAdmin(member);
+        const body = await readJson(request, 8000);
+        const at = nowIso();
+        const cols = ['name', 'maker', 'grp', 'category', 'form', 'age', 'pack', 'photo', 'flags', 'notes', 'basis', 'source', ...Object.keys(NUTRIENTS)];
+        if (body.action === 'add') {
+            const f = parseFormula(body.values);
+            const slug = slugify(f.name) || 'formula';
+            try {
+                const r = await db.prepare(`INSERT INTO formulas (slug, ${cols.join(', ')}, updated_at) VALUES (?, ${cols.map(() => '?').join(', ')}, ?) RETURNING id`)
+                    .bind(slug, ...cols.map(c => f[c]), at).first();
+                return json({ ok: true, id: r.id });
+            } catch (e) {
+                if (String(e).includes('UNIQUE')) throw new InputError('A product with that name already exists.', 409);
+                throw e;
+            }
+        }
+        const id = Number(body.id);
+        const current = await db.prepare('SELECT * FROM formulas WHERE id = ?').bind(id).first();
+        if (!current) throw new InputError('Product not found.', 404);
+        switch (body.action) {
+            case 'edit': {
+                const f = parseFormula(body.values);
+                // Changing any number means the label check has to be done again.
+                const reset = nutrientsChanged(current, f);
+                await db.prepare(`UPDATE formulas SET ${cols.map(c => c + ' = ?').join(', ')}, updated_at = ?${reset ? ', verified_by = NULL, verified_on = NULL' : ''} WHERE id = ?`)
+                    .bind(...cols.map(c => f[c]), at, id).run();
+                return json({ ok: true, verificationCleared: reset && !!current.verified_on });
+            }
+            case 'verify':
+                canVerify(current);
+                await db.prepare('UPDATE formulas SET verified_by = ?, verified_on = ?, updated_at = ? WHERE id = ?').bind(member.email, ctx.today, at, id).run();
+                return json({ ok: true });
+            case 'unverify':
+                await db.prepare('UPDATE formulas SET verified_by = NULL, verified_on = NULL, updated_at = ? WHERE id = ?').bind(at, id).run();
+                return json({ ok: true });
+            case 'archive':
+            case 'restore':
+                await db.prepare('UPDATE formulas SET active = ?, updated_at = ? WHERE id = ?').bind(body.action === 'restore' ? 1 : 0, at, id).run();
+                return json({ ok: true });
+            default:
+                throw new InputError('Unknown action.');
+        }
     }
 
     throw new InputError('Not found.', 404);

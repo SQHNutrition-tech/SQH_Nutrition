@@ -1156,7 +1156,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderHandout($('h-preview'));
     recalcAll();
+    loadFormulary();
 });
+
+// Verified products from the department formulary join the enteral formula list.
+// /tools.html?formula=<slug> (from the Formulary page) opens it pre-selected.
+function loadFormulary() {
+    fetch('/api/formulas', { cache: 'no-store' })
+        .then(r => (r.ok ? r.json() : null))
+        .then(data => {
+            if (!data) return;
+            const ready = data.formulas.filter(f => f.verified && f.basis === '100ml' && f.kcal > 0);
+            if (ready.length) {
+                const group = el('optgroup', { label: 'SQH formulary (verified)' });
+                ready.forEach(f => group.append(el('option', {
+                    value: [f.kcal / 100, f.protein !== null ? Math.round(f.protein * 100) / 10 : '', f.water ?? ''].join(','),
+                    'data-slug': f.slug
+                }, f.name)));
+                $('e-preset').append(group);
+            }
+            const want = new URLSearchParams(location.search).get('formula');
+            if (!want) return;
+            const opt = Array.from($('e-preset').options).find(o => o.dataset.slug === want);
+            if (opt) {
+                opt.selected = true;
+                $('e-preset').dispatchEvent(new Event('change'));
+            } else {
+                toast('That product is not verified yet, so it is not available in the calculator');
+            }
+            $('tab-en').click();
+        })
+        .catch(() => { /* offline or signed out: generic presets still work */ });
+}
 </script>
 </body>
 </html>

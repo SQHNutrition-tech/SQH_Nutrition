@@ -60,7 +60,7 @@ async function main() {
         : c.incoming ? `No reviews due. ${c.incoming} handover${c.incoming === 1 ? ' is' : 's are'} waiting for you.` : 'Your list is clear today. Have a good shift.';
 
     // Built-in pages first, then the admin-managed external links.
-    const internal = [['/directory.html', 'Phone directory', '☎']];
+    const internal = [['/formulas.html', 'Formulary', '℞'], ['/directory.html', 'Phone directory', '☎']];
     $('#links').innerHTML =
         internal.map(([href, label, ico]) => `<a class="linkrow" href="${href}"><span class="ico">${ico}</span><span class="lbl">${label}</span><span class="arr" aria-hidden="true">→</span></a>`).join('') +
         links.links.map(l => `<a class="linkrow" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer"><span class="ico">${esc(initials(l.label))}</span><span class="lbl">${esc(l.label)}</span><span class="arr" aria-hidden="true">↗</span></a>`).join('');

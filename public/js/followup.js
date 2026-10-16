@@ -192,7 +192,7 @@ function planFields(p = {}, { required = false, open = false } = {}) {
         <div class="form-grid" style="margin-top:10px">
             <div class="two">
                 <label class="field">Feeding route<select name="route" ${required ? 'required' : ''}><option value="">—</option>${config.feedingRoutes.map(r => opt(r, p.route)).join('')}</select></label>
-                <label class="field">Diet / formula<input type="text" name="diet" maxlength="120" value="${esc(p.diet || '')}" placeholder="e.g. Diabetic 1800 kcal"></label>
+                <label class="field">Diet / formula<input type="text" name="diet" maxlength="120" list="formula-list" value="${esc(p.diet || '')}" placeholder="Pick from the formulary or type"></label>
             </div>
             <div class="three">
                 <label class="field">kcal/day<input type="number" name="kcal" min="0" max="6000" inputmode="numeric" value="${p.kcal ?? ''}"></label>
@@ -388,6 +388,13 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && !$
         $('#date').textContent = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Muscat', weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
         $('#add-btn').disabled = false;
         await load();
+        // Product names from the formulary, suggested in the plan's diet/formula field.
+        api('/api/formulas').then(({ formulas }) => {
+            const list = document.createElement('datalist');
+            list.id = 'formula-list';
+            list.innerHTML = formulas.map(f => `<option value="${esc(f.name)}">`).join('');
+            document.body.append(list);
+        }).catch(() => { /* suggestions are optional */ });
     } catch (e) {
         $('#notice').textContent = e.message;
     }
