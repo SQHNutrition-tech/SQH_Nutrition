@@ -30,7 +30,7 @@ crons = ["0 22 * * *"]
 
 [vars]
 # Your Zero Trust team domain, e.g. "sqh-nutrition.cloudflareaccess.com"
-ACCESS_TEAM_DOMAIN = "REPLACE_ME.cloudflareaccess.com"
+ACCESS_TEAM_DOMAIN = "curly-cell-e5dc.cloudflareaccess.com"
 # "Application Audience (AUD) Tag" from the Access application's settings
 ACCESS_AUD = "REPLACE_WITH_ACCESS_AUD_TAG"
 # Comma-separated emails that are always admins (bootstrap)
