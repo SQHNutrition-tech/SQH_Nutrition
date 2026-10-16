@@ -1,5 +1,5 @@
 import { $, $$, esc, api, initPage, toast } from './common.js';
-import { usable, rankForTargets, concentrate, COMPARE_ROWS } from './formula-math.js';
+import { usable, rankForTargets, concentrate, moduleForGap, COMPARE_ROWS } from './formula-math.js';
 
 let formulas = [];
 let grp = '';
@@ -38,8 +38,11 @@ function card(f) {
             <div class="mini" aria-label="${unit(f)}">
                 <div><b>${fmt(f.kcal, 0)}</b><span>kcal</span></div>
                 <div><b>${fmt(f.protein)}</b><span>g protein</span></div>
-                <div><b>${fmt(f.water, 0)}</b><span>mL water</span></div>
+                ${f.basis === '100g'
+                    ? `<div><b>${fmt(f.scoop_g)}</b><span>g scoop</span></div>`
+                    : `<div><b>${fmt(f.water, 0)}</b><span>mL water</span></div>`}
             </div>
+            <div class="sub" style="font-size:.7rem;text-align:center">${unit(f)}</div>
         </div>
     </article>`;
 }
@@ -156,12 +159,21 @@ $('#fit-form').addEventListener('submit', (e) => {
         box.innerHTML = `<p class="empty-note">No verified products${v.grp ? ' in this group' : ''} yet. Once nutrition panels are entered and checked, matches appear here.</p>`;
         return;
     }
+    // Verified protein modules can close a protein shortfall.
+    const proteinModule = formulas.find(f => f.grp === 'module' && f.verified && f.basis === '100g' && f.protein > 50);
+    const topUp = (r) => {
+        const gap = targets.protein - (r.protein ?? 0);
+        if (!proteinModule || !(targets.protein > 0) || r.protein === null || gap < 3) return '';
+        const m = moduleForGap(proteinModule, gap);
+        return m ? `<div class="small muted" style="grid-column:2 / -1">+ ${fmt(m.grams)} g ${esc(proteinModule.name)}${m.scoops !== null ? ` (≈ ${fmt(m.scoops)} scoops)` : ''} closes the ${Math.round(gap)} g protein gap</div>` : '';
+    };
     box.innerHTML = ranked.map(r => `<div class="fit-row">
         <img src="${photo(r.formula)}" alt="">
         <div class="nm">${esc(r.formula.name)}<small>${esc(r.formula.category)}</small></div>
         <div class="v">${Math.round(r.volume)} mL<small>per day</small></div>
         <div class="v">${r.protein === null ? '—' : `${Math.round(r.protein)} g`}<small>${r.proteinPct === null ? 'protein' : `${Math.round(r.proteinPct * 100)}% of protein`}</small></div>
         <div class="v water">${r.water === null ? '—' : `${Math.round(r.water)} mL`}<small>free water</small></div>
+        ${topUp(r)}
     </div>`).join('');
 });
 

@@ -16,6 +16,7 @@ The Clinical Nutrition Department's daily home page. Each dietitian opens it in 
   - **compare** up to three side by side
   - **which formula fits** a patient's energy, protein and fluid targets
   - **concentrate** a powder to a target kcal per 100 mL
+  - **protein top-up:** grams and scoops of a verified protein module to close a protein gap
   - **use in enteral calculator**, which opens the calculator pre-filled
   - suggestions in the follow-up plan's diet/formula field
 - **Calculators and handouts:** requirements, MUST, NRS-2002, enteral regimen, refeeding risk, ADIME note, and Arabic/English patient handouts.
@@ -52,9 +53,10 @@ Products only feed the calculators once their values come from the pack label an
 4. **Verify:** click **Verify** only after checking every value against the pack in your hand. The hub records who verified it and when.
 5. **Re-verify after changes:** changing any number later removes the verification automatically, so it must be checked again.
 
-32 products have been added from front-of-pack photos (October 2026):
+46 products have been added from front-of-pack photos (October 2026):
 - **First batch:** 16 infant and paediatric products.
 - **Second batch:** 16 adult oral supplements and tube feeds.
+- **Third batch:** 14 renal, peptide, oncology and paediatric products, plus the first modules (Protifar, Maxijul, Abound).
 
 Per-100 mL values were calculated only from numbers printed on the front, and the source is recorded on each product. Every product still needs its nutrition panel and verification. Several photos show US or European packs, so check values against the packs SQH actually stocks.
 
