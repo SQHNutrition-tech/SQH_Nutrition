@@ -366,6 +366,57 @@ window.I18N_AR = {
     'No modules added yet. Admins can add protein, energy and fibre modules in Admin → Formulary.':
         'لم تُضف مكمّلات بعد. يمكن للمسؤول إضافة مكمّلات البروتين والطاقة والألياف من الإدارة ← دليل التركيبات.',
 
+    // ---------------------------------------------------- Formulary editor
+    'Formulary editor': 'محرر دليل التركيبات',
+    'Formulary editor · Nutrition Hub': 'محرر دليل التركيبات · منصة التغذية',
+    "Add products, change label values and photos, or update many at once with Excel. Changing any number removes the product's verification until someone checks it against the pack again.":
+        'أضف منتجات، وعدّل قيم الملصق والصور، أو حدّث عدداً كبيراً دفعة واحدة عبر Excel. تغيير أي رقم يلغي توثيق المنتج حتى يُراجع مقابل العبوة من جديد.',
+    'View formulary': 'عرض دليل التركيبات',
+    'Edit formulary': 'تعديل دليل التركيبات',
+    'Open formulary editor': 'فتح محرر دليل التركيبات',
+    'Add products, change label values and photos, and update many products at once with an Excel file.': 'أضف منتجات، وعدّل قيم الملصق والصور، وحدّث عدة منتجات دفعة واحدة بملف Excel.',
+    'Update with Excel': 'التحديث عبر Excel',
+    'Download': 'التنزيل',
+    'Fill in': 'التعبئة',
+    'Upload': 'الرفع',
+    'The spreadsheet has every product and its current values. Use the blank one to add new products only.': 'يحتوي الملف على كل المنتجات وقيمها الحالية. استخدم القالب الفارغ لإضافة منتجات جديدة فقط.',
+    'Download all products': 'تنزيل كل المنتجات',
+    'Blank template': 'قالب فارغ',
+    "Type values from the label. Add new products in empty rows and leave their ID empty. Don't change the headers.": 'اكتب القيم من الملصق. أضف المنتجات الجديدة في صفوف فارغة واترك خانة ID فارغة. لا تغيّر عناوين الأعمدة.',
+    'You will see every change before anything is saved.': 'سترى كل تغيير قبل حفظ أي شيء.',
+    'Upload Excel file': 'رفع ملف Excel',
+    'Products': 'المنتجات',
+    'Search products': 'البحث في المنتجات',
+    'Hidden': 'المخفية',
+    'Values are per 100 mL as prepared (modules: per 100 g). Click a number to change it; changed cells turn amber until saved.': 'القيم لكل 100 mL بعد التحضير (المكمّلات: لكل 100 g). اضغط على أي رقم لتعديله؛ تتلوّن الخانات المعدّلة حتى تُحفظ.',
+    'Bottle': 'العبوة',
+    'Scoop': 'المكيال',
+    'Discard': 'تجاهل',
+    'Save changes': 'حفظ التغييرات',
+    'Choose photo': 'اختيار صورة',
+    'A clear photo of the pack front. It is resized automatically.': 'صورة واضحة لواجهة العبوة، يُعدَّل حجمها تلقائياً.',
+    'Check before saving': 'راجع قبل الحفظ',
+    'New': 'جديد',
+    'Changes': 'تعديلات',
+    'No change': 'دون تغيير',
+    'Problem': 'مشكلة',
+    'verification removed': 'سيُلغى التوثيق',
+    'Nothing to import.': 'لا يوجد ما يُستورد.',
+    'Nothing to save': 'لا يوجد ما يُحفظ',
+    'Save the changed values first': 'احفظ القيم المعدّلة أولاً',
+    'Photo must be a WebP, JPEG or PNG image.': 'يجب أن تكون الصورة بصيغة WebP أو JPEG أو PNG.',
+    'The photo could not be read.': 'تعذّرت قراءة الصورة.',
+    'The photo is too large (max 600 KB).': 'الصورة كبيرة جداً (الحد الأقصى 600 KB).',
+    'Expected up to 500 rows.': 'الحد الأقصى 500 صف.',
+    'This product appears more than once in the sheet.': 'هذا المنتج مكرر في الملف.',
+
+    // Field names in messages (spreadsheet headers)
+    'Energy (kcal)': 'الطاقة (kcal)', 'Protein (g)': 'البروتين (g)', 'Carbohydrate (g)': 'الكربوهيدرات (g)', 'Fat (g)': 'الدهون (g)',
+    'Fibre (g)': 'الألياف (g)', 'Free water (mL)': 'الماء الحر (mL)', 'Sodium (mg)': 'الصوديوم (mg)', 'Potassium (mg)': 'البوتاسيوم (mg)',
+    'Chloride (mg)': 'الكلوريد (mg)', 'Calcium (mg)': 'الكالسيوم (mg)', 'Magnesium (mg)': 'المغنيسيوم (mg)', 'Phosphate (mg)': 'الفوسفات (mg)',
+    'Osmolality (mOsm/kg)': 'الأسمولية (mOsm/kg)', 'Osmolarity (mOsm/L)': 'الأسمولارية (mOsm/L)', 'Powder per 100 mL (g)': 'المسحوق لكل 100 mL (g)',
+    'Scoop (g)': 'المكيال (g)', 'Bottle size (mL)': 'حجم العبوة (mL)', 'Tags': 'الوسوم', 'Source link': 'رابط المصدر', 'Photo': 'الصورة',
+
     // ---------------------------------------------------------------- Admin
     'Only admins can use this page.': 'هذه الصفحة للمسؤولين فقط.',
     'Team members': 'أعضاء الفريق',
@@ -683,6 +734,7 @@ window.I18N_AR = {
 
 // Messages built with names or numbers. Each entry: [pattern, (match, tr) => Arabic].
 window.I18N_AR_PATTERNS = [
+    [/^No product has ID (\S+)\. Leave ID empty to add a new product\.$/, (m) => `لا يوجد منتج برقم ID ${m[1]}. اترك خانة ID فارغة لإضافة منتج جديد.`],
     [/^(Star|Unstar) (.+)$/, (m) => (m[1] === 'Star' ? 'تمييز ' : 'إلغاء تمييز ') + m[2]],
     [/^Please complete: (.+)\.$/, (m, tr) => `يرجى إكمال: ${tr(m[1])}.`],
     [/^(.+) is too long \(max (\d+) characters\)\.$/, (m, tr) => `${tr(m[1])} طويل جداً (الحد الأقصى ${m[2]} حرفاً).`],

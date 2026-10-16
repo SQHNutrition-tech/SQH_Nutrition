@@ -8,7 +8,9 @@ const picked = new Set();
 
 const GROUP_LABEL = { infant: 'Infant', paediatric: 'Paediatric', adult: 'Adult', module: 'Module' };
 const fmt = (v, d = 1) => (v === null || v === undefined ? '—' : (Math.round(v * 10 ** d) / 10 ** d).toString());
-const photo = (f) => f.photo ? `/img/formulas/${esc(f.photo)}` : '/img/mark.png';
+const photo = (f) => f.photo === 'uploaded' ? `/api/formulas/${f.id}/photo?v=${encodeURIComponent(f.updated_at || '')}`
+    : f.photo ? `/img/formulas/${esc(f.photo)}` : '/img/mark.png';
+let isAdmin = false;
 const unit = (f) => (f.basis === '100g' ? 'per 100 g' : 'per 100 mL');
 const hasBottle = (f) => f.basis === '100ml' && f.serving_ml > 0;
 const bottleLabel = (f) => L(`per bottle (${fmt(f.serving_ml, 0)} mL)`, `لكل عبوة (${fmt(f.serving_ml, 0)} mL)`);
@@ -115,6 +117,7 @@ function openDetail(f) {
             <div class="row" style="margin-top:18px">
                 ${canUse ? `<a class="btn primary" href="/tools.html?formula=${encodeURIComponent(f.slug)}#enteral">Use in enteral calculator</a>` : '<button class="primary" disabled title="Verify the label values first">Use in enteral calculator</button>'}
                 <button type="button" class="ghost" data-pick="${f.id}">${picked.has(f.id) ? 'Remove from comparison' : 'Add to comparison'}</button>
+                ${isAdmin ? `<a class="btn ghost" href="/formulary-edit.html#p${f.id}">Edit</a>` : ''}
             </div>
         </div>
     </div>`;
@@ -231,7 +234,9 @@ $$('dialog [data-close]').forEach(b => b.addEventListener('click', () => b.close
 
 (async () => {
     try {
-        await initPage('/formulas.html');
+        const { me } = await initPage('/formulas.html');
+        isAdmin = me.role === 'admin';
+        $('#edit-link').hidden = !isAdmin;
         ({ formulas } = await api('/api/formulas'));
         const pending = formulas.filter(f => !f.verified).length;
         if (pending) {

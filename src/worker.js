@@ -4,7 +4,7 @@
 import { getUser } from './auth.js';
 import { applyAction, importRow, InputError, today } from './model.js';
 import * as CONFIG from './config.js';
-import { parseFormula, nutrientsChanged, canVerify, slugify, NUTRIENTS } from './formulary.js';
+import { parseFormula, nutrientsChanged, canVerify, productSlug, planImport, FORMULA_COLUMNS } from './formulary.js';
 
 const SECURITY_HEADERS = {
     'X-Content-Type-Options': 'nosniff',
@@ -380,10 +380,10 @@ async function api(request, env, member, path) {
         requireAdmin(member);
         const body = await readJson(request, 8000);
         const at = nowIso();
-        const cols = ['name', 'maker', 'grp', 'category', 'form', 'age', 'pack', 'photo', 'flags', 'notes', 'basis', 'source', 'source_url', ...Object.keys(NUTRIENTS)];
+        const cols = FORMULA_COLUMNS;
         if (body.action === 'add') {
             const f = parseFormula(body.values);
-            const slug = slugify(f.name) || 'formula';
+            const slug = productSlug(f.name);
             try {
                 const r = await db.prepare(`INSERT INTO formulas (slug, ${cols.join(', ')}, updated_at) VALUES (?, ${cols.map(() => '?').join(', ')}, ?) RETURNING id`)
                     .bind(slug, ...cols.map(c => f[c]), at).first();
@@ -419,6 +419,66 @@ async function api(request, env, member, path) {
             default:
                 throw new InputError('Unknown action.');
         }
+    }
+
+    // Spreadsheet import: { rows, apply }. Without apply it only reports what
+    // would happen; with apply it saves every row that has no error.
+    if (path === '/api/admin/formulas/bulk' && method === 'POST') {
+        requireAdmin(member);
+        const body = await readJson(request, 600000);
+        if (!Array.isArray(body.rows) || body.rows.length > 500) throw new InputError('Expected up to 500 rows.');
+        const { results: existing } = await db.prepare('SELECT * FROM formulas').all();
+        const plan = planImport(body.rows.filter(r => r && typeof r === 'object'), existing);
+        if (body.apply === true) {
+            const at = nowIso();
+            const cols = FORMULA_COLUMNS;
+            const statements = plan.flatMap(item => {
+                if (item.action === 'add') {
+                    return [db.prepare(`INSERT INTO formulas (slug, ${cols.join(', ')}, updated_at) VALUES (?, ${cols.map(() => '?').join(', ')}, ?)`)
+                        .bind(item.slug, ...cols.map(c => item.values[c]), at)];
+                }
+                if (item.action === 'update') {
+                    return [db.prepare(`UPDATE formulas SET ${cols.map(c => c + ' = ?').join(', ')}, updated_at = ?${item.clearsVerification ? ', verified_by = NULL, verified_on = NULL' : ''} WHERE id = ?`)
+                        .bind(...cols.map(c => item.values[c]), at, item.id)];
+                }
+                return [];
+            });
+            if (statements.length) await db.batch(statements);
+        }
+        const count = (a) => plan.filter(i => i.action === a).length;
+        return json({
+            applied: body.apply === true,
+            summary: { add: count('add'), update: count('update'), same: count('same'), error: count('error'), clearsVerification: plan.filter(i => i.clearsVerification).length },
+            items: plan.map(({ values, ...rest }) => rest)
+        });
+    }
+
+    // Product photo uploaded from the editor (already resized in the browser).
+    if (path === '/api/admin/formulas/photo' && method === 'POST') {
+        requireAdmin(member);
+        const body = await readJson(request, 900000);
+        const id = Number(body.id);
+        if (!['image/webp', 'image/jpeg', 'image/png'].includes(body.mime)) throw new InputError('Photo must be a WebP, JPEG or PNG image.');
+        let bytes;
+        try { bytes = Uint8Array.from(atob(String(body.data || '')), c => c.charCodeAt(0)); } catch { throw new InputError('The photo could not be read.'); }
+        const isImage = (bytes[0] === 0xFF && bytes[1] === 0xD8) || (bytes[0] === 0x89 && bytes[1] === 0x50) || (bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50);
+        if (!isImage || bytes.length < 100) throw new InputError('The photo could not be read.');
+        if (bytes.length > 600000) throw new InputError('The photo is too large (max 600 KB).');
+        const at = nowIso();
+        const r = await db.prepare("UPDATE formulas SET photo = 'uploaded', updated_at = ? WHERE id = ?").bind(at, id).run();
+        if (!r.meta.changes) throw new InputError('Product not found.', 404);
+        await db.prepare('INSERT INTO formula_photos (formula_id, mime, data, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT (formula_id) DO UPDATE SET mime = excluded.mime, data = excluded.data, updated_at = excluded.updated_at')
+            .bind(id, body.mime, bytes, at).run();
+        return json({ ok: true, updated_at: at });
+    }
+
+    const photoMatch = path.match(/^\/api\/formulas\/(\d+)\/photo$/);
+    if (photoMatch && method === 'GET') {
+        const row = await db.prepare('SELECT mime, data FROM formula_photos WHERE formula_id = ?').bind(Number(photoMatch[1])).first();
+        if (!row) return new Response('Not found', { status: 404, headers: SECURITY_HEADERS });
+        return new Response(new Uint8Array(row.data), {
+            headers: { ...SECURITY_HEADERS, 'Content-Type': row.mime, 'Cache-Control': 'private, max-age=86400' }
+        });
     }
 
     throw new InputError('Not found.', 404);

@@ -44,15 +44,22 @@ It runs on **Cloudflare** (a Worker plus a D1 database), in the department's own
   - Only the receiving dietitian can accept or decline a handover.
   - If two people edit the same case at once, the second is asked to refresh instead of overwriting the first.
 
-## Formulary: entering label values
+## Formulary: adding and editing products
 
-Products only feed the calculators once their values come from the pack label and a dietitian has verified them.
+Admins manage the formulary on one page: **Formulary → Edit formulary** (or **Admin → Open formulary editor**). No code changes are needed, including for photos.
 
-1. **Add the photo:** save the product photo as `public/img/formulas/<name>.webp`, about 440 px tall.
-2. **Enter the label:** go to **Admin → Formulary → Edit** and type the label's **per 100 mL** column. For powders, enter values as prepared at the standard dilution, plus grams of powder per 100 mL and the scoop size. For modules, choose "per 100 g".
-3. **Check for typos:** the hub rejects an energy value that doesn't match protein, carbohydrate and fat (4/4/9 kcal per g).
-4. **Verify:** click **Verify** only after checking every value against the pack in your hand. The hub records who verified it and when.
-5. **Re-verify after changes:** changing any number later removes the verification automatically, so it must be checked again.
+- **One product at a time:** **＋ Add product**, or **Edit** on any row. The form covers every label value, the bottle size, tags, source and notes. **Choose photo** takes a picture of the pack front from a phone or computer and resizes it automatically.
+- **Quick changes:** click any number in the grid, type, and press **Save changes**. Enter moves down a column, like a spreadsheet.
+- **Many products with Excel:**
+  1. **Download all products** (or the **Blank template** for new products only).
+  2. Fill it in Excel. Keep each product's ID; leave ID empty for new products. The *How to fill* sheet explains every column, and Group, Form and Values per have drop-down lists.
+  3. **Upload Excel file.** The hub shows every new product, every changed value and any problem row **before** saving. Rows with problems are skipped, never half-saved.
+
+The safety rules are the same everywhere:
+1. Enter the label's **per 100 mL** column (as prepared for powders), or **per 100 g** for modules.
+2. The hub rejects an energy value that doesn't match protein, carbohydrate and fat (4/4/9 kcal per g), and numbers outside sensible limits.
+3. **Changing any number removes the verification.** Verifying is only done in the hub, never by an Excel upload: click **Verify** after checking every value against the pack in hand. The hub records who verified and when.
+4. Only verified products drive the calculators.
 
 46 products have been added from front-of-pack photos (October 2026):
 - **First batch:** 16 infant and paediatric products.
@@ -103,7 +110,9 @@ src/config.js        Wards and clinics, next actions, feeding routes, closure re
 migrations/          D1 database schema
 public/index.html    Home: greeting, quote, today's counts, quick links, phone directory
 public/followup.html Follow-up list and handovers
-public/admin.html    Members, quick links, phone directory, formulary editor, import from the old pilot
+public/admin.html    Members, quick links, phone directory, import from the old pilot
+public/formulary-edit.html Formulary editor: grid, product form with photo, Excel download/upload
+public/js/xlsx-lite.js Excel (.xlsx) reader and writer, no outside library (tested)
 public/formulas.html Formulary: library, compare, best fit, concentration
 public/directory.html Phone directory
 public/js/formula-math.js Feed calculations (unit-tested)

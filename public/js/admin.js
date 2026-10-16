@@ -178,68 +178,6 @@ $('#import-btn').addEventListener('click', () => {
 
 
 // ---------------------------------------------------------------------------
-// Formulary
-// ---------------------------------------------------------------------------
-let products = [];
-let editingId = null;
-const FIELDS = ['name', 'maker', 'grp', 'form', 'basis', 'category', 'age', 'pack', 'photo', 'flags', 'kcal', 'protein', 'cho', 'fat', 'fibre', 'water', 'sodium', 'potassium', 'chloride', 'calcium', 'magnesium', 'phosphate', 'osmolality', 'osmolarity', 'serving_ml', 'g_per_100ml', 'scoop_g', 'source', 'source_url', 'notes'];
-
-async function loadFormulary() {
-    ({ formulas: products } = await api('/api/formulas?all=1'));
-    $('#f-body').innerHTML = products.map(f => `
-        <tr data-id="${f.id}" class="${f.active ? '' : 'off'}">
-            <td>${f.photo ? `<img class="thumb" src="/img/formulas/${esc(f.photo)}" alt="">` : ''}</td>
-            <td><b data-no-i18n>${esc(f.name)}</b><br><span class="small muted">${esc([f.maker, f.pack].filter(Boolean).join(' · '))}</span></td>
-            <td class="small">${esc({ infant: 'Infant', paediatric: 'Paediatric', adult: 'Adult', module: 'Module' }[f.grp] || f.grp)}</td>
-            <td>${f.kcal ?? '—'}</td>
-            <td>${f.protein ?? '—'}</td>
-            <td class="small">${f.verified ? `<span class="badge b-low">Verified</span><br><span class="muted">${esc(f.verified_by_name || f.verified_by)} · ${esc(f.verified_on)}</span>` : '<span class="badge b-medium">Needs label</span>'}</td>
-            <td style="white-space:nowrap">
-                <button class="small" data-f="edit">Edit</button>
-                <button class="small ${f.verified ? 'ghost' : 'primary'}" data-f="${f.verified ? 'unverify' : 'verify'}">${f.verified ? 'Unverify' : 'Verify'}</button>
-                <button class="small ghost" data-f="${f.active ? 'archive' : 'restore'}">${f.active ? 'Hide' : 'Show'}</button>
-            </td>
-        </tr>`).join('') || '<tr><td colspan="7" class="muted small">No products yet.</td></tr>';
-}
-
-function openProduct(f) {
-    editingId = f ? f.id : null;
-    $('#f-title').textContent = f ? f.name : 'Add product';
-    $('#f-error').textContent = '';
-    const form = $('#f-form');
-    form.reset();
-    for (const k of FIELDS) if (f && f[k] !== null && f[k] !== undefined) form.elements[k].value = f[k];
-    $('#f-dlg').showModal();
-}
-
-$('#f-add').onclick = () => openProduct(null);
-$('#f-cancel').onclick = $('#f-x').onclick = () => $('#f-dlg').close();
-
-$('#f-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const values = Object.fromEntries(new FormData(e.target).entries());
-    try {
-        const r = await api('/api/admin/formulas', editingId ? { action: 'edit', id: editingId, values } : { action: 'add', values });
-        $('#f-dlg').close();
-        toast(r.verificationCleared ? 'Saved. Values changed, so the product needs verifying again.' : 'Product saved');
-        await loadFormulary();
-    } catch (err) {
-        $('#f-error').textContent = err.message;
-    }
-});
-
-$('#f-body').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-f]');
-    if (!b) return;
-    const f = products.find(x => x.id === Number(b.closest('tr').dataset.id));
-    const action = b.dataset.f;
-    if (action === 'edit') return openProduct(f);
-    if (action === 'verify' && !confirm(L(`Confirm you have checked every value for ${f.name} against the pack label in your hand?`, `هل تؤكد أنك راجعت كل قيم ${f.name} مقابل الملصق على العبوة التي بين يديك؟`))) return;
-    run(async () => { await api('/api/admin/formulas', { action, id: f.id }); await loadFormulary(); },
-        { verify: 'Marked as verified', unverify: 'Verification removed', archive: 'Hidden from the formulary', restore: 'Shown in the formulary' }[action]);
-});
-
-// ---------------------------------------------------------------------------
 (async () => {
     try {
         ({ me, config } = await initPage('/admin.html'));
@@ -249,7 +187,7 @@ $('#f-body').addEventListener('click', (e) => {
             return;
         }
         $('#dir-cat').innerHTML = config.directoryCategories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
-        await Promise.all([loadMembers(), loadLinks(), loadDirectory(), loadFormulary()]);
+        await Promise.all([loadMembers(), loadLinks(), loadDirectory()]);
         if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
     } catch (e) {
         toast(e.message);
