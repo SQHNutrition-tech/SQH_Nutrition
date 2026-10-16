@@ -420,6 +420,11 @@ window.I18N_AR = {
     // ---------------------------------------------------------------- Admin
     'Only admins can use this page.': 'هذه الصفحة للمسؤولين فقط.',
     'Team members': 'أعضاء الفريق',
+    "Only people listed here can use the hub. Add a colleague's email, and also allow it in Cloudflare Access.": 'لا يستخدم المنصة إلا من في هذه القائمة. أضف بريد الزميل، واسمح به أيضاً في Cloudflare Access.',
+    'Add member': 'إضافة عضو',
+    'as colleagues will see it': 'كما يراه الزملاء',
+    'Enter a valid email address.': 'أدخل بريداً إلكترونياً صحيحاً.',
+    'That email is already a team member.': 'هذا البريد مسجّل عضواً بالفعل.',
     'People appear here after their first sign-in. Who can sign in at all is set in Cloudflare Access.':
         'يظهر الأشخاص هنا بعد أول تسجيل دخول. أما من يُسمح له بالدخول أصلاً فيُحدَّد في Cloudflare Access.',
     'Email': 'البريد الإلكتروني',

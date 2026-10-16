@@ -27,7 +27,7 @@
     <section class="card" id="members-card" aria-labelledby="mem-title">
         <div class="section-head">
             <h2 id="mem-title">Team members</h2>
-            <span class="small muted">People appear here after their first sign-in. Who can sign in at all is set in Cloudflare Access.</span>
+            <span class="small muted">Only people listed here can use the hub. Add a colleague's email, and also allow it in Cloudflare Access.</span>
         </div>
         <div class="table-scroll">
             <table class="list">
@@ -35,6 +35,11 @@
                 <tbody id="members"></tbody>
             </table>
         </div>
+        <form class="inline-form" id="member-form">
+            <label class="field">Email<input type="email" name="email" required maxlength="120" placeholder="colleague@example.om"></label>
+            <label class="field">Name<input type="text" name="name" maxlength="60" placeholder="as colleagues will see it"></label>
+            <button class="primary" type="submit">Add member</button>
+        </form>
     </section>
 
     <section class="card" id="links" aria-labelledby="links-title">

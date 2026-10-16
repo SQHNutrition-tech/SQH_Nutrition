@@ -28,13 +28,23 @@ function adminEmails(env) {
     return new Set(String(env.ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
 }
 
+const defaultName = (email) => email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+// The hub is invite-only: Cloudflare Access proves who someone is, but only
+// people an admin has added under Team members (or the bootstrap ADMIN_EMAILS)
+// get in. A too-broad Access rule therefore cannot expose any data.
+// Returns null for someone who has not been added.
 async function ensureMember(db, env, email) {
     const bootstrapAdmin = adminEmails(env).has(email);
-    const defaultName = email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    await db.prepare(
-        `INSERT INTO members (email, name, role, active, created_at, last_seen) VALUES (?1, ?2, ?3, 1, ?4, ?4)
-         ON CONFLICT (email) DO UPDATE SET last_seen = ?4, role = CASE WHEN ?5 = 1 THEN 'admin' ELSE role END`
-    ).bind(email, defaultName, bootstrapAdmin ? 'admin' : 'dietitian', nowIso(), bootstrapAdmin ? 1 : 0).run();
+    if (bootstrapAdmin) {
+        await db.prepare(
+            `INSERT INTO members (email, name, role, active, created_at, last_seen) VALUES (?1, ?2, 'admin', 1, ?3, ?3)
+             ON CONFLICT (email) DO UPDATE SET last_seen = ?3, role = 'admin'`
+        ).bind(email, defaultName(email), nowIso()).run();
+    } else {
+        const r = await db.prepare('UPDATE members SET last_seen = ? WHERE email = ?').bind(nowIso(), email).run();
+        if (!r.meta.changes) return null;
+    }
     const m = await db.prepare('SELECT email, name, role, active, lang, welcomed FROM members WHERE email = ?').bind(email).first();
     return { ...m, welcomed: !!m.welcomed };
 }
@@ -273,7 +283,15 @@ async function api(request, env, member, path) {
     if (path === '/api/admin/members' && method === 'POST') {
         requireAdmin(member);
         const body = await readJson(request, 2000);
-        const email = String(body.email || '').toLowerCase();
+        const email = String(body.email || '').trim().toLowerCase();
+        if (body.action === 'invite') {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 120) throw new InputError('Enter a valid email address.');
+            const name = body.name ? cleanText(body.name, 60, 'Name') : defaultName(email);
+            const r = await db.prepare("INSERT INTO members (email, name, role, active, created_at) VALUES (?, ?, 'dietitian', 1, ?) ON CONFLICT (email) DO NOTHING")
+                .bind(email, name, nowIso()).run();
+            if (!r.meta.changes) throw new InputError('That email is already a team member.');
+            return json({ ok: true });
+        }
         const target = await db.prepare('SELECT email FROM members WHERE email = ?').bind(email).first();
         if (!target) throw new InputError('Member not found.', 404);
         switch (body.action) {
@@ -518,6 +536,10 @@ export default {
                     : new Response('Sign-in required. Open the hub through the department link so Cloudflare Access can sign you in.', { status: 401, headers: SECURITY_HEADERS });
             }
             const member = await ensureMember(env.DB, env, user.email);
+            if (!member) {
+                const msg = `${user.email} has not been added to the Nutrition Hub yet. Ask the department admin to add you under Admin → Team members.`;
+                return isApi ? json({ error: msg }, 403) : new Response(msg, { status: 403, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain; charset=utf-8' } });
+            }
             if (!member.active) {
                 return isApi
                     ? json({ error: 'Your access has been turned off. Contact the department admin.' }, 403)

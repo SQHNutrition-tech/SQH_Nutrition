@@ -118,7 +118,7 @@ If a release adds a new file in `migrations/`, run `npm run db:migrate:remote` f
 
 | Task | Where |
 |---|---|
-| New dietitian joins | Add their email to the Access policy (step 3.4). They appear in the hub after their first sign-in. |
+| New dietitian joins | Add them in **Admin → Team members → Add member**, and add their email to the **Dietitians** Access policy (Zero Trust → Access controls → Policies). Both are needed. |
 | Dietitian goes on leave | **Admin → Team members → Move all open cases to** a colleague |
 | Dietitian leaves | Move their cases, click **Turn off** in Admin, and remove them from the Access policy |
 | Back up the data | `npx wrangler d1 export sqh-nutrition-hub --remote --output backup.sql`. Store it only on a hospital computer. D1 also keeps point-in-time recovery ("Time Travel"): 7 days on the free plan, 30 days on paid. |

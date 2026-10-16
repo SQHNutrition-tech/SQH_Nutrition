@@ -28,6 +28,16 @@ async function loadMembers() {
         </tr>`).join('');
 }
 
+$('#member-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const f = e.target;
+    run(async () => {
+        await api('/api/admin/members', { action: 'invite', email: f.email.value, name: f.name.value });
+        f.reset();
+        await loadMembers();
+    }, L('Member added. Also allow their email in Cloudflare Access.', 'أُضيف العضو. اسمح ببريده أيضاً في Cloudflare Access.'));
+});
+
 $('#members').addEventListener('change', (e) => {
     const row = e.target.closest('tr');
     const email = row.dataset.email;

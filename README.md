@@ -38,6 +38,7 @@ It runs on **Cloudflare** (a Worker plus a D1 database), in the department's own
 - **Sign-in:**
   - Cloudflare Access decides who can sign in (an allowlist of emails).
   - The Worker then checks Access's signed token on **every** request, including pages, so nothing loads without a valid sign-in.
+  - **Invite-only:** even after signing in, only people an admin has added under **Admin → Team members** (plus the first admin in `ADMIN_EMAILS`) get in. A too-broad Access rule therefore cannot expose any data.
   - Admins can switch off a member inside the app; that person is refused even if they can still sign in to Access.
 - **Who can change what:**
   - Only the responsible dietitian, or an admin, can change a case.
