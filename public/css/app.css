@@ -102,7 +102,7 @@ a { color: var(--teal); text-underline-offset: 3px; }
 
 /* ---------- Controls ---------- */
 label.field { display: flex; flex-direction: column; gap: 6px; font-size: .84rem; color: var(--ink-2); font-weight: 500; }
-input[type="text"], input[type="search"], input[type="date"], input[type="number"], input[type="url"], input[type="email"], select, textarea {
+input[type="text"], input[type="search"], input[type="date"], input[type="time"], input[type="number"], input[type="url"], input[type="email"], select, textarea {
     font: inherit; font-size: .95rem; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line);
     border-radius: var(--radius-sm); padding: 10px 12px; width: 100%; min-width: 0; min-height: 44px; transition: border-color .2s, box-shadow .2s, background .2s;
 }
@@ -251,4 +251,4 @@ input[type="file"]::file-selector-button:hover { border-color: var(--line-strong
 [dir="rtl"] .ext, [dir="rtl"] .hn, [dir="rtl"] .mono, [dir="rtl"] .urgent-pill b { direction: ltr; unicode-bidi: isolate; }
 /* Results such as "17.6 kg/m²" read left to right; Arabic results right to left. */
 [dir="rtl"] .stat .v, [dir="rtl"] td.num, [dir="rtl"] .calc td { unicode-bidi: plaintext; text-align: right; }
-[dir="rtl"] input[type="number"], [dir="rtl"] input[type="date"] { direction: ltr; text-align: end; }
+[dir="rtl"] input[type="number"], [dir="rtl"] input[type="date"], [dir="rtl"] input[type="time"] { direction: ltr; text-align: end; }

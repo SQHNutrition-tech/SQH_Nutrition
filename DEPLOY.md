@@ -118,7 +118,8 @@ If a release adds a new file in `migrations/`, run `npm run db:migrate:remote` f
 
 | Task | Where |
 |---|---|
-| New dietitian joins | Add them in **Admin → Team members → Add member**, and add their email to the **Dietitians** Access policy (Zero Trust → Access controls → Policies). Both are needed. |
+| New dietitian joins | Add them in **Admin → Team members → Add member**. If the Access policy lists emails one by one, add their email there too (Zero Trust → Access controls → Policies). If the policy is **Everyone** with the One-time PIN login, the hub list alone decides. Send them the link; they sign in with a code emailed to them. |
+| Change the address (remove the account name) | **Workers & Pages** → **Change** next to *Your subdomain*, e.g. `sqh-nutrition`. The link becomes `sqh-nutrition-hub.sqh-nutrition.workers.dev`. Then open the Worker → **Settings → Domains & Routes** and make sure Cloudflare Access is on for the new address. If the hub then shows *Sign-in is not set up correctly* with a new tag, add that tag to `ACCESS_AUD` (comma-separated). Or add a hospital domain under **Custom Domains**. |
 | Dietitian goes on leave | **Admin → Team members → Move all open cases to** a colleague |
 | Dietitian leaves | Move their cases, click **Turn off** in Admin, and remove them from the Access policy |
 | Back up the data | `npx wrangler d1 export sqh-nutrition-hub --remote --output backup.sql`. Store it only on a hospital computer. D1 also keeps point-in-time recovery ("Time Travel"): 7 days on the free plan, 30 days on paid. |

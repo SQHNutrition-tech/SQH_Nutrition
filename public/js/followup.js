@@ -1,4 +1,5 @@
 import { $, $$, esc, api, toast, initPage, nameOf, fmtDate, fmtDateTime, L, t, LOCALE } from './common.js';
+import { googleLink, outlookLink, downloadIcs, loadPrefs, savePrefs } from './calendar.js';
 
 let me, members = [], config, today = '';
 let cases = [];
@@ -38,6 +39,7 @@ async function save(action, values, c = selected) {
     const i = cases.findIndex(x => x.id === updated.id);
     if (i >= 0) cases[i] = updated; else cases.push(updated);
     render();
+    return updated;
 }
 
 // ---------------------------------------------------------------------------
@@ -99,6 +101,7 @@ function card(c) {
     }
     if (c.status === 'closed' && (mine || me.role === 'admin')) main += btn('reopen', 'Reopen', 'ghost');
     if (!main && !menu.length) main = `<span class="small muted">${L('Assigned to', 'المسؤول:')} ${esc(nameOf(members, c.owner))}</span>`;
+    if (c.status === 'active') menu.push(menu.length ? '<hr>' : '', item('calendar', 'Add to calendar'));
     menu.push(menu.length ? '<hr>' : '', item('activity', 'Activity log'));
 
     const owner = nameOf(members, c.owner);
@@ -297,9 +300,13 @@ $('#form').addEventListener('submit', async (e) => {
     busy = true;
     $('#dlg-submit').disabled = true;
     try {
-        await save(mode, formValues(form));
+        const before = selected?.due;
+        const updated = await save(mode, formValues(form));
         $('#dlg').close();
         toast({ handover: 'Handover sent — waiting for acceptance', transfer: 'Move saved', close: 'Case closed', add: 'Patient added' }[mode] || 'Saved');
+        // A new review date on one of my own cases: offer to put it in my calendar.
+        const newDate = mode === 'add' || mode === 'review' || mode === 'reopen' || updated.due !== before;
+        if (newDate && updated.status === 'active' && updated.owner === me.email && !updated.pendingTo && loadPrefs().ask) openCalendar(updated, { afterSave: true });
     } catch (err) {
         $('#form-error').textContent = err.message;
         if (err.status === 409) load();
@@ -321,6 +328,7 @@ $('#list').addEventListener('click', async (e) => {
     const action = b.dataset.action;
     b.closest('details.menu')?.removeAttribute('open');
     if (action === 'activity') return toggleActivity(c);
+    if (action === 'calendar') return openCalendar(c);
     if (['accept', 'decline', 'withdraw'].includes(action)) {
         busy = true;
         b.disabled = true;
@@ -352,6 +360,113 @@ async function toggleActivity(c) {
     } catch (err) {
         box.textContent = err.message;
     }
+}
+
+// ---------------------------------------------------------------------------
+// Calendar
+// ---------------------------------------------------------------------------
+const caseLink = (c) => `${location.origin}/followup.html?case=${c.id}`;
+
+/** Calendar text: ward, bed and next action only — the hospital number stays in the hub. */
+function calendarEvent(c, p) {
+    const title = L('Nutrition review', 'مراجعة تغذية') + ' · ' + where(c);
+    const details = [
+        `${L('Next action', 'الإجراء التالي')}: ${t(c.nextAction)}`,
+        c.risk ? t(RISK[c.risk]) : '',
+        c.urgent ? t('Urgent') : '',
+        c.plan?.route ? `${L('Feeding route', 'طريقة التغذية')}: ${t(c.plan.route)}` : '',
+        L('Open the case in the SQH Nutrition Hub (sign-in needed):', 'افتح الحالة في منصة SQH للتغذية (يتطلب تسجيل الدخول):')
+    ].filter(Boolean).join('\n');
+    return {
+        uid: `case-${c.id}@sqh-nutrition-hub`, sequence: c.revision, day: c.due, title, details, url: caseLink(c),
+        time: p.time, minutes: p.minutes, allDay: p.allDay, remindMin: p.remindMin
+    };
+}
+
+const REMINDERS = {
+    timed: [['', 'No reminder'], ['0', 'At the start'], ['15', '15 min before'], ['60', '1 hour before'], ['1440', '1 day before']],
+    // All-day events count from midnight: -450 = 07:30 on the day, 240 = 8 pm the evening before.
+    allDay: [['', 'No reminder'], ['-450', '7:30 am on the day'], ['240', '8 pm the evening before']]
+};
+
+let calCase = null;
+function calPrefsFromForm() {
+    const p = loadPrefs();
+    p.time = $('#cal-time').value || '08:00';
+    p.minutes = Number($('#cal-len').value) || 30;
+    p.allDay = $('#cal-allday').checked;
+    const r = $('#cal-remind').value;
+    p.remindMin = r === '' ? null : Number(r);
+    p.ask = $('#cal-ask').checked;
+    return p;
+}
+
+function fillReminders(p) {
+    const list = p.allDay ? REMINDERS.allDay : REMINDERS.timed;
+    const cur = p.remindMin === null || p.remindMin === undefined ? '' : String(p.remindMin);
+    const pick = list.some(([v]) => v === cur) ? cur : (p.allDay ? '-450' : '15');
+    $('#cal-remind').innerHTML = list.map(([v, label]) => `<option value="${v}" ${v === pick ? 'selected' : ''}>${esc(t(label))}</option>`).join('');
+}
+
+function refreshCalendar() {
+    const p = calPrefsFromForm();
+    savePrefs(p);
+    $('#cal-time').disabled = $('#cal-len').disabled = p.allDay;
+    const ev = calendarEvent(calCase, p);
+    const when = p.allDay ? fmtDate(calCase.due) : `${fmtDate(calCase.due)} · ${new Date(`2000-01-01T${p.time}`).toLocaleTimeString(LOCALE, { hour: 'numeric', minute: '2-digit' })}`;
+    $('#cal-preview').innerHTML = `<strong>${esc(ev.title)}</strong><span>${esc(when)} · ${esc(t(calCase.nextAction))}</span>`;
+    $('#cal-google').href = googleLink(ev);
+    $('#cal-outlook').href = outlookLink(ev);
+    for (const [id, app] of [['#cal-google', 'google'], ['#cal-outlook', 'outlook'], ['#cal-ics', 'ics']]) $(id).classList.toggle('primary', p.app === app);
+}
+
+function openCalendar(c, { afterSave = false } = {}) {
+    calCase = c;
+    const p = loadPrefs();
+    $('#cal-eyebrow').textContent = afterSave ? L('Saved', 'تم الحفظ') : L('Add to calendar', 'إضافة إلى التقويم');
+    $('#cal-title').textContent = afterSave ? L('Add the next review to your calendar?', 'إضافة المراجعة القادمة إلى تقويمك؟') : L('Add the review to your calendar', 'إضافة المراجعة إلى تقويمك');
+    $('#cal-time').value = p.time;
+    $('#cal-len').value = String(p.minutes);
+    $('#cal-allday').checked = !!p.allDay;
+    $('#cal-ask').checked = !!p.ask;
+    $('#cal-close').textContent = afterSave ? L('Not now', 'ليس الآن') : L('Close', 'إغلاق');
+    fillReminders(p);
+    refreshCalendar();
+    $('#cal-dlg').showModal();
+}
+
+const chooseApp = (app) => { const p = calPrefsFromForm(); p.app = app; savePrefs(p); };
+$('#cal-allday').addEventListener('change', () => { fillReminders(calPrefsFromForm()); refreshCalendar(); });
+['#cal-time', '#cal-len', '#cal-remind', '#cal-ask'].forEach(s => $(s).addEventListener('change', refreshCalendar));
+$('#cal-google').addEventListener('click', () => { chooseApp('google'); setTimeout(() => $('#cal-dlg').close(), 300); });
+$('#cal-outlook').addEventListener('click', () => { chooseApp('outlook'); setTimeout(() => $('#cal-dlg').close(), 300); });
+$('#cal-ics').onclick = () => {
+    chooseApp('ics');
+    downloadIcs(`nutrition-review-${calCase.due}.ics`, [calendarEvent(calCase, calPrefsFromForm())]);
+    $('#cal-dlg').close();
+    toast(L('Calendar file saved — open it to add the event', 'تم حفظ ملف التقويم — افتحه لإضافة الموعد'));
+};
+$('#cal-close').onclick = $('#cal-x').onclick = () => $('#cal-dlg').close();
+
+// Every upcoming review of mine in one file (re-importing updates the same events).
+$('#cal-all-btn').onclick = () => {
+    const mine = cases.filter(c => c.status === 'active' && c.owner === me.email && c.due >= today).sort((a, b) => a.due.localeCompare(b.due));
+    if (!mine.length) return toast(L('You have no upcoming reviews', 'لا توجد لديك مراجعات قادمة'));
+    const p = loadPrefs();
+    downloadIcs(`my-nutrition-reviews-${today}.ics`, mine.map(c => calendarEvent(c, p)));
+    toast(L(`${mine.length} review${mine.length === 1 ? '' : 's'} saved to a calendar file — open it to add them`, `تم حفظ ${plural(mine.length, 'مراجعة واحدة', 'مراجعات')} في ملف تقويم — افتحه لإضافتها`));
+};
+
+/** Opening a link from a calendar event: show and highlight that case. */
+function showLinkedCase() {
+    const id = Number(params.get('case'));
+    const c = id && cases.find(x => x.id === id);
+    if (!c) return;
+    view = c.status === 'closed' ? 'closed' : c.owner === me.email ? 'mine' : 'team';
+    filter = '';
+    render();
+    const el = $(`article[data-case="${c.id}"]`);
+    if (el) { el.scrollIntoView({ block: 'center' }); el.classList.add('flash'); }
 }
 
 // Close any open "More" menu when clicking elsewhere.
@@ -394,6 +509,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && !$
         $('#date').textContent = new Date().toLocaleDateString(LOCALE, { timeZone: 'Asia/Muscat', weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
         $('#add-btn').disabled = false;
         await load();
+        showLinkedCase();
         // Product names from the formulary, suggested in the plan's diet/formula field.
         api('/api/formulas').then(({ formulas }) => {
             const list = document.createElement('datalist');

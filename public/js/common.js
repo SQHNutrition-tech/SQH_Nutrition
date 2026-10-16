@@ -90,7 +90,7 @@ export async function initPage(current) {
         <div class="wrap">
             <a class="brand" href="/">
                 <img src="/img/mark.png" alt="" width="36" height="36">
-                <span><strong>Nutrition Hub</strong><small>SQH · Clinical Nutrition</small></span>
+                <span><strong>SQH Nutrition Hub</strong><small>Clinical Nutrition Department</small></span>
             </a>
             <nav class="mainnav" aria-label="Main"></nav>
             <div class="who">

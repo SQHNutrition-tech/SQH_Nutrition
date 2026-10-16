@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Follow-ups · Nutrition Hub</title>
+<title>Follow-ups · SQH Nutrition Hub</title>
 <link rel="icon" href="/img/mark.png">
 <link rel="stylesheet" href="/css/app.css">
 <script src="/js/i18n.js"></script>
@@ -38,6 +38,16 @@
     .pending { margin-top: 14px; background: var(--amber-soft); border-radius: 14px; padding: 10px 12px; font-size: .87rem; }
     .pending q { display: block; margin-top: 4px; color: var(--ink-2); font-style: italic; }
     .actions { display: flex; gap: 8px; align-items: center; padding: 12px 16px 16px; }
+    .case.flash { animation: flash 2.4s ease-out; }
+    @keyframes flash { 0%, 40% { box-shadow: 0 0 0 3px var(--teal), var(--shadow-lift); } 100% { box-shadow: var(--shadow); } }
+
+    /* Add to calendar */
+    .cal-preview { background: var(--surface-2); border-radius: 16px; padding: 14px 16px; }
+    .cal-preview strong { display: block; font-weight: 600; }
+    .cal-preview span { color: var(--ink-2); font-size: .9rem; }
+    .cal-apps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .cal-apps .btn, .cal-apps button { width: 100%; padding-inline: 10px; }
+    @media (max-width: 520px) { .cal-apps { grid-template-columns: 1fr; } }
     .actions .spacer { flex: 1; }
 
     /* "More" menu */
@@ -113,6 +123,7 @@
         <span class="row" style="gap:14px">
             <span id="sync">Connecting…</span>
             <button class="link small" id="refresh-btn" type="button">Refresh</button>
+            <button class="link small" id="cal-all-btn" type="button">Add my reviews to calendar</button>
             <button class="link small" id="export-btn" type="button">Export CSV</button>
         </span>
     </div>
@@ -135,6 +146,32 @@
             <button type="submit" class="primary" id="dlg-submit">Save</button>
         </div>
     </form>
+</dialog>
+
+<dialog id="cal-dlg" aria-labelledby="cal-title">
+    <div class="dialog-head">
+        <div><span class="eyebrow" id="cal-eyebrow">Add to calendar</span><h2 id="cal-title">Add the review to your calendar</h2></div>
+        <button type="button" class="icon-btn" id="cal-x" aria-label="Close">✕</button>
+    </div>
+    <div class="form-grid">
+        <div class="cal-preview" id="cal-preview"></div>
+        <div class="three">
+            <label class="field">Time<input type="time" id="cal-time" step="300"></label>
+            <label class="field">Length<select id="cal-len">
+                <option value="15">15 min</option><option value="30">30 min</option><option value="60">1 hour</option>
+            </select></label>
+            <label class="field">Reminder<select id="cal-remind"></select></label>
+        </div>
+        <label class="check"><input type="checkbox" id="cal-allday"> All-day reminder (no set time)</label>
+        <div class="cal-apps">
+            <a class="btn" id="cal-google" target="_blank" rel="noopener">Google Calendar</a>
+            <a class="btn" id="cal-outlook" target="_blank" rel="noopener">Outlook</a>
+            <button type="button" id="cal-ics">iPhone / other (.ics)</button>
+        </div>
+        <p class="small muted" style="margin:0">The event shows the ward, bed and next action with a link back to the case — never the hospital number. Google and Outlook links use your calendar's usual reminder; the .ics file carries the reminder chosen here.</p>
+        <label class="check" id="cal-ask-row"><input type="checkbox" id="cal-ask"> Offer this each time I save a review</label>
+    </div>
+    <div class="dialog-actions"><button type="button" class="ghost" id="cal-close">Not now</button></div>
 </dialog>
 
 <script type="module" src="/js/followup.js"></script>

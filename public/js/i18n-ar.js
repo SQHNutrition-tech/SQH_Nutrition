@@ -7,6 +7,7 @@
 window.I18N_AR = {
     // ---------------------------------------------------------------- Shared
     'Nutrition Hub': 'منصة التغذية',
+    'SQH Nutrition Hub': 'منصة SQH للتغذية',
     'SQH · Clinical Nutrition': 'SQH · التغذية العلاجية',
     'Home': 'الرئيسية',
     'Follow-ups': 'المتابعات',
@@ -33,11 +34,11 @@ window.I18N_AR = {
     'Deleted': 'تم الحذف',
     'Delete this entry?': 'حذف هذا الإدخال؟',
     'Clinical Nutrition Department': 'قسم التغذية العلاجية',
-    'Follow-ups · Nutrition Hub': 'المتابعات · منصة التغذية',
-    'Formulary · Nutrition Hub': 'دليل التركيبات · منصة التغذية',
-    'Phone directory · Nutrition Hub': 'دليل الهواتف · منصة التغذية',
-    'Calculators · Nutrition Hub': 'الحاسبات · منصة التغذية',
-    'Admin · Nutrition Hub': 'الإدارة · منصة التغذية',
+    'Follow-ups · SQH Nutrition Hub': 'المتابعات · منصة SQH للتغذية',
+    'Formulary · SQH Nutrition Hub': 'دليل التركيبات · منصة SQH للتغذية',
+    'Phone directory · SQH Nutrition Hub': 'دليل الهواتف · منصة SQH للتغذية',
+    'Calculators · SQH Nutrition Hub': 'الحاسبات · منصة SQH للتغذية',
+    'Admin · SQH Nutrition Hub': 'الإدارة · منصة SQH للتغذية',
 
     // ------------------------------------------------------------- Home page
     'Good morning': 'صباح الخير',
@@ -173,6 +174,32 @@ window.I18N_AR = {
     'Nothing to export in this view': 'لا يوجد ما يُصدَّر في هذا العرض',
     'This file will contain hospital numbers. Save it only on a hospital computer and delete it when you are done. Continue?':
         'سيحتوي هذا الملف على أرقام ملفات المرضى. احفظه على جهاز المستشفى فقط واحذفه عند الانتهاء. هل تريد المتابعة؟',
+
+    // Add to calendar
+    'Add to calendar': 'إضافة إلى التقويم',
+    'Add my reviews to calendar': 'إضافة مراجعاتي إلى التقويم',
+    'Add the review to your calendar': 'إضافة المراجعة إلى تقويمك',
+    'Time': 'الوقت',
+    'Length': 'المدة',
+    'Reminder': 'التذكير',
+    '15 min': '15 دقيقة',
+    '30 min': '30 دقيقة',
+    '1 hour': 'ساعة',
+    'No reminder': 'بدون تذكير',
+    'At the start': 'عند البدء',
+    '15 min before': 'قبل 15 دقيقة',
+    '1 hour before': 'قبل ساعة',
+    '1 day before': 'قبل يوم',
+    '7:30 am on the day': '7:30 صباح اليوم نفسه',
+    '8 pm the evening before': '8 مساء اليوم السابق',
+    'All-day reminder (no set time)': 'تذكير ليوم كامل (بدون وقت محدد)',
+    'Google Calendar': 'تقويم Google',
+    'Outlook': 'Outlook',
+    'iPhone / other (.ics)': 'iPhone / غيره (.ics)',
+    "The event shows the ward, bed and next action with a link back to the case — never the hospital number. Google and Outlook links use your calendar's usual reminder; the .ics file carries the reminder chosen here.":
+        'يظهر في الموعد الجناح والسرير والإجراء التالي مع رابط للحالة — ولا يظهر رقم الملف أبداً. روابط Google وOutlook تستخدم التذكير المعتاد في تقويمك؛ أما ملف ‎.ics فيحمل التذكير المختار هنا.',
+    'Offer this each time I save a review': 'اعرض هذا كلما حفظت مراجعة',
+    'Not now': 'ليس الآن',
 
     // Wards and clinics (src/config.js)
     'ICU-1': 'العناية المركزة 1',
@@ -368,7 +395,7 @@ window.I18N_AR = {
 
     // ---------------------------------------------------- Formulary editor
     'Formulary editor': 'محرر دليل التركيبات',
-    'Formulary editor · Nutrition Hub': 'محرر دليل التركيبات · منصة التغذية',
+    'Formulary editor · SQH Nutrition Hub': 'محرر دليل التركيبات · منصة SQH للتغذية',
     "Add products, change label values and photos, or update many at once with Excel. Changing any number removes the product's verification until someone checks it against the pack again.":
         'أضف منتجات، وعدّل قيم الملصق والصور، أو حدّث عدداً كبيراً دفعة واحدة عبر Excel. تغيير أي رقم يلغي توثيق المنتج حتى يُراجع مقابل العبوة من جديد.',
     'View formulary': 'عرض دليل التركيبات',

@@ -101,6 +101,14 @@ Each product links to the page its values came from and says which country's ver
 | Clinic patient admitted | **Move / admit**, then choose a ward | The case becomes an inpatient case again. |
 | Referred to primary care | **Close** with "Referred to primary care (PHC)" | The case leaves the active list. PHC handover is the next phase (see roadmap). |
 
+## Reviews in your calendar
+
+Every open case has **··· → Add to calendar**, and after you save a review (or add a patient) the hub offers it straight away. Pick a time, length and reminder, then **Google Calendar**, **Outlook**, or **iPhone / other (.ics)**. **Add my reviews to calendar** (above the list) saves all your upcoming reviews in one .ics file; importing it again later updates the same events instead of duplicating them.
+
+- The event says *Nutrition review · ward · bed* and the next action, with a link that opens the case in the hub. **It never contains the hospital number**, because personal calendars are outside the hospital.
+- Your time, reminder and "offer after each review" choices are remembered in your browser.
+- Google and Outlook links use your calendar's usual reminder; the .ics file carries the reminder you picked.
+
 ## Project layout
 
 ```
