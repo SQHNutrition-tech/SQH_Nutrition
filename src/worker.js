@@ -1,7 +1,7 @@
 // Cloudflare Worker: serves the hub's pages and its JSON API, backed by D1.
 // Every request (pages included) must carry a valid Cloudflare Access identity.
 
-import { getUser } from './auth.js';
+import { getUser, tokenAudience } from './auth.js';
 import { applyAction, importRow, InputError, today } from './model.js';
 import * as CONFIG from './config.js';
 import { parseFormula, nutrientsChanged, canVerify, productSlug, planImport, FORMULA_COLUMNS } from './formulary.js';
@@ -524,6 +524,17 @@ function withSecurityHeaders(res) {
     return out;
 }
 
+// Text for the sign-in page. If Access did sign the person in but the token
+// is for a different application tag, say so (the tag is not secret).
+function signInHelp(request, env) {
+    const auds = tokenAudience(request);
+    if (!auds) return 'Sign-in required. Open the hub through the department link so Cloudflare Access can sign you in.';
+    return 'You are signed in to Cloudflare Access, but the hub does not recognise this Access application yet.\n\n' +
+        `Application tag (AUD) in your sign-in: ${auds.join(', ')}\n` +
+        `Tag the hub expects (ACCESS_AUD): ${String(env.ACCESS_AUD || '(not set)')}\n\n` +
+        'Send this message to the person setting up the hub.';
+}
+
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
@@ -533,7 +544,7 @@ export default {
             if (!user) {
                 return isApi
                     ? json({ error: 'Please sign in again.' }, 401)
-                    : new Response('Sign-in required. Open the hub through the department link so Cloudflare Access can sign you in.', { status: 401, headers: SECURITY_HEADERS });
+                    : new Response(signInHelp(request, env), { status: 401, headers: { ...SECURITY_HEADERS, 'Content-Type': 'text/plain; charset=utf-8' } });
             }
             const member = await ensureMember(env.DB, env, user.email);
             if (!member) {

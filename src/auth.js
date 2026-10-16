@@ -39,13 +39,31 @@ export async function verifyAccessJwt(token, { teamDomain, aud }) {
     if (!ok) return null;
 
     const now = Math.floor(Date.now() / 1000);
+    // ACCESS_AUD may list several application tags, comma-separated.
+    const allowed = String(aud).split(',').map(s => s.trim()).filter(Boolean);
     const audList = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
-    if (!audList.includes(aud)) return null;
+    if (!audList.some(a => allowed.includes(a))) return null;
     if (payload.iss !== `https://${teamDomain}`) return null;
     if (typeof payload.exp !== 'number' || payload.exp < now) return null;
     if (typeof payload.nbf === 'number' && payload.nbf > now + 60) return null;
     if (typeof payload.email !== 'string' || !payload.email) return null;
     return { email: payload.email.toLowerCase() };
+}
+
+/**
+ * For the sign-in error page only: the application tag (AUD) in an Access
+ * token, read without checking it, so a mismatch with ACCESS_AUD can be
+ * spotted. Never used to let anyone in.
+ */
+export function tokenAudience(request) {
+    try {
+        const token = request.headers.get('Cf-Access-Jwt-Assertion');
+        if (!token) return null;
+        const aud = decodeJson(token.split('.')[1]).aud;
+        return (Array.isArray(aud) ? aud : [aud]).filter(a => typeof a === 'string');
+    } catch {
+        return null;
+    }
 }
 
 /** Returns { email } for the signed-in user, or null. */
