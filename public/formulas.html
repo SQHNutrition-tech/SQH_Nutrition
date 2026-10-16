@@ -60,6 +60,13 @@
     table.nut td { padding: 7px 4px; border-bottom: 1px solid var(--line); }
     table.nut td:last-child { text-align: end; font-variant-numeric: tabular-nums; font-weight: 500; }
     table.nut tr.missing td:last-child { color: var(--muted); font-weight: 400; }
+    table.nut td.v { text-align: end; font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; }
+    table.nut th { font-size: .74rem; font-weight: 600; color: var(--muted); text-align: end; padding: 10px 4px 6px; }
+    table.nut th:first-child { text-align: start; }
+    table.nut tr.missing td.v { color: var(--muted); font-weight: 400; }
+    table.nut small { display: block; color: var(--muted); font-weight: 400; font-size: .74rem; }
+    .bottle { margin-top: 8px; font-size: .76rem; color: var(--ink-2); text-align: center; background: var(--teal-soft); border-radius: 10px; padding: 5px 6px; }
+    .bottle b { font-variant-numeric: tabular-nums; }
     .verify-line { font-size: .85rem; margin-top: 12px; }
     .conc { margin-top: 16px; background: var(--surface-2); border-radius: 16px; padding: 14px 16px; }
     .conc .row { margin-top: 8px; }
@@ -158,8 +165,12 @@
 
 <dialog id="compare" class="wide">
     <div class="dialog-head">
-        <div><span class="eyebrow">Compare · per 100 mL</span><h2>Side by side</h2></div>
+        <div><span class="eyebrow" id="c-eyebrow">Compare · per 100 mL</span><h2>Side by side</h2></div>
         <button type="button" class="icon-btn" data-close aria-label="Close">✕</button>
+    </div>
+    <div class="segmented" role="tablist" aria-label="Show values" style="margin-bottom:12px">
+        <button type="button" role="tab" data-cbasis="100" aria-selected="true">Per 100 mL</button>
+        <button type="button" role="tab" data-cbasis="bottle" aria-selected="false">Per bottle</button>
     </div>
     <div class="table-scroll" id="c-body"></div>
     <p class="small muted" style="margin-top:12px">Highest value in each row is highlighted. “—” means not entered yet. Rows that are empty for every product are hidden.</p>

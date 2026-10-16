@@ -9,8 +9,11 @@ export const FORMS = ['powder', 'liquid'];
 // Numeric fields and their sane upper limits (per 100 mL or per 100 g).
 export const NUTRIENTS = {
     kcal: 1000, protein: 100, cho: 100, fat: 100, fibre: 50, water: 100,
-    sodium: 2000, potassium: 3000, phosphate: 2000, osmolality: 2000,
-    g_per_100ml: 60, scoop_g: 50
+    sodium: 2000, potassium: 3000, chloride: 3000, calcium: 3000, magnesium: 1000, phosphate: 2000,
+    osmolality: 2000, osmolarity: 2000,
+    g_per_100ml: 60, scoop_g: 50,
+    // Volume of one bottle or pack as sold; per-bottle values are worked out from it.
+    serving_ml: 2000
 };
 
 const TEXT_FIELDS = { name: 80, maker: 60, category: 60, age: 60, pack: 40, photo: 80, flags: 200, notes: 600, source: 120 };

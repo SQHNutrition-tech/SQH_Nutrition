@@ -1,14 +1,18 @@
 import { $, $$, esc, api, initPage, toast, L, t } from './common.js';
-import { usable, rankForTargets, concentrate, moduleForGap, COMPARE_ROWS } from './formula-math.js';
+import { usable, rankForTargets, concentrate, moduleForGap, COMPARE_ROWS, perServing, toMmol } from './formula-math.js';
 
 let formulas = [];
 let grp = '';
+let cmpBasis = '100'; // compare per 100 mL or per bottle
 const picked = new Set();
 
 const GROUP_LABEL = { infant: 'Infant', paediatric: 'Paediatric', adult: 'Adult', module: 'Module' };
 const fmt = (v, d = 1) => (v === null || v === undefined ? '—' : (Math.round(v * 10 ** d) / 10 ** d).toString());
 const photo = (f) => f.photo ? `/img/formulas/${esc(f.photo)}` : '/img/mark.png';
 const unit = (f) => (f.basis === '100g' ? 'per 100 g' : 'per 100 mL');
+const hasBottle = (f) => f.basis === '100ml' && f.serving_ml > 0;
+const bottleLabel = (f) => L(`per bottle (${fmt(f.serving_ml, 0)} mL)`, `لكل عبوة (${fmt(f.serving_ml, 0)} mL)`);
+const digits = (k) => (['kcal', 'water', 'osmolality', 'osmolarity', 'sodium', 'potassium', 'chloride', 'calcium', 'magnesium', 'phosphate'].includes(k) ? 0 : 1);
 
 function statusBadge(f) {
     return f.verified ? '<span class="badge b-verified">Verified</span>' : '<span class="badge b-needs">Needs label</span>';
@@ -43,6 +47,7 @@ function card(f) {
                     : `<div><b>${fmt(f.water, 0)}</b><span>mL water</span></div>`}
             </div>
             <div class="sub" style="font-size:.7rem;text-align:center">${unit(f)}</div>
+            ${hasBottle(f) && f.kcal !== null ? `<div class="bottle">${L('One bottle', 'العبوة')} (${fmt(f.serving_ml, 0)} mL): <b>${fmt(perServing(f, 'kcal'), 0)} kcal</b>${f.protein !== null ? ` · <b>${fmt(perServing(f, 'protein'))} g</b> ${L('protein', 'بروتين')}` : ''}</div>` : ''}
         </div>
     </article>`;
 }
@@ -68,12 +73,23 @@ function renderTray() {
 function openDetail(f) {
     $('#d-eyebrow').textContent = [f.maker, t(GROUP_LABEL[f.grp] || ''), t(f.form || '')].filter(Boolean).join(' · ');
     $('#d-title').textContent = f.name;
+    // Two columns for liquids with a known bottle size: per 100 mL and per bottle.
+    const bottle = hasBottle(f);
+    const cell = (k, v, u) => {
+        if (v === null || v === undefined) return '<td class="v">—</td>';
+        const mmol = toMmol(k, v);
+        return `<td class="v">${fmt(v, digits(k))} ${u}${mmol !== null ? `<small>≈ ${fmt(mmol, 1)} mmol</small>` : ''}</td>`;
+    };
     const rows = COMPARE_ROWS
         .filter(([k]) => k !== 'g_per_100ml')
-        .map(([k, label, u]) => `<tr class="${f[k] === null ? 'missing' : ''}"><td>${label}</td><td>${f[k] === null ? 'not entered' : `${fmt(f[k], k === 'kcal' || k === 'water' ? 0 : 1)} ${u}`}</td></tr>`).join('');
+        .map(([k, label, u, scales]) => `<tr class="${f[k] === null ? 'missing' : ''}"><td>${label}</td>${f[k] === null
+            ? `<td class="v" ${bottle ? 'colspan="2"' : ''}>not entered</td>`
+            : cell(k, f[k], u) + (bottle ? (scales ? cell(k, perServing(f, k), u) : '<td class="v"><small>same</small></td>') : '')}</tr>`).join('');
+    const span = bottle ? 'colspan="2"' : '';
     const prep = f.form === 'powder'
-        ? `<tr class="${f.g_per_100ml === null ? 'missing' : ''}"><td>Standard dilution</td><td>${f.g_per_100ml === null ? 'not entered' : L(`${fmt(f.g_per_100ml)} g powder per 100 mL`, `${fmt(f.g_per_100ml)} g مسحوق لكل 100 mL`)}</td></tr>
-           <tr class="${f.scoop_g === null ? 'missing' : ''}"><td>Scoop size</td><td>${f.scoop_g === null ? 'not entered' : `${fmt(f.scoop_g)} g`}</td></tr>` : '';
+        ? `<tr class="${f.g_per_100ml === null ? 'missing' : ''}"><td>Standard dilution</td><td class="v" ${span}>${f.g_per_100ml === null ? 'not entered' : L(`${fmt(f.g_per_100ml)} g powder per 100 mL`, `${fmt(f.g_per_100ml)} g مسحوق لكل 100 mL`)}</td></tr>
+           <tr class="${f.scoop_g === null ? 'missing' : ''}"><td>Scoop size</td><td class="v" ${span}>${f.scoop_g === null ? 'not entered' : `${fmt(f.scoop_g)} g`}</td></tr>` : '';
+    const head = `<tr><th></th><th>${t(unit(f))}${f.form === 'powder' && f.basis === '100ml' ? L(' as prepared', ' بعد التحضير') : ''}</th>${bottle ? `<th>${bottleLabel(f)}</th>` : ''}</tr>`;
     const verify = f.verified
         ? `<p class="verify-line">${L(`✓ Checked against the label by <b>${esc(f.verified_by_name || f.verified_by)}</b> on ${esc(f.verified_on)}.`, `✓ روجعت مقابل الملصق بواسطة <b>${esc(f.verified_by_name || f.verified_by)}</b> بتاريخ ${esc(f.verified_on)}.`)}</p>`
         : `<p class="verify-line notice warn" style="margin-top:12px">Not verified yet: the nutrition panel still needs to be entered and checked. This product can't be used in calculators until then.</p>`;
@@ -91,7 +107,7 @@ function openDetail(f) {
         <div>
             <p class="muted small">${esc([f.category, f.age, f.pack].filter(Boolean).join(' · '))}</p>
             ${flags}
-            <table class="nut"><tbody><tr><td colspan="2" class="eyebrow" style="padding-top:12px;text-align:start">${t(unit(f))}${f.form === 'powder' && f.basis === '100ml' ? L(' as prepared', ' بعد التحضير') : ''}</td></tr>${rows}${prep}</tbody></table>
+            <table class="nut"><thead>${head}</thead><tbody>${rows}${prep}</tbody></table>
             ${f.notes ? `<p class="small" style="margin-top:12px" data-no-i18n>${esc(f.notes)}</p>` : ''}
             ${f.source ? `<p class="small muted">${L('Source:', 'المصدر:')} <span data-no-i18n>${esc(f.source)}</span></p>` : ''}
             ${verify}
@@ -123,18 +139,22 @@ function openDetail(f) {
 // ---------------------------------------------------------------------------
 function openCompare() {
     const list = formulas.filter(f => picked.has(f.id));
-    const head = `<thead><tr><th></th>${list.map(f => `<th><img src="${photo(f)}" alt="">${esc(f.name)}<br><span class="small muted">${f.verified ? 'Verified' : 'Needs label'}</span></th>`).join('')}</tr></thead>`;
+    const perBottle = cmpBasis === 'bottle';
+    $$('[data-cbasis]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.cbasis === cmpBasis)));
+    $('#c-eyebrow').textContent = perBottle ? L('Compare · per bottle', 'مقارنة · لكل عبوة') : L('Compare · per 100 mL', 'مقارنة · لكل 100 mL');
+    const valueOf = (f, k, scales) => (perBottle && scales ? perServing(f, k) : (f[k] ?? null));
+    const head = `<thead><tr><th></th>${list.map(f => `<th><img src="${photo(f)}" alt="">${esc(f.name)}<br><span class="small muted">${f.verified ? 'Verified' : 'Needs label'}</span>${perBottle ? `<br><span class="small muted">${hasBottle(f) ? `${fmt(f.serving_ml, 0)} mL` : L('bottle size not entered', 'حجم العبوة غير مُدخل')}</span>` : ''}</th>`).join('')}</tr></thead>`;
     // Always show the core rows; hide others that are empty for every product.
     const rows = COMPARE_ROWS.filter(([k]) => ['kcal', 'protein', 'water'].includes(k) || list.some(f => f[k] !== null));
-    const body = rows.map(([k, label, u]) => {
-        const vals = list.map(f => f[k]);
+    const body = rows.map(([k, label, u, scales]) => {
+        const vals = list.map(f => valueOf(f, k, scales));
         const known = vals.filter(v => v !== null);
         const max = known.length > 1 ? Math.max(...known) : null;
-        return `<tr><td>${label} <span class="small muted">${u}</span></td>${vals.map(v => `<td class="${v !== null && v === max && known.some(x => x !== max) ? 'hi' : ''}">${fmt(v, k === 'kcal' || k === 'water' || k === 'osmolality' ? 0 : 1)}</td>`).join('')}</tr>`;
+        return `<tr><td>${label} <span class="small muted">${u}</span></td>${vals.map(v => `<td class="${v !== null && v === max && known.some(x => x !== max) ? 'hi' : ''}">${fmt(v, digits(k))}</td>`).join('')}</tr>`;
     }).join('');
     const extra = `<tr><td>Form</td>${list.map(f => `<td>${esc(t(f.form))}</td>`).join('')}</tr><tr><td>Age / weight</td>${list.map(f => `<td>${esc(f.age || '—')}</td>`).join('')}</tr>`;
     $('#c-body').innerHTML = `<table class="compare">${head}<tbody>${body}${extra}</tbody></table>`;
-    $('#compare').showModal();
+    if (!$('#compare').open) $('#compare').showModal();
 }
 
 function togglePick(id) {
@@ -205,6 +225,7 @@ $('#d-body').addEventListener('click', (e) => {
 $$('[data-grp]').forEach(b => b.addEventListener('click', () => { grp = b.dataset.grp; render(); }));
 ['#search', '#verified-only'].forEach(s => $(s).addEventListener('input', render));
 $('#tray-go').onclick = openCompare;
+$$('[data-cbasis]').forEach(b => b.addEventListener('click', () => { cmpBasis = b.dataset.cbasis; openCompare(); }));
 $('#tray-clear').onclick = () => { picked.clear(); render(); };
 $$('dialog [data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
 

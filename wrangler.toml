@@ -34,4 +34,4 @@ ACCESS_TEAM_DOMAIN = "REPLACE_ME.cloudflareaccess.com"
 # "Application Audience (AUD) Tag" from the Access application's settings
 ACCESS_AUD = "REPLACE_WITH_ACCESS_AUD_TAG"
 # Comma-separated emails that are always admins (bootstrap)
-ADMIN_EMAILS = "REPLACE_WITH_ADMIN_EMAIL"
+ADMIN_EMAILS = "thuraiyaalrawas@gmail.com"

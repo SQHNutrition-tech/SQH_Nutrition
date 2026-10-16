@@ -70,16 +70,33 @@ export function moduleForGap(module, gapGrams) {
 }
 
 /** Fields shown in the side-by-side comparison, in display order. */
+// The fourth item marks values that scale with volume (shown per bottle too);
+// osmolality and osmolarity are concentrations, so they do not.
 export const COMPARE_ROWS = [
-    ['kcal', 'Energy', 'kcal'],
-    ['protein', 'Protein', 'g'],
-    ['cho', 'Carbohydrate', 'g'],
-    ['fat', 'Fat', 'g'],
-    ['fibre', 'Fibre', 'g'],
-    ['water', 'Free water', 'mL'],
-    ['sodium', 'Sodium', 'mg'],
-    ['potassium', 'Potassium', 'mg'],
-    ['phosphate', 'Phosphate', 'mg'],
-    ['osmolality', 'Osmolality', 'mOsm/kg'],
-    ['g_per_100ml', 'Powder per 100 mL', 'g']
+    ['kcal', 'Energy', 'kcal', true],
+    ['protein', 'Protein', 'g', true],
+    ['cho', 'Carbohydrate', 'g', true],
+    ['fat', 'Fat', 'g', true],
+    ['fibre', 'Fibre', 'g', true],
+    ['water', 'Free water', 'mL', true],
+    ['sodium', 'Sodium', 'mg', true],
+    ['potassium', 'Potassium', 'mg', true],
+    ['chloride', 'Chloride', 'mg', true],
+    ['calcium', 'Calcium', 'mg', true],
+    ['magnesium', 'Magnesium', 'mg', true],
+    ['phosphate', 'Phosphate', 'mg', true],
+    ['osmolality', 'Osmolality', 'mOsm/kg', false],
+    ['osmolarity', 'Osmolarity', 'mOsm/L', false],
+    ['g_per_100ml', 'Powder per 100 mL', 'g', false]
 ];
+
+// mg → mmol for the electrolytes dietitians usually prescribe in mmol.
+// Phosphate labels give phosphorus in mg, so 1 mmol = 30.97 mg.
+export const MMOL_MG = { sodium: 22.99, potassium: 39.1, chloride: 35.45, calcium: 40.08, magnesium: 24.31, phosphate: 30.97 };
+export const toMmol = (k, mg) => (MMOL_MG[k] && Number.isFinite(mg) ? mg / MMOL_MG[k] : null);
+
+/** A value for one bottle as sold (null when the bottle size or value is unknown). */
+export function perServing(f, k) {
+    if (f.basis !== '100ml' || !(f.serving_ml > 0) || !Number.isFinite(f[k])) return null;
+    return (f[k] * f.serving_ml) / 100;
+}

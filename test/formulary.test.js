@@ -57,3 +57,16 @@ test('concentrating a powder and closing a protein gap', () => {
     assert.equal(m.grams, 20);
     assert.equal(m.scoops, 4);
 });
+
+test('per-bottle values scale with bottle size; concentrations do not apply', async () => {
+    const { perServing, toMmol } = await import('../public/js/formula-math.js');
+    const bottle = { basis: '100ml', serving_ml: 200, kcal: 150, protein: 6, sodium: null };
+    assert.equal(perServing(bottle, 'kcal'), 300);
+    assert.equal(perServing(bottle, 'protein'), 12);
+    assert.equal(perServing(bottle, 'sodium'), null);
+    assert.equal(perServing({ ...bottle, serving_ml: null }, 'kcal'), null);
+    assert.equal(perServing({ ...bottle, basis: '100g' }, 'kcal'), null);
+    assert.equal(Math.round(toMmol('sodium', 230) * 10) / 10, 10);
+    assert.equal(Math.round(toMmol('potassium', 391) * 10) / 10, 10);
+    assert.equal(toMmol('kcal', 100), null);
+});
