@@ -7,6 +7,9 @@
 <meta name="description" content="Clinical Nutrition Department hub: today's follow-ups, quick links, phone directory and calculators.">
 <link rel="icon" href="/img/mark.png">
 <link rel="stylesheet" href="/css/app.css">
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-ar.js"></script>
+
 <style>
     /* Welcome panel */
     .hero {
@@ -43,6 +46,20 @@
     .stat .v { font-family: var(--display); font-size: 2.2rem; font-weight: 400; line-height: 1.15; margin-top: 4px; font-variant-numeric: tabular-nums; }
     .dot-coral { background: var(--coral) !important; } .dot-amber { background: #D9A23B !important; } .dot-teal { background: var(--teal) !important; }
 
+    /* First-visit welcome */
+    #welcome { max-width: 520px; }
+    #welcome .wl-mark { width: 52px; height: 52px; border-radius: 16px; background: var(--teal-soft); display: grid; place-items: center; margin-bottom: 14px; }
+    #welcome h2 { font-size: 1.5rem; }
+    #welcome h2 small { display: block; font-size: 1.05rem; color: var(--ink-2); font-weight: 400; margin-top: 4px; }
+    #welcome .intro { color: var(--ink-2); margin: 10px 0 18px; }
+    .lang-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .lang-pick label { display: block; border: 1.5px solid var(--line-strong); border-radius: 16px; padding: 14px 16px; cursor: pointer; text-align: center; transition: border-color .15s, background .15s; }
+    .lang-pick input { position: absolute; opacity: 0; pointer-events: none; }
+    .lang-pick b { display: block; font-family: var(--display); font-weight: 500; font-size: 1.15rem; }
+    .lang-pick span { font-size: .84rem; color: var(--muted); }
+    .lang-pick label:has(input:checked) { border-color: var(--teal); background: var(--teal-soft); }
+    .lang-pick label:has(input:focus-visible) { outline: 2px solid var(--teal); outline-offset: 2px; }
+
     .two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 22px; align-items: start; }
     @media (max-width: 860px) {
         .hero { grid-template-columns: 1fr; }
@@ -63,14 +80,14 @@
             <h1 id="greeting">Good morning</h1>
             <p class="summary" id="day-summary">Getting your day ready…</p>
             <div class="row">
-                <a class="btn btn-lime" href="/followup.html">Open my follow-ups <span aria-hidden="true">→</span></a>
+                <a class="btn btn-lime" href="/followup.html">Open my follow-ups <span class="flip" aria-hidden="true">→</span></a>
                 <a class="btn btn-glass" href="/tools.html">Calculators &amp; handouts</a>
             </div>
         </div>
         <figure class="quote" style="margin:0">
             <span class="mark" aria-hidden="true">“</span>
             <p class="en" id="q-en"></p>
-            <p class="ar" id="q-ar" lang="ar" dir="rtl"></p>
+            <p class="ar" id="q-ar"></p>
             <p class="tag">Thought for today</p>
         </figure>
     </section>
@@ -94,7 +111,7 @@
         <section class="card" aria-labelledby="dir-title">
             <div class="section-head">
                 <h2 id="dir-title">Find an extension</h2>
-                <a class="small" href="/directory.html">Full directory →</a>
+                <a class="small" href="/directory.html">Full directory <span class="flip" aria-hidden="true">→</span></a>
             </div>
             <input type="search" id="dir-search" placeholder="Search ward, department or name" aria-label="Search the phone directory">
             <div id="directory"></div>
@@ -103,6 +120,29 @@
 
     <footer class="site">SQH · Clinical Nutrition Department. Patient names, diagnoses and notes stay in Al Shifa; this hub holds hospital numbers and follow-up tasks only.</footer>
 </main>
+<dialog id="welcome" aria-labelledby="wl-title" data-no-i18n>
+    <form id="wl-form" method="dialog">
+        <div class="wl-mark"><img src="/img/mark.png" alt="" width="34" height="34"></div>
+        <h2 id="wl-title"><span dir="ltr">Welcome to the Nutrition Hub</span><small lang="ar" dir="rtl">أهلاً بك في منصة التغذية العلاجية</small></h2>
+        <p class="intro"><span dir="ltr">Two quick choices and you are ready. You can change both later.</span><br><span lang="ar" dir="rtl">اختياران سريعان وتبدأ. يمكنك تغييرهما لاحقاً.</span></p>
+        <div class="form-grid">
+            <label class="field"><span><span dir="ltr">Your name as colleagues will see it</span> · <span lang="ar">اسمك كما يراه الزملاء</span></span>
+                <input type="text" name="name" maxlength="60" autocomplete="name" required>
+            </label>
+            <fieldset>
+                <legend><span dir="ltr">Interface language</span> · <span lang="ar">لغة الواجهة</span></legend>
+                <div class="lang-pick">
+                    <label><input type="radio" name="lang" value="en"><b>English</b><span>Left to right</span></label>
+                    <label lang="ar" dir="rtl"><input type="radio" name="lang" value="ar"><b>العربية</b><span>من اليمين إلى اليسار</span></label>
+                </div>
+            </fieldset>
+        </div>
+        <p class="form-error" id="wl-error" role="alert"></p>
+        <div class="dialog-actions">
+            <button type="submit" class="primary" id="wl-save"><span dir="ltr">Start</span> · <span lang="ar">ابدأ</span></button>
+        </div>
+    </form>
+</dialog>
 <script type="module" src="/js/hub.js"></script>
 </body>
 </html>

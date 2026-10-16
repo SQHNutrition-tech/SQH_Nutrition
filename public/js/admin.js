@@ -1,4 +1,4 @@
-import { $, esc, api, toast, initPage } from './common.js';
+import { $, esc, api, toast, initPage, L } from './common.js';
 
 let me, config, members = [];
 
@@ -19,9 +19,9 @@ async function loadMembers() {
     const active = members.filter(m => m.active);
     $('#members').innerHTML = members.map(m => `
         <tr class="${m.active ? '' : 'off'}" data-email="${esc(m.email)}">
-            <td><input type="text" value="${esc(m.name)}" data-act="name" aria-label="Name for ${esc(m.email)}"></td>
+            <td><input type="text" value="${esc(m.name)}" data-act="name" aria-label="${L('Name for', 'اسم')} ${esc(m.email)}"></td>
             <td class="small">${esc(m.email)}</td>
-            <td><select data-act="role" aria-label="Role">${['dietitian', 'admin'].map(r => `<option ${r === m.role ? 'selected' : ''}>${r}</option>`).join('')}</select></td>
+            <td><select data-act="role" aria-label="Role">${['dietitian', 'admin'].map(r => `<option value="${r}" ${r === m.role ? 'selected' : ''}>${r === 'admin' ? 'Admin' : 'Dietitian'}</option>`).join('')}</select></td>
             <td>${m.open_cases}</td>
             <td><button class="small" data-act="active">${m.active ? 'Turn off' : 'Turn on'}</button></td>
             <td>${m.open_cases ? `<select data-act="to" aria-label="Move cases to"><option value="">Choose…</option>${active.filter(a => a.email !== m.email).map(a => `<option value="${esc(a.email)}">${esc(a.name)}</option>`).join('')}</select> <button class="small" data-act="reassign">Move</button>` : '<span class="muted small">—</span>'}</td>
@@ -42,7 +42,7 @@ $('#members').addEventListener('click', (e) => {
     const email = row.dataset.email;
     const m = members.find(x => x.email === email);
     if (b.dataset.act === 'active') {
-        if (m.active && !confirm(`Turn off access for ${m.name}? Handovers waiting for them go back to the sender. Move their open cases first.`)) return;
+        if (m.active && !confirm(L(`Turn off access for ${m.name}? Handovers waiting for them go back to the sender. Move their open cases first.`, `إيقاف وصول ${m.name}؟ تعود الحالات المُسلَّمة إليه إلى المُرسِل. انقل حالاته المفتوحة أولاً.`))) return;
         run(async () => { await api('/api/admin/members', { action: 'active', email, active: !m.active }); await loadMembers(); }, 'Access updated');
     }
     if (b.dataset.act === 'reassign') {
@@ -51,7 +51,7 @@ $('#members').addEventListener('click', (e) => {
         run(async () => {
             const r = await api('/api/admin/members', { action: 'reassign', email, to });
             await loadMembers();
-            toast(`${r.moved} case${r.moved === 1 ? '' : 's'} moved`);
+            toast(L(`${r.moved} case${r.moved === 1 ? '' : 's'} moved`, `نُقلت ${r.moved} ${r.moved === 1 ? 'حالة' : 'حالات'}`));
         });
     }
 });
@@ -162,7 +162,7 @@ $('#import-file').addEventListener('change', async (e) => {
         return { hospitalNo: get('hospitalNo'), location: get('location'), owner: email, due: get('due'), nextAction: get('nextAction'), risk: get('risk'), urgent: get('urgent'), status: get('status') || 'active' };
     });
     const active = importRows.filter(r => r.status.toLowerCase() === 'active').length;
-    $('#import-preview').textContent = `${importRows.length} rows found, ${active} active.`;
+    $('#import-preview').textContent = L(`${importRows.length} rows found, ${active} active.`, `عُثر على ${importRows.length} صفاً، منها ${active} نشطة.`);
     $('#import-btn').disabled = !active;
 });
 
@@ -171,7 +171,7 @@ $('#import-btn').addEventListener('click', () => {
     $('#import-btn').disabled = true;
     run(async () => {
         const r = await api('/api/admin/import', { rows: importRows });
-        $('#import-report').textContent = `Imported ${r.added} case${r.added === 1 ? '' : 's'}.` + (r.skipped.length ? `\nSkipped ${r.skipped.length}:\n` + r.skipped.join('\n') : '');
+        $('#import-report').textContent = L(`Imported ${r.added} case${r.added === 1 ? '' : 's'}.`, `استُورد ${r.added} من الحالات.`) + (r.skipped.length ? L(`\nSkipped ${r.skipped.length}:\n`, `\nتُخطّي ${r.skipped.length}:\n`) + r.skipped.join('\n') : '');
         await loadMembers();
     });
 });
@@ -189,8 +189,8 @@ async function loadFormulary() {
     $('#f-body').innerHTML = products.map(f => `
         <tr data-id="${f.id}" class="${f.active ? '' : 'off'}">
             <td>${f.photo ? `<img class="thumb" src="/img/formulas/${esc(f.photo)}" alt="">` : ''}</td>
-            <td><b>${esc(f.name)}</b><br><span class="small muted">${esc([f.maker, f.pack].filter(Boolean).join(' · '))}</span></td>
-            <td class="small">${esc(f.grp)}</td>
+            <td><b data-no-i18n>${esc(f.name)}</b><br><span class="small muted">${esc([f.maker, f.pack].filter(Boolean).join(' · '))}</span></td>
+            <td class="small">${esc({ infant: 'Infant', paediatric: 'Paediatric', adult: 'Adult', module: 'Module' }[f.grp] || f.grp)}</td>
             <td>${f.kcal ?? '—'}</td>
             <td>${f.protein ?? '—'}</td>
             <td class="small">${f.verified ? `<span class="badge b-low">Verified</span><br><span class="muted">${esc(f.verified_by_name || f.verified_by)} · ${esc(f.verified_on)}</span>` : '<span class="badge b-medium">Needs label</span>'}</td>
@@ -234,7 +234,7 @@ $('#f-body').addEventListener('click', (e) => {
     const f = products.find(x => x.id === Number(b.closest('tr').dataset.id));
     const action = b.dataset.f;
     if (action === 'edit') return openProduct(f);
-    if (action === 'verify' && !confirm(`Confirm you have checked every value for ${f.name} against the pack label in your hand?`)) return;
+    if (action === 'verify' && !confirm(L(`Confirm you have checked every value for ${f.name} against the pack label in your hand?`, `هل تؤكد أنك راجعت كل قيم ${f.name} مقابل الملصق على العبوة التي بين يديك؟`))) return;
     run(async () => { await api('/api/admin/formulas', { action, id: f.id }); await loadFormulary(); },
         { verify: 'Marked as verified', unverify: 'Verification removed', archive: 'Hidden from the formulary', restore: 'Shown in the formulary' }[action]);
 });
@@ -248,7 +248,7 @@ $('#f-body').addEventListener('click', (e) => {
             document.querySelectorAll('section').forEach(s => { s.hidden = true; });
             return;
         }
-        $('#dir-cat').innerHTML = config.directoryCategories.map(c => `<option>${esc(c)}</option>`).join('');
+        $('#dir-cat').innerHTML = config.directoryCategories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
         await Promise.all([loadMembers(), loadLinks(), loadDirectory(), loadFormulary()]);
         if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
     } catch (e) {

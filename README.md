@@ -20,6 +20,7 @@ The Clinical Nutrition Department's daily home page. Each dietitian opens it in 
   - **use in enteral calculator**, which opens the calculator pre-filled
   - suggestions in the follow-up plan's diet/formula field
 - **Calculators and handouts:** requirements, MUST, NRS-2002, enteral regimen, refeeding risk, ADIME note, and Arabic/English patient handouts.
+- **English or Arabic interface:** each dietitian chooses on their first visit and can switch any time with the **ع / EN** button in the top bar. See [Arabic interface](#arabic-interface).
 
 It runs on **Cloudflare** (a Worker plus a D1 database), in the department's own account, with sign-in through **Cloudflare Access**. It no longer depends on ChatGPT. See **[DEPLOY.md](DEPLOY.md)** for step-by-step setup.
 
@@ -60,6 +61,18 @@ Products only feed the calculators once their values come from the pack label an
 
 Per-100 mL values were calculated only from numbers printed on the front, and the source is recorded on each product. Every product still needs its nutrition panel and verification. Several photos show US or European packs, so check values against the packs SQH actually stocks.
 
+## Arabic interface
+
+- **First visit:** a welcome dialog (in both languages) asks for the display name colleagues will see and the interface language.
+- **Switching:** the **ع / EN** button in the top bar switches language on every page. The choice is saved to the member's account, so it follows them to another computer or phone.
+- **Right to left:** in Arabic the layout runs right to left. Number ranges, doses and hospital numbers keep their left-to-right order, so "25–30 kcal/kg" never shows as "30–25".
+- **What stays as entered:**
+  - product names, pack sizes, extensions, quick links and anything an admin types
+  - units (kcal, g, mL)
+  - the ADIME note, which stays in English for the EMR
+  - the patient handouts, which follow their own language choice (Arabic, English or both)
+- **Adding or fixing a translation:** edit `public/js/i18n-ar.js`. Each line is `'English text': 'النص العربي'`. To list any text still showing in English, open the page in Arabic and type `[...I18N.missing]` in the browser console. `npm test` checks that every ward, next action, feeding route and closure reason has an Arabic name.
+
 ## How handovers work
 
 | Situation | What to do | What happens |
@@ -87,6 +100,8 @@ public/js/formula-math.js Feed calculations (unit-tested)
 src/formulary.js     Formulary validation and verification rules
 public/img/formulas/ Product photos
 public/tools.html    Calculators and patient handouts
+public/js/i18n.js    English / Arabic switch and right-to-left layout
+public/js/i18n-ar.js Arabic text for the interface
 test/                Unit tests (npm test)
 docs/                Earlier review of the "Be With Us" school platform
 ```
@@ -109,7 +124,6 @@ Local mode signs you in as `DEV_USER_EMAIL` (set in the `dev` script). It only w
 1. **Email notice on handover:** tell the receiving dietitian a case is waiting for them (no patient details in the email).
 2. **PHC referral:** a printable referral summary (no name; the dietitian writes the name on paper), and later PHC dietitians as members with their own facility code. The database already stores a facility on every case.
 3. **Workload report:** monthly counts per dietitian, ward and handover type for department reports.
-4. **Arabic interface.**
-5. **Hospital hosting:** if IT prefers, the same database layout can move to a hospital server.
+4. **Hospital hosting:** if IT prefers, the same database layout can move to a hospital server.
 
 *Clinical decision support only. Verify calculator results against local protocols.*

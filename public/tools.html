@@ -7,6 +7,9 @@
 <meta name="description" content="Bedside nutrition assessment, screening, enteral feeding and patient education toolkit for the Clinical Nutrition Department.">
 <link rel="icon" href="/img/mark.png">
 <link rel="stylesheet" href="/css/app.css">
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-ar.js"></script>
+
 <style>
     /* Shares the hub's palette and fonts (css/app.css); these aliases keep the
        calculator code's original variable names. */
@@ -448,7 +451,7 @@
                 <button type="button" id="h-wa">Share via WhatsApp</button>
             </div>
             <p class="small-text muted">WhatsApp opens without a number, so you pick the contact yourself and no phone number is stored here. Check your hospital's policy on messaging patients first.</p>
-            <div id="h-preview" class="handout"></div>
+            <div id="h-preview" class="handout" data-no-i18n></div>
         </div>
     </section>
 
@@ -457,7 +460,7 @@
     </footer>
 </main>
 
-<div id="print-area"></div>
+<div id="print-area" data-no-i18n></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script type="module">import { initPage } from '/js/common.js'; initPage('/tools.html').catch(() => {});</script>
 
@@ -474,6 +477,11 @@ const CONFIG = {
 };
 
 const $ = (id) => document.getElementById(id);
+// Interface language (i18n.js). Results show in the chosen language; the
+// ADIME note and the values kept in R stay in English for the EMR.
+const T = (en, ar) => (window.I18N ? window.I18N.L(en, ar) : en);
+const tr = (s) => (window.I18N ? window.I18N.t(s) : s);
+const optEn = (sel) => { const o = $(sel).selectedOptions[0]; return o ? (o.dataset.en || o.textContent) : ''; };
 const num = (id) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : NaN; };
 const ok = (...xs) => xs.every(Number.isFinite);
 const r0 = (x) => Math.round(x);
@@ -536,7 +544,7 @@ function computeAnthro() {
         if (ok(wt)) {
             R.pibw = (wt / R.ibw) * 100;
             R.adj = R.ibw + 0.25 * (wt - R.ibw);
-            $('o-pibw').textContent = r0(R.pibw) + '% of IBW';
+            $('o-pibw').textContent = r0(R.pibw) + T('% of IBW', '% من الوزن المثالي');
             $('o-adj').textContent = r1(R.adj) + ' kg';
         } else {
             $('o-pibw').innerHTML = '&nbsp;';
@@ -552,11 +560,11 @@ function computeAnthro() {
         R.wlPct = ((uwt - wt) / uwt) * 100;
         const label = $('period').selectedOptions[0].textContent;
         if (R.wlPct >= 0) {
-            $('o-wl').textContent = r1(R.wlPct) + '% loss';
-            $('o-wl-s').textContent = `${r1(uwt - wt)} kg over ${label}`;
+            $('o-wl').textContent = r1(R.wlPct) + T('% loss', '% نقص');
+            $('o-wl-s').textContent = T(`${r1(uwt - wt)} kg over ${label}`, `${r1(uwt - wt)} kg خلال ${label}`);
         } else {
-            $('o-wl').textContent = r1(-R.wlPct) + '% gain';
-            $('o-wl-s').textContent = `${r1(wt - uwt)} kg over ${label}`;
+            $('o-wl').textContent = r1(-R.wlPct) + T('% gain', '% زيادة');
+            $('o-wl-s').textContent = T(`${r1(wt - uwt)} kg over ${label}`, `${r1(wt - uwt)} kg خلال ${label}`);
         }
     } else {
         $('o-wl').textContent = '–';
@@ -588,7 +596,7 @@ function computeRequirements() {
     if (ok(dw.w, kLo, kHi)) {
         R.kcalLo = dw.w * kLo; R.kcalHi = dw.w * kHi;
         $('r-kcalkg').textContent = fmtRange(R.kcalLo, R.kcalHi, 'kcal/day');
-        $('r-kcalkg-n').textContent = `${kLo}–${kHi} kcal/kg × ${r1(dw.w)} kg ${dw.label}`;
+        $('r-kcalkg-n').textContent = `${kLo}–${kHi} kcal/kg × ${r1(dw.w)} kg ${tr(dw.label)}`;
     } else {
         $('r-kcalkg').textContent = '–'; $('r-kcalkg-n').textContent = 'Needs weight';
     }
@@ -600,9 +608,9 @@ function computeRequirements() {
             : 655.1 + 9.563 * R.wt + 1.850 * R.ht - 4.676 * R.age;
         R.msj = msj * factor; R.hb = hb * factor;
         $('r-msj').textContent = r0(R.msj) + ' kcal/day';
-        $('r-msj-n').textContent = `REE ${r0(msj)} × ${factor} · uses actual weight`;
+        $('r-msj-n').textContent = `REE ${r0(msj)} × ${factor} · ${T('uses actual weight', 'بالوزن الفعلي')}`;
         $('r-hb').textContent = r0(R.hb) + ' kcal/day';
-        $('r-hb-n').textContent = `BEE ${r0(hb)} × ${factor} · uses actual weight`;
+        $('r-hb-n').textContent = `BEE ${r0(hb)} × ${factor} · ${T('uses actual weight', 'بالوزن الفعلي')}`;
     } else {
         ['r-msj', 'r-hb'].forEach(id => $(id).textContent = '–');
         ['r-msj-n', 'r-hb-n'].forEach(id => $(id).textContent = 'Needs age, height and weight');
@@ -611,7 +619,7 @@ function computeRequirements() {
     if (ok(dw.w, pLo, pHi)) {
         R.protLo = dw.w * pLo; R.protHi = dw.w * pHi;
         $('r-prot').textContent = fmtRange(R.protLo, R.protHi, 'g/day');
-        $('r-prot-n').textContent = `${pLo}–${pHi} g/kg × ${r1(dw.w)} kg ${dw.label}`;
+        $('r-prot-n').textContent = `${pLo}–${pHi} g/kg × ${r1(dw.w)} kg ${tr(dw.label)}`;
     } else {
         $('r-prot').textContent = '–'; $('r-prot-n').textContent = 'Needs weight';
     }
@@ -619,7 +627,7 @@ function computeRequirements() {
     if (ok(R.wt, fLo, fHi)) {
         R.flLo = R.wt * fLo; R.flHi = R.wt * fHi;
         $('r-fl').textContent = fmtRange(R.flLo, R.flHi, 'mL/day');
-        $('r-fl-n').textContent = `${fLo}–${fHi} mL/kg × ${r1(R.wt)} kg actual weight. Adjust for fluid restriction or losses.`;
+        $('r-fl-n').textContent = T(`${fLo}–${fHi} mL/kg × ${r1(R.wt)} kg actual weight. Adjust for fluid restriction or losses.`, `${fLo}–${fHi} mL/kg × ${r1(R.wt)} kg الوزن الفعلي. عدّل حسب تقييد السوائل أو الفقد.`);
     } else {
         $('r-fl').textContent = '–'; $('r-fl-n').textContent = 'Needs weight';
     }
@@ -628,11 +636,11 @@ function computeRequirements() {
     const icuBox = $('r-icu-obese');
     if ($('icu').checked && ok(R.bmi, R.wt, R.ibw) && R.bmi >= 30) {
         const lines = [];
-        if (R.bmi <= 50) lines.push(`Energy: 11–14 kcal/kg actual weight = <strong>${fmtRange(11 * R.wt, 14 * R.wt, 'kcal/day')}</strong>`);
-        else lines.push(`Energy: 22–25 kcal/kg IBW = <strong>${fmtRange(22 * R.ibw, 25 * R.ibw, 'kcal/day')}</strong>`);
-        if (R.bmi < 40) lines.push(`Protein: 2.0 g/kg IBW = <strong>${r0(2 * R.ibw)} g/day</strong>`);
-        else lines.push(`Protein: up to 2.5 g/kg IBW = <strong>${r0(2.5 * R.ibw)} g/day</strong>`);
-        icuBox.innerHTML = `<div class="big">Critically ill with obesity (BMI ${r1(R.bmi)})</div><ul><li>${lines.join('</li><li>')}</li></ul><div class="small-text muted" style="margin-top:6px">ASPEN/SCCM 2016 hypocaloric, high-protein approach. Use instead of the table above if it fits your unit's protocol.</div>`;
+        if (R.bmi <= 50) lines.push(T('Energy: 11–14 kcal/kg actual weight', 'الطاقة: 11–14 kcal/kg من الوزن الفعلي') + ` = <strong>${fmtRange(11 * R.wt, 14 * R.wt, 'kcal/day')}</strong>`);
+        else lines.push(T('Energy: 22–25 kcal/kg IBW', 'الطاقة: 22–25 kcal/kg من الوزن المثالي') + ` = <strong>${fmtRange(22 * R.ibw, 25 * R.ibw, 'kcal/day')}</strong>`);
+        if (R.bmi < 40) lines.push(T('Protein: 2.0 g/kg IBW', 'البروتين: 2.0 g/kg من الوزن المثالي') + ` = <strong>${r0(2 * R.ibw)} g/day</strong>`);
+        else lines.push(T('Protein: up to 2.5 g/kg IBW', 'البروتين: حتى 2.5 g/kg من الوزن المثالي') + ` = <strong>${r0(2.5 * R.ibw)} g/day</strong>`);
+        icuBox.innerHTML = `<div class="big">${T('Critically ill with obesity', 'مريض حرج مع سمنة')} (BMI ${r1(R.bmi)})</div><ul><li>${lines.join('</li><li>')}</li></ul><div class="small-text muted" style="margin-top:6px">${T("ASPEN/SCCM 2016 hypocaloric, high-protein approach. Use instead of the table above if it fits your unit's protocol.", 'نهج ASPEN/SCCM 2016 منخفض السعرات عالي البروتين. استخدمه بدلاً من الجدول أعلاه إذا كان يناسب بروتوكول وحدتك.')}</div>`;
         icuBox.hidden = false;
     } else {
         icuBox.hidden = true;
@@ -643,7 +651,8 @@ function computeRequirements() {
     if (ok(R.age, R.wt) && R.age < 18) {
         const w = R.wt;
         const hs = w <= 10 ? 100 * w : w <= 20 ? 1000 + 50 * (w - 10) : 1500 + 20 * (w - 20);
-        pedsBox.innerHTML = `<div class="big">Patient is under 18</div>Adult equations above do not apply. Holliday-Segar maintenance fluid: <strong>${r0(hs)} mL/day</strong>. Use paediatric references (e.g. Schofield, DRIs) for energy and protein.`;
+        pedsBox.innerHTML = T(`<div class="big">Patient is under 18</div>Adult equations above do not apply. Holliday-Segar maintenance fluid: <strong>${r0(hs)} mL/day</strong>. Use paediatric references (e.g. Schofield, DRIs) for energy and protein.`,
+            `<div class="big">المريض دون 18 عاماً</div>معادلات البالغين أعلاه لا تنطبق. سوائل الصيانة حسب Holliday-Segar: <strong>${r0(hs)} mL/day</strong>. استخدم مراجع الأطفال (مثل Schofield وDRIs) للطاقة والبروتين.`);
         pedsBox.hidden = false;
     } else {
         pedsBox.hidden = true;
@@ -683,7 +692,7 @@ function computeMUST() {
         plan = ['Treat: refer to dietitian / nutrition support team', 'Set goals, improve and increase overall nutritional intake', 'Monitor and review the care plan weekly'];
     }
     R.must = { total, risk, bmiScore, wlScore: ok(wlScore) ? wlScore : 0, ad };
-    setResult(out, tone, `<div class="big">MUST ${total} · ${risk}</div><ul><li>${plan.join('</li><li>')}</li></ul>${wlNote}`);
+    setResult(out, tone, `<div class="big">MUST ${total} · ${tr(risk)}</div><ul><li>${plan.join('</li><li>')}</li></ul>${wlNote}`);
 }
 
 // ---------------------------------------------------------------
@@ -706,8 +715,8 @@ function computeNRS() {
     const atRisk = total >= 3;
     R.nrs = { total, risk: atRisk ? 'At nutritional risk' : 'Not currently at risk', status, sev, ageAdd };
     setResult(out, atRisk ? 'danger' : 'ok',
-        `<div class="big">NRS-2002 ${total} · ${R.nrs.risk}</div>` +
-        `<div class="small-text">Nutritional status ${status} + disease severity ${sev}${ageAdd ? ' + age ≥ 70 (1)' : ''}</div>` +
+        `<div class="big">NRS-2002 ${total} · ${tr(R.nrs.risk)}</div>` +
+        `<div class="small-text">${T(`Nutritional status ${status} + disease severity ${sev}${ageAdd ? ' + age ≥ 70 (1)' : ''}`, `الحالة الغذائية ${status} + شدة المرض ${sev}${ageAdd ? ' + العمر ≥ 70 (1)' : ''}`)}</div>` +
         (atRisk ? '<ul><li>Start a nutrition care plan</li></ul>' : '<ul><li>Re-screen weekly</li></ul>'));
 }
 
@@ -733,45 +742,46 @@ function computeEnteral() {
         const rate = Math.max(5, Math.round(exactRate / 5) * 5); // pumps are set in whole numbers; round to 5 mL/h
         vol = rate * hours;
         regimen = `${rate} mL/h × ${hours} h`;
-        lines.push(`Rate: <strong>${rate} mL/h</strong> for ${hours} h/day (exact ${r1(exactRate)} mL/h, rounded to nearest 5)`);
+        lines.push(T(`Rate: <strong>${rate} mL/h</strong> for ${hours} h/day (exact ${r1(exactRate)} mL/h, rounded to nearest 5)`, `المعدل: <strong>${rate} mL/h</strong> لمدة ${hours} ساعة يومياً (الدقيق ${r1(exactRate)} mL/h، مقرّب لأقرب 5)`));
     } else {
         if (!ok(feeds) || feeds <= 0) { setResult(out, 'warn', 'Enter feeds per day.'); return; }
         const perFeed = Math.round(kcal / dens / feeds / 10) * 10;
         vol = perFeed * feeds;
         regimen = `${perFeed} mL × ${feeds} feeds/day`;
-        lines.push(`Bolus: <strong>${perFeed} mL × ${feeds} feeds/day</strong> (every ${r1(24 / feeds)} h)`);
+        lines.push(T(`Bolus: <strong>${perFeed} mL × ${feeds} feeds/day</strong> (every ${r1(24 / feeds)} h)`, `دفعات: <strong>${perFeed} mL × ${feeds} وجبات يومياً</strong> (كل ${r1(24 / feeds)} ساعة)`));
     }
 
     const kcalDel = vol * dens;
     const protDel = ok(pl) ? vol * pl / 1000 : NaN;
     const freeWater = ok(water) ? vol * water / 100 : NaN;
-    lines.push(`Volume: <strong>${r0(vol)} mL/day</strong> → ${r0(kcalDel)} kcal (${r0(kcalDel / kcal * 100)}% of goal)`);
+    lines.push(T(`Volume: <strong>${r0(vol)} mL/day</strong> → ${r0(kcalDel)} kcal (${r0(kcalDel / kcal * 100)}% of goal)`, `الحجم: <strong>${r0(vol)} mL/day</strong> ← ${r0(kcalDel)} kcal (${r0(kcalDel / kcal * 100)}% من الهدف)`));
 
     let tone = 'ok';
     if (ok(protDel)) {
-        let pLine = `Protein: <strong>${r0(protDel)} g/day</strong>`;
+        let pLine = T('Protein: ', 'البروتين: ') + `<strong>${r0(protDel)} g/day</strong>`;
         if (ok(protGoal) && protGoal > 0) {
             const gap = protGoal - protDel;
-            pLine += ` (${r0(protDel / protGoal * 100)}% of ${r0(protGoal)} g goal)`;
-            if (gap > 5) { pLine += ` – add ≈ <strong>${r0(gap)} g</strong> protein modular or choose a higher-protein formula`; tone = 'warn'; }
+            pLine += T(` (${r0(protDel / protGoal * 100)}% of ${r0(protGoal)} g goal)`, ` (${r0(protDel / protGoal * 100)}% من هدف ${r0(protGoal)} g)`);
+            if (gap > 5) { pLine += T(` – add ≈ <strong>${r0(gap)} g</strong> protein modular or choose a higher-protein formula`, ` – أضف ≈ <strong>${r0(gap)} g</strong> من مكمّل البروتين أو اختر تركيبة أعلى بروتيناً`); tone = 'warn'; }
         }
         lines.push(pLine);
     }
     if (ok(freeWater)) {
-        let wLine = `Free water from formula: <strong>${r0(freeWater)} mL/day</strong>`;
+        let wLine = T('Free water from formula: ', 'الماء الحر من التركيبة: ') + `<strong>${r0(freeWater)} mL/day</strong>`;
         if (ok(fluid) && fluid > 0) {
             const extra = fluid - freeWater;
             if (extra > 0 && ok(flushes) && flushes > 0) {
                 const perFlush = Math.round(extra / flushes / 10) * 10;
-                wLine += ` → additional water ≈ <strong>${r0(extra)} mL/day</strong> (e.g. ${perFlush} mL × ${flushes} flushes, including medication flushes)`;
+                wLine += T(` → additional water ≈ <strong>${r0(extra)} mL/day</strong> (e.g. ${perFlush} mL × ${flushes} flushes, including medication flushes)`, ` ← ماء إضافي ≈ <strong>${r0(extra)} mL/day</strong> (مثلاً ${perFlush} mL × ${flushes} دفعات غسيل، تشمل غسيل الأدوية)`);
             } else if (extra <= 0) {
-                wLine += ' → formula alone meets the fluid target; review if fluid-restricted';
+                wLine += T(' → formula alone meets the fluid target; review if fluid-restricted', ' ← التركيبة وحدها تغطي هدف السوائل؛ راجع إذا كانت السوائل مقيّدة');
             }
         }
         lines.push(wLine);
     }
-    R.en = { regimen, vol, kcalDel, protDel, freeWater, formula: $('e-preset').selectedOptions[0].textContent, dens };
-    setResult(out, tone, `<div class="big">${regimen}</div><ul><li>${lines.join('</li><li>')}</li></ul>` +
+    R.en = { regimen, vol, kcalDel, protDel, freeWater, formula: optEn('e-preset'), dens };
+    const regimenShown = mode === 'cont' ? regimen : T(regimen, regimen.replace('feeds/day', 'وجبات يومياً'));
+    setResult(out, tone, `<div class="big">${regimenShown}</div><ul><li>${lines.join('</li><li>')}</li></ul>` +
         '<div class="small-text muted" style="margin-top:6px">Start and advance per local protocol. If refeeding risk is present, start low (see Refeeding tab).</div>');
 }
 
@@ -805,7 +815,7 @@ function computeRefeeding() {
     R.rf = { level: extreme ? 'Extreme refeeding risk' : 'High refeeding risk', start: startKcal, kcalPerKg };
     setResult(out, 'danger',
         `<div class="big">${R.rf.level}</div><ul>` +
-        `<li>Start at max <strong>${kcalPerKg} kcal/kg/day</strong>${ok(R.wt) ? ` ≈ <strong>${startKcal}</strong>` : ''}, increasing slowly to full needs over 4–7 days</li>` +
+        T(`<li>Start at max <strong>${kcalPerKg} kcal/kg/day</strong>${ok(R.wt) ? ` ≈ <strong>${startKcal}</strong>` : ''}, increasing slowly to full needs over 4–7 days</li>`, `<li>ابدأ بحد أقصى <strong>${kcalPerKg} kcal/kg/day</strong>${ok(R.wt) ? ` ≈ <strong>${startKcal}</strong>` : ''}، مع الزيادة تدريجياً إلى الاحتياج الكامل خلال 4–7 أيام</li>`) +
         '<li>Thiamine and vitamin supplementation before and during the first 10 days, per hospital protocol</li>' +
         '<li>Check and replace potassium, phosphate and magnesium; monitor daily initially</li>' +
         '<li>Monitor fluid balance and cardiovascular status</li></ul>');
@@ -829,7 +839,7 @@ function buildNote() {
     if (ok(R.bmi)) anthro.push(`BMI ${r1(R.bmi)} (${bmiCategory(R.bmi)})`);
     if (ok(R.ibw)) anthro.push(`IBW ${r1(R.ibw)} kg (${ok(R.pibw) ? r0(R.pibw) + '%' : '–'})`);
     if (anthro.length) L.push('Anthropometrics: ' + anthro.join(', '));
-    if (ok(R.wlPct)) L.push(`Weight change: ${R.wlPct >= 0 ? '−' : '+'}${r1(Math.abs(R.wlPct))}% (usual ${r1(R.uwt)} kg) over ${$('period').selectedOptions[0].textContent}`);
+    if (ok(R.wlPct)) L.push(`Weight change: ${R.wlPct >= 0 ? '−' : '+'}${r1(Math.abs(R.wlPct))}% (usual ${r1(R.uwt)} kg) over ${optEn('period')}`);
     if (v('t-hx')) L.push(`Intake history: ${v('t-hx')}`);
     if (v('t-labs')) L.push(`Labs / meds / NFPE: ${v('t-labs')}`);
     if ($('inc-must').checked && R.must) L.push(`MUST: ${R.must.total} (${R.must.risk})`);
@@ -1141,7 +1151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('t-build').addEventListener('click', () => { recalcAll(); buildNote(); });
     $('t-copy').addEventListener('click', () => copyText($('t-out').value));
 
-    HANDOUTS.forEach(h => $('h-topic').append(el('option', { value: h.id }, h.en.title)));
+    HANDOUTS.forEach(h => $('h-topic').append(el('option', { value: h.id }, T(h.en.title, h.ar.title))));
     ['h-topic', 'h-lang', 'h-extra', 'h-contact'].forEach(id => $(id).addEventListener('input', () => renderHandout($('h-preview'))));
     $('h-copy').addEventListener('click', () => copyText(handoutText()));
     $('h-wa').addEventListener('click', () => window.open('https://wa.me/?text=' + encodeURIComponent(handoutText()), '_blank', 'noopener'));

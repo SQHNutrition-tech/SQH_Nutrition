@@ -1,4 +1,4 @@
-import { $, $$, esc, api, toast, initPage, nameOf, fmtDate, fmtDateTime } from './common.js';
+import { $, $$, esc, api, toast, initPage, nameOf, fmtDate, fmtDateTime, L, t, LOCALE } from './common.js';
 
 let me, members = [], config, today = '';
 let cases = [];
@@ -12,7 +12,9 @@ if (['overdue', 'today', 'upcoming'].includes(params.get('filter'))) filter = pa
 const RISK = { high: 'High risk', medium: 'Medium risk', low: 'Low risk' };
 const timing = (c) => c.status === 'closed' ? 'closed' : c.due < today ? 'overdue' : c.due === today ? 'today' : 'upcoming';
 const TIMING_LABEL = { overdue: 'Overdue', today: 'Due today', upcoming: 'Upcoming', closed: 'Closed' };
-const where = (c) => c.location + (c.bed ? ' · Bed ' + c.bed : '');
+const where = (c) => t(c.location) + (c.bed ? ` · ${L('Bed', 'سرير')} ${c.bed}` : '');
+// Arabic counts: the singular phrase already says "one" (حالة واحدة); otherwise "3 حالات".
+const plural = (n, one, many) => (n === 1 ? one : `${n} ${many}`);
 
 // ---------------------------------------------------------------------------
 // Data
@@ -23,7 +25,7 @@ async function load() {
         cases = data.cases;
         today = data.today;
         render();
-        $('#sync').textContent = 'Updated ' + new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Muscat', hour: '2-digit', minute: '2-digit' });
+        $('#sync').textContent = L('Updated ', 'آخر تحديث ') + new Date().toLocaleTimeString(LOCALE, { timeZone: 'Asia/Muscat', hour: '2-digit', minute: '2-digit' });
     } catch (e) {
         $('#sync').textContent = e.message;
     }
@@ -63,15 +65,15 @@ function visible() {
         .filter(c => !filter || timing(c) === filter)
         .filter(c => !loc || c.location === loc)
         .filter(c => !setting || c.setting === setting)
-        .filter(c => !q || [c.hospitalNo, c.location, c.bed, nameOf(members, c.owner), c.nextAction, RISK[c.risk], c.urgent ? 'urgent' : ''].join(' ').toLowerCase().includes(q))
+        .filter(c => !q || [c.hospitalNo, c.location, t(c.location), c.bed, nameOf(members, c.owner), c.nextAction, t(c.nextAction), RISK[c.risk], t(RISK[c.risk] || ''), c.urgent ? 'urgent ' + t('Urgent') : ''].join(' ').toLowerCase().includes(q))
         .sort(compare);
 }
 
 function planSummary(p) {
     if (!p || (!p.route && !p.kcal && !p.protein && !p.notes && !p.diet)) return '';
-    const head = [p.route ? `<b>${esc(p.route)}</b>` : '', p.diet ? esc(p.diet) : ''].filter(Boolean).join(' · ');
-    const targets = [p.kcal ? `${p.kcal} kcal` : '', p.protein ? `${p.protein} g protein` : '', p.fluid ? `${p.fluid} mL` : ''].filter(Boolean).join(' · ');
-    return `<div class="plan">${[head, targets, p.notes ? esc(p.notes) : ''].filter(Boolean).join('<br>')}</div>`;
+    const head = [p.route ? `<b>${esc(t(p.route))}</b>` : '', p.diet ? `<span data-no-i18n>${esc(p.diet)}</span>` : ''].filter(Boolean).join(' · ');
+    const targets = [p.kcal ? `${p.kcal} kcal` : '', p.protein ? L(`${p.protein} g protein`, `بروتين ${p.protein} g`) : '', p.fluid ? L(`${p.fluid} mL`, `سوائل ${p.fluid} mL`) : ''].filter(Boolean).join(' · ');
+    return `<div class="plan">${[head, targets, p.notes ? `<span data-no-i18n>${esc(p.notes)}</span>` : ''].filter(Boolean).join('<br>')}</div>`;
 }
 
 const initialsOf = (name) => String(name).split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
@@ -96,7 +98,7 @@ function card(c) {
         menu.push('<hr>', item('close', 'Close case', 'danger'));
     }
     if (c.status === 'closed' && (mine || me.role === 'admin')) main += btn('reopen', 'Reopen', 'ghost');
-    if (!main && !menu.length) main = `<span class="small muted">Assigned to ${esc(nameOf(members, c.owner))}</span>`;
+    if (!main && !menu.length) main = `<span class="small muted">${L('Assigned to', 'المسؤول:')} ${esc(nameOf(members, c.owner))}</span>`;
     menu.push(menu.length ? '<hr>' : '', item('activity', 'Activity log'));
 
     const owner = nameOf(members, c.owner);
@@ -104,8 +106,8 @@ function card(c) {
         <div class="case-body">
             <div class="case-top">
                 <div>
-                    <div class="hn">${esc(c.hospitalNo)}</div>
-                    <div class="loc">${esc(where(c))}${c.setting === 'outpatient' ? ' · Outpatient' : ''}</div>
+                    <div class="hn" data-no-i18n>${esc(c.hospitalNo)}</div>
+                    <div class="loc">${esc(where(c))}${c.setting === 'outpatient' ? ` · ${L('Outpatient', 'عيادات خارجية')}` : ''}</div>
                 </div>
                 <span class="badge b-${st}">${TIMING_LABEL[st]}</span>
             </div>
@@ -115,16 +117,18 @@ function card(c) {
             </div>
             <div class="next">
                 <span class="what">${esc(c.status === 'closed' ? c.closeReason : c.nextAction)}</span>
-                <span class="when">${c.status === 'closed' ? 'Closed ' + fmtDate(c.closedAt) : fmtDate(c.due)}</span>
+                <span class="when">${c.status === 'closed' ? L('Closed ', 'أُغلقت ') + fmtDate(c.closedAt) : fmtDate(c.due)}</span>
             </div>
             ${planSummary(c.plan)}
-            ${c.pendingTo ? `<div class="pending">${incoming ? `<b>${esc(owner)}</b> is handing this case to you.` : `Waiting for <b>${esc(nameOf(members, c.pendingTo))}</b> to accept.`}${c.pendingNote ? `<q>${esc(c.pendingNote)}</q>` : ''}</div>` : ''}
+            ${c.pendingTo ? `<div class="pending">${incoming
+                ? L(`<b>${esc(owner)}</b> is handing this case to you.`, `<b>${esc(owner)}</b> يسلّمك هذه الحالة.`)
+                : L(`Waiting for <b>${esc(nameOf(members, c.pendingTo))}</b> to accept.`, `بانتظار قبول <b>${esc(nameOf(members, c.pendingTo))}</b>.`)}${c.pendingNote ? `<q data-no-i18n>${esc(c.pendingNote)}</q>` : ''}</div>` : ''}
             <div class="owner"><span class="avatar" aria-hidden="true">${esc(initialsOf(owner))}</span>${esc(owner)}</div>
         </div>
         <div class="actions">
             ${main}
             <span class="spacer"></span>
-            <details class="menu"><summary aria-label="More actions for ${esc(c.hospitalNo)}">···</summary><div class="menu-pop">${menu.join('')}</div></details>
+            <details class="menu"><summary aria-label="${L('More actions for', 'مزيد من الإجراءات للملف')} ${esc(c.hospitalNo)}">···</summary><div class="menu-pop">${menu.join('')}</div></details>
         </div>
         <div class="activity" hidden></div>
     </article>`;
@@ -143,20 +147,20 @@ function render() {
     const locSel = $('#loc-filter');
     const keep = locSel.value;
     const locs = [...new Set(scoped.map(c => c.location))].sort();
-    locSel.innerHTML = '<option value="">All wards &amp; clinics</option>' + locs.map(l => `<option ${l === keep ? 'selected' : ''}>${esc(l)}</option>`).join('');
+    locSel.innerHTML = '<option value="">All wards &amp; clinics</option>' + locs.map(l => `<option value="${esc(l)}" ${l === keep ? 'selected' : ''}>${esc(l)}</option>`).join('');
 
     const dueMine = cases.filter(c => c.owner === me.email && c.status === 'active' && c.due <= today).length;
     $('#lede').textContent =
         view === 'handovers' ? 'The sending dietitian stays responsible until the receiver accepts. Declining returns the case.'
         : view === 'team' ? 'Every open case in the department. Only the responsible dietitian or an admin can change a case.'
         : view === 'closed' ? 'Cases closed in the last 30 days. You can reopen your own.'
-        : dueMine ? `${dueMine} review${dueMine === 1 ? '' : 's'} due or overdue. Urgent cases come first.`
+        : dueMine ? L(`${dueMine} review${dueMine === 1 ? '' : 's'} due or overdue. Urgent cases come first.`, `${plural(dueMine, 'مراجعة واحدة مستحقة أو متأخرة', 'مراجعات مستحقة أو متأخرة')}. الحالات العاجلة أولاً.`)
         : 'Your due list is clear.';
     $('#notice').hidden = !(incoming && view !== 'handovers');
-    $('#notice').textContent = `${incoming} handover${incoming === 1 ? ' is' : 's are'} waiting for you in Handovers.`;
+    $('#notice').textContent = L(`${incoming} handover${incoming === 1 ? ' is' : 's are'} waiting for you in Handovers.`, `${plural(incoming, 'حالة مُسلَّمة واحدة تنتظرك', 'حالات مُسلَّمة تنتظرك')} في تبويب التسليم.`);
 
     const rows = visible();
-    $('#list-count').textContent = `${rows.length} case${rows.length === 1 ? '' : 's'}`;
+    $('#list-count').textContent = L(`${rows.length} case${rows.length === 1 ? '' : 's'}`, plural(rows.length, 'حالة واحدة', 'حالات'));
     $('#list').innerHTML = rows.map(card).join('') || '<div class="empty"><strong>Nothing here</strong>Try another tab or filter, or add a patient.</div>';
 }
 
@@ -223,7 +227,7 @@ function openForm(action, c = null) {
         transfer: c?.setting === 'outpatient' ? 'Move or admit' : 'Move ward or discharge to clinic', close: 'Close case', reopen: 'Reopen case'
     }[action];
     $('#dlg-title').textContent = title;
-    $('#dlg-eyebrow').textContent = c ? `${c.hospitalNo} · ${where(c)}` : config.facility;
+    $('#dlg-eyebrow').textContent = c ? `\u2066${c.hospitalNo}\u2069 · ${where(c)}` : config.facility;
     $('#dlg-submit').textContent = { add: 'Add patient', review: 'Save review', handover: 'Request handover', transfer: 'Save move', close: 'Close case', reopen: 'Reopen' }[action] || 'Save';
     $('#form-error').textContent = '';
 
@@ -248,7 +252,7 @@ function openForm(action, c = null) {
     }
     if (action === 'close') {
         html += `<label class="field">Reason<select name="reason" required><option value="">Choose…</option>${config.closeReasons.map(r => opt(r, '')).join('')}</select></label>
-            <p class="small muted" style="margin:0">Closing removes the case from active lists and cancels any pending handover. Closed cases are deleted after ${config.retentionDays} days.</p>`;
+            <p class="small muted" style="margin:0">${L(`Closing removes the case from active lists and cancels any pending handover. Closed cases are deleted after ${config.retentionDays} days.`, `الإغلاق يزيل الحالة من القوائم النشطة ويلغي أي تسليم معلّق. تُحذف الحالات المغلقة بعد ${config.retentionDays} يوماً.`)}</p>`;
     }
     $('#fields').innerHTML = html;
 
@@ -342,7 +346,9 @@ async function toggleActivity(c) {
     box.textContent = 'Loading…';
     try {
         const { events } = await api(`/api/cases/${c.id}/events`);
-        box.innerHTML = events.map(ev => `<p>${esc(ev.text)}<br><small>${esc(nameOf(members, ev.actor))} · ${fmtDateTime(ev.at)}</small></p>`).join('') || 'No activity yet.';
+        // The log stores emails; show colleagues' names instead.
+        const named = (text) => text.replace(/[^\s()]+@[^\s()]+/g, (email) => nameOf(members, email));
+        box.innerHTML = events.map(ev => `<p>${esc(named(t(ev.text)))}<br><small>${esc(nameOf(members, ev.actor))} · ${fmtDateTime(ev.at)}</small></p>`).join('') || 'No activity yet.';
     } catch (err) {
         box.textContent = err.message;
     }
@@ -384,8 +390,8 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && !$
         me = data.me;
         members = data.members;
         config = data.config;
-        $('#retention').textContent = `${config.retentionDays} days`;
-        $('#date').textContent = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Muscat', weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
+        $('#retention').textContent = L(`${config.retentionDays} days`, `${config.retentionDays} يوماً`);
+        $('#date').textContent = new Date().toLocaleDateString(LOCALE, { timeZone: 'Asia/Muscat', weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
         $('#add-btn').disabled = false;
         await load();
         // Product names from the formulary, suggested in the plan's diet/formula field.

@@ -35,7 +35,8 @@ async function ensureMember(db, env, email) {
         `INSERT INTO members (email, name, role, active, created_at, last_seen) VALUES (?1, ?2, ?3, 1, ?4, ?4)
          ON CONFLICT (email) DO UPDATE SET last_seen = ?4, role = CASE WHEN ?5 = 1 THEN 'admin' ELSE role END`
     ).bind(email, defaultName, bootstrapAdmin ? 'admin' : 'dietitian', nowIso(), bootstrapAdmin ? 1 : 0).run();
-    return db.prepare('SELECT email, name, role, active FROM members WHERE email = ?').bind(email).first();
+    const m = await db.prepare('SELECT email, name, role, active, lang, welcomed FROM members WHERE email = ?').bind(email).first();
+    return { ...m, welcomed: !!m.welcomed };
 }
 
 async function activeMemberEmails(db) {
@@ -183,9 +184,18 @@ async function api(request, env, member, path) {
     }
 
     if (path === '/api/me' && method === 'POST') {
+        // Each field is optional: the language switch sends only `lang`,
+        // the welcome sends name, language and `welcomed`.
         const body = await readJson(request, 2000);
-        const name = cleanText(body.name, 60, 'Display name');
-        await db.prepare('UPDATE members SET name = ? WHERE email = ?').bind(name, member.email).run();
+        const sets = [], binds = [];
+        if (body.name !== undefined) { sets.push('name = ?'); binds.push(cleanText(body.name, 60, 'Display name')); }
+        if (body.lang !== undefined) {
+            if (!['en', 'ar'].includes(body.lang)) throw new InputError('Choose English or Arabic.');
+            sets.push('lang = ?'); binds.push(body.lang);
+        }
+        if (body.welcomed === true) sets.push('welcomed = 1');
+        if (!sets.length) throw new InputError('Nothing to save.');
+        await db.prepare(`UPDATE members SET ${sets.join(', ')} WHERE email = ?`).bind(...binds, member.email).run();
         return json({ ok: true });
     }
 

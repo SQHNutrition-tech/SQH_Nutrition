@@ -6,6 +6,9 @@
 <title>Formulary · Nutrition Hub</title>
 <link rel="icon" href="/img/mark.png">
 <link rel="stylesheet" href="/css/app.css">
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-ar.js"></script>
+
 <style>
     .toolbar { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
     .toolbar .right { display: flex; gap: 10px; align-items: center; flex: 1; justify-content: flex-end; min-width: 260px; }
@@ -44,7 +47,7 @@
     .b-needs { background: var(--amber-soft); color: var(--amber); }
 
     /* Compare tray */
-    .tray { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 25; background: var(--deep); color: var(--deep-ink); border-radius: 999px; padding: 8px 8px 8px 20px; display: flex; gap: 14px; align-items: center; box-shadow: var(--shadow-lift); max-width: calc(100% - 24px); }
+    .tray { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 25; background: var(--deep); color: var(--deep-ink); border-radius: 999px; padding-block: 8px; padding-inline: 20px 8px; display: flex; gap: 14px; align-items: center; box-shadow: var(--shadow-lift); max-width: calc(100% - 24px); }
     .tray span { font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tray .btn-lime { background: var(--lime); color: #06393B; border-color: var(--lime); }
 

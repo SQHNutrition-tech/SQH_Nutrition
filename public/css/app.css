@@ -232,3 +232,23 @@ input[type="file"]::file-selector-button:hover { border-color: var(--line-strong
     .star[aria-pressed="true"] { color: #D9A23B; }
     .empty-note { color: var(--muted); font-size: .9rem; padding: 10px 0; }
 
+
+/* ---------------------------------------------------------------
+   Language switch and right-to-left (Arabic) adjustments
+   --------------------------------------------------------------- */
+.lang-btn { min-width: 36px; height: 36px; min-height: 36px; padding: 0 10px; border-radius: 999px; background: var(--surface); border: 0; box-shadow: var(--shadow); color: var(--teal); font-family: var(--display); font-weight: 600; font-size: .9rem; line-height: 1; }
+.lang-btn:hover { background: var(--teal-soft); }
+.lang-btn:lang(ar) { font-size: 1.05rem; }
+
+/* Letter-spacing breaks Arabic letter joining; uppercase does nothing. */
+[dir="rtl"] body, [dir="rtl"] body * { letter-spacing: 0 !important; }
+[dir="rtl"] body { line-height: 1.7; }
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3 { line-height: 1.35; }
+/* Arrows point the way the page reads. */
+[dir="rtl"] .arr, [dir="rtl"] .flip { display: inline-block; transform: scaleX(-1); }
+[dir="rtl"] .linkrow:hover .arr { transform: scaleX(-1) translateX(3px); }
+/* Numbers, extensions and hospital numbers stay left-to-right inside Arabic text. */
+[dir="rtl"] .ext, [dir="rtl"] .hn, [dir="rtl"] .mono, [dir="rtl"] .urgent-pill b { direction: ltr; unicode-bidi: isolate; }
+/* Results such as "17.6 kg/m²" read left to right; Arabic results right to left. */
+[dir="rtl"] .stat .v, [dir="rtl"] td.num, [dir="rtl"] .calc td { unicode-bidi: plaintext; text-align: right; }
+[dir="rtl"] input[type="number"], [dir="rtl"] input[type="date"] { direction: ltr; text-align: end; }

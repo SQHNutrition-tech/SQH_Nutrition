@@ -1,4 +1,4 @@
-import { $, esc, api, initPage } from './common.js';
+import { $, esc, api, initPage, isAr, L, LOCALE, setLanguage, LANG } from './common.js';
 import { mountDirectory } from './directory-view.js';
 
 // One thought per day, the same for everyone. Unattributed on purpose.
@@ -28,7 +28,7 @@ const QUOTES = [
 
 function greeting() {
     const hour = Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Muscat', hour: 'numeric', hour12: false }).format(new Date()));
-    return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    return hour < 12 ? L('Good morning', 'صباح الخير') : hour < 17 ? L('Good afternoon', 'مساء الخير') : L('Good evening', 'مساء الخير');
 }
 
 function dayOfYear() {
@@ -44,29 +44,64 @@ async function main() {
     const me = await initPage('/');
     const first = document.createElement('b');
     first.textContent = me.me.name.split(' ')[0];
-    $('#greeting').replaceChildren(`${greeting()}, `, first);
-    $('#today-label').textContent = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Muscat', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    $('#greeting').replaceChildren(`${greeting()}${L(', ', '، ')}`, first);
+    $('#today-label').textContent = new Date().toLocaleDateString(LOCALE, { timeZone: 'Asia/Muscat', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    // The quote shows in both languages, the interface language first.
     const [en, ar] = QUOTES[dayOfYear() % QUOTES.length];
-    $('#q-en').textContent = en;
-    $('#q-ar').textContent = ar;
+    const [main, second] = [$('#q-en'), $('#q-ar')];
+    for (const [el, text, code] of isAr ? [[main, ar, 'ar'], [second, en, 'en']] : [[main, en, 'en'], [second, ar, 'ar']]) {
+        el.textContent = text;
+        el.lang = code;
+        el.dir = code === 'ar' ? 'rtl' : 'ltr';
+    }
+    if (!me.me.welcomed) welcome(me.me);
 
     const [summary, links, dir] = await Promise.all([api('/api/summary'), api('/api/links'), api('/api/directory')]);
 
     const c = summary.counts;
     for (const k of ['overdue', 'today', 'incoming', 'department']) $('#m-' + k).textContent = c[k];
     const due = c.overdue + c.today;
-    $('#day-summary').textContent = due
-        ? `${due} review${due === 1 ? '' : 's'} due today${c.urgent ? `, ${c.urgent} marked urgent` : ''}${c.incoming ? `, and ${c.incoming} handover${c.incoming === 1 ? '' : 's'} waiting for you` : ''}.`
-        : c.incoming ? `No reviews due. ${c.incoming} handover${c.incoming === 1 ? ' is' : 's are'} waiting for you.` : 'Your list is clear today. Have a good shift.';
+    $('#day-summary').textContent = isAr
+        ? (due
+            ? `لديك ${due === 1 ? 'مراجعة واحدة مستحقة' : `${due} مراجعات مستحقة`} اليوم${c.urgent ? `، منها ${c.urgent} عاجلة` : ''}${c.incoming ? `، و${c.incoming === 1 ? 'حالة مُسلَّمة واحدة تنتظرك' : `${c.incoming} حالات مُسلَّمة تنتظرك`}` : ''}.`
+            : c.incoming ? `لا مراجعات مستحقة. ${c.incoming === 1 ? 'حالة مُسلَّمة واحدة تنتظرك' : `${c.incoming} حالات مُسلَّمة تنتظرك`}.` : 'قائمتك خالية اليوم. نتمنى لك مناوبة طيبة.')
+        : due
+            ? `${due} review${due === 1 ? '' : 's'} due today${c.urgent ? `, ${c.urgent} marked urgent` : ''}${c.incoming ? `, and ${c.incoming} handover${c.incoming === 1 ? '' : 's'} waiting for you` : ''}.`
+            : c.incoming ? `No reviews due. ${c.incoming} handover${c.incoming === 1 ? ' is' : 's are'} waiting for you.` : 'Your list is clear today. Have a good shift.';
 
     // Built-in pages first, then the admin-managed external links.
     const internal = [['/formulas.html', 'Formulary', '℞'], ['/directory.html', 'Phone directory', '☎']];
     $('#links').innerHTML =
-        internal.map(([href, label, ico]) => `<a class="linkrow" href="${href}"><span class="ico">${ico}</span><span class="lbl">${label}</span><span class="arr" aria-hidden="true">→</span></a>`).join('') +
+        internal.map(([href, label, ico]) => `<a class="linkrow" href="${href}"><span class="ico">${ico}</span><span class="lbl">${esc(L(label, { Formulary: 'دليل التركيبات', 'Phone directory': 'دليل الهواتف' }[label]))}</span><span class="arr" aria-hidden="true">→</span></a>`).join('') +
         links.links.map(l => `<a class="linkrow" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer"><span class="ico">${esc(initials(l.label))}</span><span class="lbl">${esc(l.label)}</span><span class="arr" aria-hidden="true">↗</span></a>`).join('');
-    if (!links.links.length && me.me.role === 'admin') $('#links-hint').innerHTML = 'Add the Ministry email, HR and other sites in <a href="/admin.html#links">Admin</a>.';
+    if (!links.links.length && me.me.role === 'admin') $('#links-hint').innerHTML = L('Add the Ministry email, HR and other sites in <a href="/admin.html#links">Admin</a>.', 'أضف بريد الوزارة وموقع الموارد البشرية وغيرها من <a href="/admin.html#links">الإدارة</a>.');
 
     mountDirectory({ search: $('#dir-search'), box: $('#directory'), entries: dir.entries, compact: true });
+}
+
+// First visit: confirm the display name and choose the interface language.
+function welcome(m) {
+    const dlg = $('#welcome');
+    const form = $('#wl-form');
+    form.name.value = m.name;
+    form.querySelector(`input[name="lang"][value="${LANG}"]`).checked = true;
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!form.reportValidity()) return;
+        const lang = form.lang.value;
+        $('#wl-save').disabled = true;
+        try {
+            await api('/api/me', { name: form.name.value, lang, welcomed: true });
+            if (lang !== LANG) return setLanguage(lang);
+            dlg.close();
+            location.reload();
+        } catch (err) {
+            $('#wl-error').textContent = err.message;
+            $('#wl-save').disabled = false;
+        }
+    });
+    dlg.addEventListener('cancel', (e) => e.preventDefault());
+    dlg.showModal();
 }
 
 main().catch(e => {
