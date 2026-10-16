@@ -2,6 +2,14 @@ name = "sqh-nutrition-hub"
 main = "src/worker.js"
 compatibility_date = "2025-09-01"
 
+# The hub starts on its *.workers.dev address (no custom domain yet), protected
+# by Cloudflare Access (Worker → Settings → Domains & Routes → Enable Cloudflare
+# Access). Until ACCESS_TEAM_DOMAIN and ACCESS_AUD below are filled in, the
+# Worker refuses every request. Once a custom domain is added, set
+# workers_dev = false. Preview URLs stay off.
+workers_dev = true
+preview_urls = false
+
 # Pages, scripts and styles in ./public. run_worker_first makes every request,
 # including static pages, pass the Worker's sign-in check, so nothing is
 # readable even if the Cloudflare Access application is misconfigured.
@@ -10,15 +18,10 @@ directory = "./public"
 binding = "ASSETS"
 run_worker_first = true
 
-# Turn off the public *.workers.dev address and preview URLs: the hub should
-# only be reachable on the custom domain protected by Cloudflare Access.
-workers_dev = false
-preview_urls = false
-
 [[d1_databases]]
 binding = "DB"
 database_name = "sqh-nutrition-hub"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "07ffb038-ed08-4f1a-b3ad-3fddc742fc7f"
 migrations_dir = "migrations"
 
 # Daily retention clean-up at 02:00 Oman time (22:00 UTC).

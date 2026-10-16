@@ -10,6 +10,21 @@ Total time is about 45 minutes. Do this once; after that, updates take one comma
 - **Recommended:** a domain name added to Cloudflare, for example `nutrition-hub.example.om`. Without one, see *Option B* in step 4.
 - A computer with **Node.js 20 or newer** (<https://nodejs.org>) and this repository downloaded.
 
+## Status (16 October 2026)
+
+- **Done:** the database `sqh-nutrition-hub` was created in the department's Cloudflare account (Eastern Europe region) with all tables and the 46 formulary products. Its ID is already in `wrangler.toml`. **Skip step 2.**
+- **Next:** publish the Worker (the quickest way is below), switch on sign-in (step 3, or the one-click option in step 4 B), then fill in the three settings in step 4.
+
+## Quickest way to publish: connect GitHub (no computer setup)
+
+1. In the Cloudflare dashboard, go to **Workers & Pages → Create → Import a repository**.
+2. Connect GitHub and choose the repository **sqh_nutrition**.
+3. **Project name:** `sqh-nutrition-hub` (must match `name` in `wrangler.toml`).
+4. **Branch:** the branch that holds the hub, `claude/clinical-nutrition-improvements-2s00on` until it is merged into `main`.
+5. Leave the build command empty and the deploy command as `npx wrangler deploy`. Save and deploy.
+
+After this, every push to that branch publishes the hub automatically. Until the Access settings in step 4 are filled in, the hub answers every visitor with "Sign-in required", so nothing is exposed while you finish setup.
+
 ## 1. Install and log in
 
 ```bash
