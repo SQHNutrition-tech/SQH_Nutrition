@@ -120,7 +120,9 @@ function openDetail(f) {
 function openCompare() {
     const list = formulas.filter(f => picked.has(f.id));
     const head = `<thead><tr><th></th>${list.map(f => `<th><img src="${photo(f)}" alt="">${esc(f.name)}<br><span class="small muted">${f.verified ? 'Verified' : 'Needs label'}</span></th>`).join('')}</tr></thead>`;
-    const body = COMPARE_ROWS.map(([k, label, u]) => {
+    // Always show the core rows; hide others that are empty for every product.
+    const rows = COMPARE_ROWS.filter(([k]) => ['kcal', 'protein', 'water'].includes(k) || list.some(f => f[k] !== null));
+    const body = rows.map(([k, label, u]) => {
         const vals = list.map(f => f[k]);
         const known = vals.filter(v => v !== null);
         const max = known.length > 1 ? Math.max(...known) : null;

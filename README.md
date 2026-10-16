@@ -52,7 +52,11 @@ Products only feed the calculators once their values come from the pack label an
 4. **Verify:** click **Verify** only after checking every value against the pack in your hand. The hub records who verified it and when.
 5. **Re-verify after changes:** changing any number later removes the verification automatically, so it must be checked again.
 
-The first 16 products were added from front-of-pack photos (October 2026). Only Infatrini, PaediaSure Peptide and PaediaSure Plus show any numbers on the front. Every product still needs its nutrition panel.
+32 products have been added from front-of-pack photos (October 2026):
+- **First batch:** 16 infant and paediatric products.
+- **Second batch:** 16 adult oral supplements and tube feeds.
+
+Per-100 mL values were calculated only from numbers printed on the front, and the source is recorded on each product. Every product still needs its nutrition panel and verification. Several photos show US or European packs, so check values against the packs SQH actually stocks.
 
 ## How handovers work
 

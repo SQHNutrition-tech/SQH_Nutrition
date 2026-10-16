@@ -18,7 +18,7 @@
     .fit-results { margin-top: 16px; display: grid; gap: 8px; }
     .fit-row { display: grid; grid-template-columns: 44px minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); }
     .fit-row:first-child { background: var(--teal-soft); }
-    .fit-row img { width: 44px; height: 44px; object-fit: contain; }
+    .fit-row img { width: 44px; height: 44px; object-fit: contain; background: #F7F5EE; border-radius: 10px; mix-blend-mode: multiply; }
     .fit-row .nm { font-weight: 600; }
     .fit-row .nm small { display: block; font-weight: 400; color: var(--muted); }
     .fit-row .v { font-family: var(--display); font-variant-numeric: tabular-nums; }
@@ -28,8 +28,8 @@
     .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
     .product { position: relative; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; transition: box-shadow .25s, transform .25s; cursor: pointer; }
     .product:hover { box-shadow: var(--shadow-lift); transform: translateY(-2px); }
-    .product .ph { background: linear-gradient(180deg, var(--surface-2), var(--bg-2)); height: 190px; display: flex; align-items: center; justify-content: center; padding: 18px; }
-    .product .ph img { max-width: 100%; max-height: 154px; object-fit: contain; filter: drop-shadow(0 8px 14px rgba(6, 57, 59, .12)); }
+    .product .ph { background: linear-gradient(180deg, #FAF8F2, #EFEBE0); height: 190px; display: flex; align-items: center; justify-content: center; padding: 18px; }
+    .product .ph img { max-width: 100%; max-height: 154px; object-fit: contain; mix-blend-mode: multiply; }
     .product .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
     .product h3 { font-size: 1rem; font-weight: 500; }
     .product .sub { color: var(--muted); font-size: .82rem; }
@@ -51,8 +51,8 @@
     /* Detail + compare dialogs */
     dialog.wide { width: min(860px, calc(100% - 24px)); }
     .detail { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; }
-    .detail .ph { background: var(--surface-2); border-radius: 18px; display: grid; place-items: center; padding: 18px; align-self: start; }
-    .detail .ph img { max-width: 100%; max-height: 260px; object-fit: contain; }
+    .detail .ph { background: #F7F5EE; border-radius: 18px; display: grid; place-items: center; padding: 18px; align-self: start; }
+    .detail .ph img { max-width: 100%; max-height: 260px; object-fit: contain; mix-blend-mode: multiply; }
     table.nut { width: 100%; border-collapse: collapse; font-size: .92rem; }
     table.nut td { padding: 7px 4px; border-bottom: 1px solid var(--line); }
     table.nut td:last-child { text-align: end; font-variant-numeric: tabular-nums; font-weight: 500; }
@@ -65,7 +65,7 @@
     table.compare th, table.compare td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: end; font-variant-numeric: tabular-nums; }
     table.compare th:first-child, table.compare td:first-child { text-align: start; color: var(--ink-2); }
     table.compare thead th { vertical-align: bottom; font-family: var(--display); font-weight: 500; color: var(--ink); }
-    table.compare thead img { display: block; height: 70px; margin: 0 0 8px auto; object-fit: contain; }
+    table.compare thead img { display: block; height: 70px; width: 70px; margin: 0 0 8px auto; object-fit: contain; background: #F7F5EE; border-radius: 12px; padding: 4px; mix-blend-mode: multiply; }
     table.compare td.hi { color: var(--teal); font-weight: 700; }
     .empty { grid-column: 1 / -1; text-align: center; padding: 48px 20px; border-radius: var(--radius); color: var(--muted); background: var(--surface); }
 
@@ -159,7 +159,7 @@
         <button type="button" class="icon-btn" data-close aria-label="Close">✕</button>
     </div>
     <div class="table-scroll" id="c-body"></div>
-    <p class="small muted" style="margin-top:12px">Highest value in each row is highlighted. “—” means not entered yet.</p>
+    <p class="small muted" style="margin-top:12px">Highest value in each row is highlighted. “—” means not entered yet. Rows that are empty for every product are hidden.</p>
 </dialog>
 
 <script type="module" src="/js/formulas.js"></script>
