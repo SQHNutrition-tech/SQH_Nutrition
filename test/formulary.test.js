@@ -70,3 +70,10 @@ test('per-bottle values scale with bottle size; concentrations do not apply', as
     assert.equal(Math.round(toMmol('potassium', 391) * 10) / 10, 10);
     assert.equal(toMmol('kcal', 100), null);
 });
+
+test('source link must be https', async () => {
+    const { parseFormula } = await import('../src/formulary.js');
+    const base = { name: 'X', grp: 'adult', form: 'liquid' };
+    assert.equal(parseFormula({ ...base, source_url: 'https://www.nutricia.co.uk/x' }).source_url, 'https://www.nutricia.co.uk/x');
+    assert.throws(() => parseFormula({ ...base, source_url: 'javascript:alert(1)' }));
+});

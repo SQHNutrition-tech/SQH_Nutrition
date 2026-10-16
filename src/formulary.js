@@ -16,7 +16,7 @@ export const NUTRIENTS = {
     serving_ml: 2000
 };
 
-const TEXT_FIELDS = { name: 80, maker: 60, category: 60, age: 60, pack: 40, photo: 80, flags: 200, notes: 600, source: 120 };
+const TEXT_FIELDS = { name: 80, maker: 60, category: 60, age: 60, pack: 40, photo: 80, flags: 200, notes: 600, source: 120, source_url: 300 };
 
 function str(v, max, label, required = false) {
     const s = typeof v === 'string' ? v.trim() : '';
@@ -46,6 +46,7 @@ export function parseFormula(v) {
     f.basis = v.basis === '100g' ? '100g' : '100ml';
     for (const [k, max] of Object.entries(NUTRIENTS)) f[k] = num(v[k], max, k);
     if (f.photo && !/^[a-z0-9-]+\.(webp|png|jpe?g)$/.test(f.photo)) throw new InputError('Photo must be a file name in img/formulas, e.g. my-feed.webp');
+    if (f.source_url && !/^https:\/\/[^\s]+$/.test(f.source_url)) throw new InputError('Source link must start with https://');
     // Sanity check: energy should roughly match the macronutrients (4/4/9 kcal per g).
     if (f.kcal !== null && f.protein !== null && f.cho !== null && f.fat !== null) {
         const est = f.protein * 4 + f.cho * 4 + f.fat * 9 + (f.fibre || 0) * 2;

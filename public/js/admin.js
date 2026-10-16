@@ -182,7 +182,7 @@ $('#import-btn').addEventListener('click', () => {
 // ---------------------------------------------------------------------------
 let products = [];
 let editingId = null;
-const FIELDS = ['name', 'maker', 'grp', 'form', 'basis', 'category', 'age', 'pack', 'photo', 'flags', 'kcal', 'protein', 'cho', 'fat', 'fibre', 'water', 'sodium', 'potassium', 'chloride', 'calcium', 'magnesium', 'phosphate', 'osmolality', 'osmolarity', 'serving_ml', 'g_per_100ml', 'scoop_g', 'source', 'notes'];
+const FIELDS = ['name', 'maker', 'grp', 'form', 'basis', 'category', 'age', 'pack', 'photo', 'flags', 'kcal', 'protein', 'cho', 'fat', 'fibre', 'water', 'sodium', 'potassium', 'chloride', 'calcium', 'magnesium', 'phosphate', 'osmolality', 'osmolarity', 'serving_ml', 'g_per_100ml', 'scoop_g', 'source', 'source_url', 'notes'];
 
 async function loadFormulary() {
     ({ formulas: products } = await api('/api/formulas?all=1'));

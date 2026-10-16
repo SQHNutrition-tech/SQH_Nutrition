@@ -59,7 +59,17 @@ Products only feed the calculators once their values come from the pack label an
 - **Second batch:** 16 adult oral supplements and tube feeds.
 - **Third batch:** 14 renal, peptide, oncology and paediatric products, plus the first modules (Protifar, Maxijul, Abound).
 
-Per-100 mL values were calculated only from numbers printed on the front, and the source is recorded on each product. Every product still needs its nutrition panel and verification. Several photos show US or European packs, so check values against the packs SQH actually stocks.
+**Datasheet values (16 October 2026):** 40 products now have full panels taken from the manufacturers' published datasheets:
+- energy, protein, carbohydrate, fat, fibre and free water
+- sodium, potassium, chloride, calcium, magnesium and phosphate (with mmol shown next to the mg)
+- osmolality and/or osmolarity
+- dilution and scoop size for powders, and bottle size for liquids
+
+Each product links to the page its values came from and says which country's version it is. Most sources are UK, Irish, EU, US or Australian, and Middle East formulations can differ. So **every product is still unverified** and must be checked against the pack in hand before a dietitian presses Verify. Notes marked **CHECK** flag known doubts (Fortini or Fortini Multi Fibre, Monogen osmolality, Forticare Advanced, the Philippine values for S-26 LF Gold).
+
+**Still need the label** (no official values found): S-26 PDF Gold, S-26 Gold 1, S-26 Gold 2, S-26 Ultima 1, Novalac AD and Aptamil Advance 2 CESAR.
+
+**Per bottle:** for liquids with a bottle size, the product view shows per 100 mL and per bottle side by side, and **Compare** can switch between the two.
 
 ## Arabic interface
 

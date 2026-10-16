@@ -109,7 +109,7 @@ function openDetail(f) {
             ${flags}
             <table class="nut"><thead>${head}</thead><tbody>${rows}${prep}</tbody></table>
             ${f.notes ? `<p class="small" style="margin-top:12px" data-no-i18n>${esc(f.notes)}</p>` : ''}
-            ${f.source ? `<p class="small muted">${L('Source:', 'المصدر:')} <span data-no-i18n>${esc(f.source)}</span></p>` : ''}
+            ${f.source ? `<p class="small muted">${L('Source:', 'المصدر:')} <span data-no-i18n>${esc(f.source)}</span>${f.source_url ? ` · <a href="${esc(f.source_url)}" target="_blank" rel="noopener noreferrer">${L('open source', 'فتح المصدر')}</a>` : ''}</p>` : ''}
             ${verify}
             ${conc}
             <div class="row" style="margin-top:18px">

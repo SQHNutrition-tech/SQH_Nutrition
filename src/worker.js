@@ -380,7 +380,7 @@ async function api(request, env, member, path) {
         requireAdmin(member);
         const body = await readJson(request, 8000);
         const at = nowIso();
-        const cols = ['name', 'maker', 'grp', 'category', 'form', 'age', 'pack', 'photo', 'flags', 'notes', 'basis', 'source', ...Object.keys(NUTRIENTS)];
+        const cols = ['name', 'maker', 'grp', 'category', 'form', 'age', 'pack', 'photo', 'flags', 'notes', 'basis', 'source', 'source_url', ...Object.keys(NUTRIENTS)];
         if (body.action === 'add') {
             const f = parseFormula(body.values);
             const slug = slugify(f.name) || 'formula';

@@ -436,6 +436,8 @@ window.I18N_AR = {
     'Scoop g': 'المكيال g',
     'Source': 'المصدر',
     'Source:': 'المصدر:',
+    'Source link (optional)': 'رابط المصدر (اختياري)',
+    'Source link must start with https://': 'يجب أن يبدأ رابط المصدر بـ https://',
     'Nutrition panel': 'الجدول الغذائي',
     'e.g. Pack label, Oct 2026 / Manufacturer datasheet v3': 'مثال: ملصق العبوة، أكتوبر 2026 / نشرة الشركة الإصدار 3',
     'e.g. Peptide-based': 'مثال: ببتيدية',
