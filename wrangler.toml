@@ -34,4 +34,4 @@ ACCESS_TEAM_DOMAIN = "curly-cell-e5dc.cloudflareaccess.com"
 # "Application Audience (AUD) Tag" from the Access application's settings
 ACCESS_AUD = "a7a7394b55d1e3ba8b6c740dd980c5e755a2e70d735a4e85f236aa88d30feff9"
 # Comma-separated emails that are always admins (bootstrap)
-ADMIN_EMAILS = "thuraiyaalrawas@gmail.com"
+ADMIN_EMAILS = "thuraiyaalrawas@gmail.com,thurayar97@gmail.com"
