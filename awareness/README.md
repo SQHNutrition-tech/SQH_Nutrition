@@ -1,44 +1,43 @@
-# Nutrition Awareness (الوعي التغذوي): public site
+# رحلة المريض التغذوية · ظفار (public site)
 
-This is the public site for the مبادرة «الوعي التغذوي» (Nutrition Awareness initiative) of the Department of Clinical Nutrition, Sultan Qaboos Hospital. It is shown at the department's corner during the launch ceremony:
+The public site for the مبادرة «الوعي التغذوي» (Nutrition Awareness initiative) of the Department of Nutrition & Dietetics, Sultan Qaboos Hospital. Prepared by Dietitian Thuraiya Al Rawas.
 
-> Thursday 15 October 2026, 10:00 a.m., Sultan Qaboos Hospital lobby
+The site is the Claude Design file *Nutrition Journey* (the latest version, with photos), turned into plain static files: `index.html` plus the `assets/` folder. There is no build step. It is separate from the staff toolkit (`../index.html`).
 
-It is built on the Claude Design file *Nutrition Journey.html*. The staff clinical toolkit (`../index.html`) is separate and is not linked from here.
+## Changes from the design file
 
-## What's on the page
+- Added an **Integration (الدمج)** section: health centres → specialist clinics → hospital, connected by referral and follow-up.
+- Added 2 services, so there are now 9. Each has its own "Learn more" window:
+  - Oral supplements and tube feeding
+  - Discharge planning and continued care
+- Image slots are now ordinary images in `assets/`, and the "Made with Claude Design" badge is removed.
 
-| Section | Content |
-|---|---|
-| Hero | Launch details, plus a vertical opening animation with no text (`assets/video/opening.mp4`) |
-| Integration (الدمج) | How health centres, specialist clinics and the hospital work together through referral and follow-up |
-| Patient journey | 7 stops: screening → referral → dietitian assessment → nutrition treatment → follow-up → discharge planning → health-centre follow-up. Tap a number to jump to that stop |
-| Service explorer | The 7 services. Filter by setting and tap a card for details |
-| Specialist clinics, Map | Taken from the design. The map works offline too, but without the base map |
-| صحّح وعيك التغذوي (quiz) | 8 fact-or-myth questions, each with an instant explanation |
-| Build your healthy plate | Tap foods onto the plate and get feedback right away |
-| MUST, Future plans | Taken from the design (MUST now has an awareness disclaimer) |
-| Resources | A QR code for the site, national resources, and a slot for approved handouts |
+## Publish on Cloudflare Pages
 
-## Ways to open it
+1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**, then pick `SQHNutrition-tech/SQH_Nutrition`.
+2. Set the production branch to `claude/clinical-nutrition-improvements-2s00on` (or `main` once the work is merged there).
+3. Choose the framework preset **None**, leave the build command empty, and set the build output directory to `awareness`.
+4. Click **Save and Deploy**. The site appears at `https://<project-name>.pages.dev`. You can add your own domain later under **Custom domains**.
 
-- **Phones (QR):** `https://sqhnutrition-tech.github.io/SQH_Nutrition/awareness/`. This address only works once GitHub Pages is switched on (Settings → Pages → this branch, `/ (root)`). If the site is hosted somewhere else, change `CONFIG.siteUrl` in `assets/site.js` so the QR codes point to the right address.
-- **Touchscreen:** add `?kiosk` to the address. After 2 minutes with no touch, the page resets to Arabic and returns to the start.
-- **Large screen:** add `?present`, or press **وضع العرض** (Present). The page scrolls itself, shows a QR code in the corner, and loops back to the top. Touching the screen pauses it for 30 seconds.
-- **Offline:** copy the whole `awareness/` folder to the event device and open `index.html`. Fonts, images, the video and all interactive parts are bundled locally. The only thing that needs internet is the map's background tiles.
+Every push to that branch then redeploys the site automatically. `_headers` lets browsers cache the images for 7 days.
 
 ## Editing
 
-All settings are at the top of `assets/site.js`:
+All text sits in `index.html` as plain data lists with Arabic and English side by side:
 
-- `CONFIG`: QR address, launch end time, department logo path and kiosk timing.
-- `HANDOUTS`: add `{ ar, en, url }` for each handout once it is approved. PDFs can go in `assets/handouts/`.
-- `services`, `stages`, `QUIZ`, `FOODS`, and `F` (map facilities): plain data lists with Arabic and English text.
+| List | What it holds |
+|---|---|
+| `stages` | Journey stops |
+| `svcs` and `svcMore` | Services and their "Learn more" details |
+| `clinics` | Specialty clinics |
+| `F` | Map facilities and clinic days |
+| `futs` | Future plans |
 
-## Please check before launch
+To replace a photo, drop a new file into `assets/` with the same name (for example `svc-support.jpg`).
 
-- The team count (21), the specialist-clinic days, and the map's facility list and clinic days all come from the design. "Specialty Polyclinic A/B" are placeholder names.
-- The future-plans wording.
-- Once the approved department logo is supplied, put it in `assets/img/` and set `CONFIG.deptLogo`. The hospital's official logo is not recreated here.
+## Still to do
 
-Map data © OpenStreetMap contributors. Leaflet 1.9.4 (BSD-2), qrcode-generator 1.4.4 (MIT), IBM Plex Sans Arabic / Plex Mono and Readex Pro fonts (SIL OFL).
+- `svc-support.jpg` and `svc-discharge.jpg` are temporary copies of the journey illustrations for stops 4 and 6. Replace them with photos in the same style as the other service photos.
+- Check the facts that come from the design: the team count (21), the map facilities and clinic days, and the placeholder names "Specialty Polyclinic A/B".
+
+Map data © OpenStreetMap contributors © CARTO. Leaflet 1.9.4 (BSD-2). IBM Plex Sans Arabic / IBM Plex Mono and Readex Pro fonts (SIL OFL).
