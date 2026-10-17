@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · SQH Nutrition Hub</title>
+<link rel="icon" href="/img/mark.png">
+<link rel="stylesheet" href="/css/app.css">
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-ar.js"></script>
+
+<style>
+    .inline-form { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); align-items: end; margin-top: 12px; }
+    td input[type="text"] { min-height: 34px; padding: 5px 8px; }
+    td select { min-height: 34px; padding: 4px 8px; width: auto; }
+    .off td { opacity: .55; }
+</style>
+</head>
+<body>
+<main class="wrap stack" style="padding-top:20px">
+    <div>
+        <p class="eyebrow">Admin</p>
+        <h1>Department settings</h1>
+    </div>
+    <div class="notice" id="denied" hidden>Only admins can use this page.</div>
+
+    <section class="card" id="members-card" aria-labelledby="mem-title">
+        <div class="section-head">
+            <h2 id="mem-title">Team members</h2>
+            <span class="small muted">Only people listed here can use the hub. Add a colleague's email, and also allow it in Cloudflare Access.</span>
+        </div>
+        <div class="table-scroll">
+            <table class="list">
+                <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Open cases</th><th>Access</th><th>Move all open cases to</th></tr></thead>
+                <tbody id="members"></tbody>
+            </table>
+        </div>
+        <form class="inline-form" id="member-form">
+            <label class="field">Email<input type="email" name="email" required maxlength="120" placeholder="colleague@example.om"></label>
+            <label class="field">Name<input type="text" name="name" maxlength="60" placeholder="as colleagues will see it"></label>
+            <button class="primary" type="submit">Add member</button>
+        </form>
+    </section>
+
+    <section class="card" id="links" aria-labelledby="links-title">
+        <div class="section-head"><h2 id="links-title">Quick links</h2><span class="small muted">Shown on everyone's home page. https:// links only.</span></div>
+        <div class="table-scroll"><table class="list"><thead><tr><th>Label</th><th>Link</th><th></th></tr></thead><tbody id="links-body"></tbody></table></div>
+        <form class="inline-form" id="link-form">
+            <label class="field">Label<input type="text" name="label" required maxlength="60" placeholder="e.g. Ministry email"></label>
+            <label class="field">Link<input type="url" name="url" required placeholder="https://"></label>
+            <label class="field">Order<input type="number" name="sort" value="0"></label>
+            <button class="primary" type="submit">Add link</button>
+        </form>
+    </section>
+
+    <section class="card" id="directory" aria-labelledby="dir-title">
+        <div class="section-head"><h2 id="dir-title">Phone directory</h2><span class="small muted">Work extensions only — no personal mobiles without consent.</span></div>
+        <div class="table-scroll"><table class="list"><thead><tr><th>Category</th><th>Name</th><th>Ext.</th><th>Notes</th><th></th></tr></thead><tbody id="dir-body"></tbody></table></div>
+        <form class="inline-form" id="dir-form">
+            <label class="field">Category<select name="category" id="dir-cat"></select></label>
+            <label class="field">Name<input type="text" name="name" required maxlength="80" placeholder="e.g. ICU-1 nurses' station"></label>
+            <label class="field">Extension<input type="text" name="ext" required maxlength="40" placeholder="e.g. 2345"></label>
+            <label class="field">Notes<input type="text" name="notes" maxlength="120" placeholder="optional"></label>
+            <label class="field">Order<input type="number" name="sort" value="0"></label>
+            <button class="primary" type="submit">Add number</button>
+        </form>
+    </section>
+
+    <section class="card" id="formulary" aria-labelledby="form-title">
+        <div class="section-head">
+            <h2 id="form-title">Formulary</h2>
+            <a class="btn small primary" href="/formulary-edit.html">Open formulary editor <span class="flip" aria-hidden="true">→</span></a>
+        </div>
+        <p class="small muted" style="margin:0">Add products, change label values and photos, and update many products at once with an Excel file.</p>
+    </section>
+
+    <section class="card" aria-labelledby="imp-title">
+        <div class="section-head"><h2 id="imp-title">Import from the old pilot</h2></div>
+        <p class="small muted" style="margin-top:0">In the old Nutrition Follow-up app, open <b>Department</b>, clear all filters and use <b>Export CSV</b>. Choose that file here. Only active cases are imported. Cases go to their original dietitian if that person has already signed in to this hub, otherwise to you; reassign them later above. Delete the CSV afterwards.</p>
+        <input type="file" id="import-file" accept=".csv,text/csv">
+        <p class="small" id="import-preview"></p>
+        <button class="primary" id="import-btn" type="button" disabled>Import cases</button>
+        <pre class="small muted" id="import-report" style="white-space:pre-wrap"></pre>
+    </section>
+</main>
+<script type="module" src="/js/admin.js"></script>
+</body>
+</html>

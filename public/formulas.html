@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formulary · SQH Nutrition Hub</title>
+<link rel="icon" href="/img/mark.png">
+<link rel="stylesheet" href="/css/app.css">
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-ar.js"></script>
+
+<style>
+    .toolbar { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .toolbar .right { display: flex; gap: 10px; align-items: center; flex: 1; justify-content: flex-end; min-width: 260px; }
+    .toolbar input[type="search"] { max-width: 340px; }
+    .toggle { display: inline-flex; align-items: center; gap: 8px; font-size: .88rem; color: var(--ink-2); white-space: nowrap; cursor: pointer; }
+    .toggle input { width: 18px; height: 18px; accent-color: var(--teal); }
+
+    /* Which formula fits */
+    .fit-form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) auto; gap: 12px; align-items: end; }
+    .fit-results { margin-top: 16px; display: grid; gap: 8px; }
+    .fit-row { display: grid; grid-template-columns: 44px minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); }
+    .fit-row:first-child { background: var(--teal-soft); }
+    .fit-row img { width: 44px; height: 44px; object-fit: contain; background: #F7F5EE; border-radius: 10px; mix-blend-mode: multiply; }
+    .fit-row .nm { font-weight: 600; }
+    .fit-row .nm small { display: block; font-weight: 400; color: var(--muted); }
+    .fit-row .v { font-family: var(--display); font-variant-numeric: tabular-nums; }
+    .fit-row .v small { display: block; color: var(--muted); font-family: var(--body); font-size: .76rem; }
+
+    /* Product grid */
+    .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+    .product { position: relative; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; transition: box-shadow .25s, transform .25s; cursor: pointer; }
+    .product:hover { box-shadow: var(--shadow-lift); transform: translateY(-2px); }
+    .product .ph { background: linear-gradient(180deg, #FAF8F2, #EFEBE0); height: 190px; display: flex; align-items: center; justify-content: center; padding: 18px; }
+    .product .ph img { max-width: 100%; max-height: 154px; object-fit: contain; mix-blend-mode: multiply; }
+    .product .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .product h3 { font-size: 1rem; font-weight: 500; }
+    .product .sub { color: var(--muted); font-size: .82rem; }
+    .product .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+    .mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: auto; padding-top: 10px; }
+    .mini div { background: var(--surface-2); border-radius: 10px; padding: 6px 8px; text-align: center; }
+    .mini b { display: block; font-family: var(--display); font-weight: 500; font-size: .98rem; font-variant-numeric: tabular-nums; }
+    .mini span { font-size: .7rem; color: var(--muted); }
+    .cmp { position: absolute; z-index: 2; top: 10px; inset-inline-end: 10px; display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border-radius: 999px; padding: 4px 10px 4px 8px; font-size: .76rem; box-shadow: var(--shadow); cursor: pointer; }
+    .cmp input { width: 16px; height: 16px; accent-color: var(--teal); }
+    .b-verified { background: var(--sage-soft); color: var(--sage); }
+    .b-needs { background: var(--amber-soft); color: var(--amber); }
+
+    /* Compare tray */
+    .tray { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 25; background: var(--deep); color: var(--deep-ink); border-radius: 999px; padding-block: 8px; padding-inline: 20px 8px; display: flex; gap: 14px; align-items: center; box-shadow: var(--shadow-lift); max-width: calc(100% - 24px); }
+    .tray span { font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tray .btn-lime { background: var(--lime); color: #06393B; border-color: var(--lime); }
+
+    /* Detail + compare dialogs */
+    dialog.wide { width: min(860px, calc(100% - 24px)); }
+    .detail { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; }
+    .detail .ph { background: #F7F5EE; border-radius: 18px; display: grid; place-items: center; padding: 18px; align-self: start; }
+    .detail .ph img { max-width: 100%; max-height: 260px; object-fit: contain; mix-blend-mode: multiply; }
+    table.nut { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    table.nut td { padding: 7px 4px; border-bottom: 1px solid var(--line); }
+    table.nut td:last-child { text-align: end; font-variant-numeric: tabular-nums; font-weight: 500; }
+    table.nut tr.missing td:last-child { color: var(--muted); font-weight: 400; }
+    table.nut td.v { text-align: end; font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; }
+    table.nut th { font-size: .74rem; font-weight: 600; color: var(--muted); text-align: end; padding: 10px 4px 6px; }
+    table.nut th:first-child { text-align: start; }
+    table.nut tr.missing td.v { color: var(--muted); font-weight: 400; }
+    table.nut small { display: block; color: var(--muted); font-weight: 400; font-size: .74rem; }
+    .bottle { margin-top: 8px; font-size: .76rem; color: var(--ink-2); text-align: center; background: var(--teal-soft); border-radius: 10px; padding: 5px 6px; }
+    .bottle b { font-variant-numeric: tabular-nums; }
+    .verify-line { font-size: .85rem; margin-top: 12px; }
+    .conc { margin-top: 16px; background: var(--surface-2); border-radius: 16px; padding: 14px 16px; }
+    .conc .row { margin-top: 8px; }
+    .conc input { max-width: 120px; }
+    table.compare { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    table.compare th, table.compare td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: end; font-variant-numeric: tabular-nums; }
+    table.compare th:first-child, table.compare td:first-child { text-align: start; color: var(--ink-2); }
+    table.compare thead th { vertical-align: bottom; font-family: var(--display); font-weight: 500; color: var(--ink); }
+    table.compare thead img { display: block; height: 70px; width: 70px; margin: 0 0 8px auto; object-fit: contain; background: #F7F5EE; border-radius: 12px; padding: 4px; mix-blend-mode: multiply; }
+    table.compare td.hi { color: var(--teal); font-weight: 700; }
+    .empty { grid-column: 1 / -1; text-align: center; padding: 48px 20px; border-radius: var(--radius); color: var(--muted); background: var(--surface); }
+
+    @media (max-width: 760px) {
+        .fit-form { grid-template-columns: 1fr 1fr; }
+        .fit-row { grid-template-columns: 36px minmax(0, 1fr) repeat(2, auto); }
+        .fit-row .v.water { display: none; }
+        .detail { grid-template-columns: 1fr; }
+        .detail .ph img { max-height: 180px; }
+        .toolbar .right { justify-content: stretch; }
+        .toolbar input[type="search"] { max-width: none; }
+    }
+    @media (max-width: 520px) {
+        .grid-cards { grid-template-columns: 1fr 1fr; gap: 12px; }
+        .product .ph { height: 130px; padding: 12px; }
+        .product .ph img { max-height: 104px; }
+        .product .body { padding: 10px 12px 12px; }
+        .product h3 { font-size: .9rem; }
+        .product .tags .b-plain, .product .body > .sub:nth-of-type(2) { display: none; }
+        .mini { gap: 4px; }
+        .mini div { padding: 5px 2px; }
+        .mini b { font-size: .86rem; }
+        .mini span { font-size: .62rem; }
+        .cmp { padding: 3px 8px 3px 6px; font-size: .7rem; top: 8px; inset-inline-end: 8px; }
+    }
+</style>
+</head>
+<body>
+<main class="wrap stack page">
+    <div class="page-head">
+        <div>
+            <span class="eyebrow">Formulary</span>
+            <h1>Formulas &amp; modules</h1>
+            <p class="lede">Feeds stocked by the department. Open a product for its full label values, compare up to three, or find the best fit for a patient's targets.</p>
+        </div>
+        <a class="btn ghost" id="edit-link" href="/formulary-edit.html" hidden>Edit formulary</a>
+    </div>
+
+    <div class="notice warn" id="pending-note" hidden></div>
+
+    <section class="card" aria-labelledby="fit-title">
+        <div class="section-head">
+            <h2 id="fit-title">Which formula fits?</h2>
+            <span class="small muted">Verified products only · volume set to meet energy</span>
+        </div>
+        <form class="fit-form" id="fit-form">
+            <label class="field">Energy (kcal/day)<input type="number" name="kcal" min="0" inputmode="numeric" placeholder="e.g. 1500"></label>
+            <label class="field">Protein (g/day)<input type="number" name="protein" min="0" inputmode="numeric" placeholder="e.g. 75"></label>
+            <label class="field">Fluid (mL/day)<input type="number" name="fluid" min="0" inputmode="numeric" placeholder="optional"></label>
+            <label class="field">Group<select name="grp"><option value="">Any</option><option value="infant">Infant</option><option value="paediatric">Paediatric</option><option value="adult">Adult</option></select></label>
+            <button class="primary" type="submit">Find</button>
+        </form>
+        <div class="fit-results" id="fit-results"></div>
+    </section>
+
+    <div class="toolbar">
+        <div class="segmented" role="tablist" aria-label="Group">
+            <button role="tab" data-grp="" aria-selected="true">All</button>
+            <button role="tab" data-grp="infant" aria-selected="false">Infant</button>
+            <button role="tab" data-grp="paediatric" aria-selected="false">Paediatric</button>
+            <button role="tab" data-grp="adult" aria-selected="false">Adult</button>
+            <button role="tab" data-grp="module" aria-selected="false">Modules</button>
+        </div>
+        <div class="right">
+            <label class="toggle"><input type="checkbox" id="verified-only"> Verified only</label>
+            <input type="search" id="search" placeholder="Search name, maker or type" aria-label="Search formulas">
+        </div>
+    </div>
+
+    <section class="grid-cards" id="grid" aria-live="polite"></section>
+
+    <footer class="site">Values are per 100 mL as prepared at the standard dilution (modules: per 100 g). A product can be used in calculators only after a dietitian has checked every value against the pack label. Always confirm against the pack in your hand.</footer>
+</main>
+
+<div class="tray" id="tray" hidden>
+    <span id="tray-text"></span>
+    <button class="small ghost" id="tray-clear" type="button" style="color:inherit">Clear</button>
+    <button class="small btn-lime" id="tray-go" type="button">Compare</button>
+</div>
+
+<dialog id="detail" class="wide">
+    <div class="dialog-head">
+        <div><span class="eyebrow" id="d-eyebrow"></span><h2 id="d-title"></h2></div>
+        <button type="button" class="icon-btn" data-close aria-label="Close">✕</button>
+    </div>
+    <div id="d-body"></div>
+</dialog>
+
+<dialog id="compare" class="wide">
+    <div class="dialog-head">
+        <div><span class="eyebrow" id="c-eyebrow">Compare · per 100 mL</span><h2>Side by side</h2></div>
+        <button type="button" class="icon-btn" data-close aria-label="Close">✕</button>
+    </div>
+    <div class="segmented" role="tablist" aria-label="Show values" style="margin-bottom:12px">
+        <button type="button" role="tab" data-cbasis="100" aria-selected="true">Per 100 mL</button>
+        <button type="button" role="tab" data-cbasis="bottle" aria-selected="false">Per bottle</button>
+    </div>
+    <div class="table-scroll" id="c-body"></div>
+    <p class="small muted" style="margin-top:12px">Highest value in each row is highlighted. “—” means not entered yet. Rows that are empty for every product are hidden.</p>
+</dialog>
+
+<script type="module" src="/js/formulas.js"></script>
+</body>
+</html>

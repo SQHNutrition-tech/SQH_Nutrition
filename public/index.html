@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQH Nutrition Hub</title>
+<meta name="description" content="Clinical Nutrition Department hub: today's follow-ups, quick links, phone directory and calculators.">
+<link rel="icon" href="/img/mark.png">
+<link rel="stylesheet" href="/css/app.css">
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-ar.js"></script>
+
+<style>
+    /* Welcome panel */
+    .hero {
+        position: relative; overflow: hidden; border-radius: 28px; color: var(--deep-ink);
+        background: radial-gradient(120% 140% at 100% 0%, #0A4C4F 0%, #06393B 55%, #052F31 100%);
+        padding: clamp(24px, 4vw, 44px); display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(20px, 4vw, 48px); align-items: center;
+    }
+    .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; border: 1px solid rgba(181, 217, 138, .16); pointer-events: none; }
+    .hero::before { width: 520px; height: 520px; inset-inline-end: -160px; top: -220px; }
+    .hero::after { width: 340px; height: 340px; inset-inline-end: -70px; top: -130px; border-color: rgba(181, 217, 138, .22); }
+    .hero > * { position: relative; }
+    .hero .date { color: var(--lime); font-size: .78rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+    .hero h1 { font-size: clamp(1.9rem, 4vw, 2.9rem); font-weight: 400; margin-top: 10px; color: #fff; }
+    .hero h1 b { font-weight: 600; }
+    .hero .summary { color: #CFE2D6; margin-top: 10px; font-size: 1.02rem; max-width: 46ch; }
+    .hero .row { margin-top: 24px; }
+    .btn-lime { background: var(--lime); color: #06393B; border-color: var(--lime); font-weight: 600; }
+    .btn-lime:hover { background: #C6E5A1; border-color: #C6E5A1; color: #06393B; }
+    .btn-glass { background: rgba(255, 255, 255, .08); color: #fff; border-color: rgba(255, 255, 255, .18); }
+    .btn-glass:hover { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .28); color: #fff; }
+    .quote { border-inline-start: 1px solid rgba(181, 217, 138, .3); padding-inline-start: clamp(18px, 3vw, 36px); }
+    .quote .mark { font-family: var(--display); font-size: 3.4rem; line-height: .6; color: var(--lime); display: block; height: 28px; }
+    .quote .en { font-family: var(--display); font-weight: 300; font-size: clamp(1.1rem, 1.8vw, 1.35rem); line-height: 1.5; color: #fff; }
+    .quote .ar { margin-top: 12px; color: #CFE2D6; font-size: 1.02rem; line-height: 1.8; }
+    .quote .tag { margin-top: 16px; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(207, 226, 214, .7); }
+
+    /* Today strip */
+    .today { display: grid; grid-template-columns: repeat(4, 1fr); padding: 0; overflow: hidden; }
+    .stat { display: block; padding: 20px 24px; text-decoration: none; color: inherit; position: relative; transition: background .2s; }
+    .stat + .stat { border-inline-start: 1px solid var(--line); }
+    .stat:hover { background: var(--surface-2); }
+    .stat .k { display: flex; align-items: center; gap: 8px; font-size: .84rem; color: var(--ink-2); }
+    .stat .k i { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+    .stat .v { font-family: var(--display); font-size: 2.2rem; font-weight: 400; line-height: 1.15; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .dot-coral { background: var(--coral) !important; } .dot-amber { background: #D9A23B !important; } .dot-teal { background: var(--teal) !important; }
+
+    /* First-visit welcome */
+    #welcome { max-width: 520px; }
+    #welcome .wl-mark { width: 52px; height: 52px; border-radius: 16px; background: var(--teal-soft); display: grid; place-items: center; margin-bottom: 14px; }
+    #welcome h2 { font-size: 1.5rem; }
+    #welcome h2 small { display: block; font-size: 1.05rem; color: var(--ink-2); font-weight: 400; margin-top: 4px; }
+    #welcome .intro { color: var(--ink-2); margin: 10px 0 18px; }
+    .lang-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .lang-pick label { display: block; border: 1.5px solid var(--line-strong); border-radius: 16px; padding: 14px 16px; cursor: pointer; text-align: center; transition: border-color .15s, background .15s; }
+    .lang-pick input { position: absolute; opacity: 0; pointer-events: none; }
+    .lang-pick b { display: block; font-family: var(--display); font-weight: 500; font-size: 1.15rem; }
+    .lang-pick span { font-size: .84rem; color: var(--muted); }
+    .lang-pick label:has(input:checked) { border-color: var(--teal); background: var(--teal-soft); }
+    .lang-pick label:has(input:focus-visible) { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+    .two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 22px; align-items: start; }
+    @media (max-width: 860px) {
+        .hero { grid-template-columns: 1fr; }
+        .quote { border-inline-start: 0; padding-inline-start: 0; border-top: 1px solid rgba(181, 217, 138, .3); padding-top: 20px; }
+        .two-col { grid-template-columns: 1fr; }
+        .today { grid-template-columns: 1fr 1fr; }
+        .stat:nth-child(3) { border-inline-start: 0; }
+        .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+    }
+</style>
+</head>
+<body>
+<main class="wrap stack page">
+
+    <section class="hero" aria-labelledby="greeting">
+        <div>
+            <p class="date" id="today-label">&nbsp;</p>
+            <h1 id="greeting">Good morning</h1>
+            <p class="summary" id="day-summary">Getting your day ready…</p>
+            <div class="row">
+                <a class="btn btn-lime" href="/followup.html">Open my follow-ups <span class="flip" aria-hidden="true">→</span></a>
+                <a class="btn btn-glass" href="/tools.html">Calculators &amp; handouts</a>
+            </div>
+        </div>
+        <figure class="quote" style="margin:0">
+            <span class="mark" aria-hidden="true">“</span>
+            <p class="en" id="q-en"></p>
+            <p class="ar" id="q-ar"></p>
+            <p class="tag">Thought for today</p>
+        </figure>
+    </section>
+
+    <section class="card today" aria-label="Today">
+        <a class="stat" href="/followup.html?filter=overdue"><span class="k"><i class="dot-coral"></i>Overdue</span><div class="v" id="m-overdue">–</div></a>
+        <a class="stat" href="/followup.html?filter=today"><span class="k"><i class="dot-amber"></i>Due today</span><div class="v" id="m-today">–</div></a>
+        <a class="stat" href="/followup.html?view=handovers"><span class="k"><i class="dot-teal"></i>Handovers for you</span><div class="v" id="m-incoming">–</div></a>
+        <a class="stat" href="/followup.html?view=team"><span class="k"><i></i>Open in department</span><div class="v" id="m-department">–</div></a>
+    </section>
+
+    <div class="two-col">
+        <section class="card" aria-labelledby="links-title">
+            <div class="section-head" style="margin-bottom:6px">
+                <h2 id="links-title">Quick links</h2>
+            </div>
+            <div class="linklist" id="links"></div>
+            <p class="small muted" id="links-hint"></p>
+        </section>
+
+        <section class="card" aria-labelledby="dir-title">
+            <div class="section-head">
+                <h2 id="dir-title">Find an extension</h2>
+                <a class="small" href="/directory.html">Full directory <span class="flip" aria-hidden="true">→</span></a>
+            </div>
+            <input type="search" id="dir-search" placeholder="Search ward, department or name" aria-label="Search the phone directory">
+            <div id="directory"></div>
+        </section>
+    </div>
+
+    <footer class="site">SQH · Clinical Nutrition Department. Patient names, diagnoses and notes stay in Al Shifa; this hub holds hospital numbers and follow-up tasks only.</footer>
+</main>
+<dialog id="welcome" aria-labelledby="wl-title" data-no-i18n>
+    <form id="wl-form" method="dialog">
+        <div class="wl-mark"><img src="/img/mark.png" alt="" width="34" height="34"></div>
+        <h2 id="wl-title"><span dir="ltr">Welcome to the SQH Nutrition Hub</span><small lang="ar" dir="rtl">أهلاً بك في منصة التغذية العلاجية</small></h2>
+        <p class="intro"><span dir="ltr">Two quick choices and you are ready. You can change both later.</span><br><span lang="ar" dir="rtl">اختياران سريعان وتبدأ. يمكنك تغييرهما لاحقاً.</span></p>
+        <div class="form-grid">
+            <label class="field"><span><span dir="ltr">Your name as colleagues will see it</span> · <span lang="ar">اسمك كما يراه الزملاء</span></span>
+                <input type="text" name="name" maxlength="60" autocomplete="name" required>
+            </label>
+            <fieldset>
+                <legend><span dir="ltr">Interface language</span> · <span lang="ar">لغة الواجهة</span></legend>
+                <div class="lang-pick">
+                    <label><input type="radio" name="lang" value="en"><b>English</b><span>Left to right</span></label>
+                    <label lang="ar" dir="rtl"><input type="radio" name="lang" value="ar"><b>العربية</b><span>من اليمين إلى اليسار</span></label>
+                </div>
+            </fieldset>
+        </div>
+        <p class="form-error" id="wl-error" role="alert"></p>
+        <div class="dialog-actions">
+            <button type="submit" class="primary" id="wl-save"><span dir="ltr">Start</span> · <span lang="ar">ابدأ</span></button>
+        </div>
+    </form>
+</dialog>
+<script type="module" src="/js/hub.js"></script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formulary editor · SQH Nutrition Hub</title>
+<link rel="icon" href="/img/mark.png">
+<link rel="stylesheet" href="/css/app.css">
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-ar.js"></script>
+
+<style>
+    .tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .tools .spacer { flex: 1; }
+    .excel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .excel .step { background: var(--surface-2); border-radius: 16px; padding: 14px 16px; }
+    .excel .step b { display: block; font-family: var(--display); font-weight: 500; margin-bottom: 4px; }
+    .excel .step .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--teal); color: #fff; font-size: .76rem; font-weight: 600; margin-inline-end: 6px; }
+    .excel .step p { margin: 0 0 10px; font-size: .86rem; color: var(--ink-2); }
+    @media (max-width: 760px) { .excel { grid-template-columns: 1fr; } }
+
+    .filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .filters input[type="search"] { flex: 1 1 240px; }
+
+    /* Spreadsheet-style grid */
+    .grid-wrap { overflow: auto; max-height: 70vh; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+    table.sheet { border-collapse: separate; border-spacing: 0; font-size: .86rem; min-width: 100%; }
+    table.sheet th, table.sheet td { border-bottom: 1px solid var(--line); padding: 4px; white-space: nowrap; background: var(--surface); }
+    table.sheet thead th { position: sticky; top: 0; z-index: 2; font-size: .72rem; font-weight: 600; color: var(--muted); text-align: center; padding: 8px 4px; background: var(--surface-2); }
+    table.sheet thead th small { display: block; font-weight: 400; }
+    table.sheet .first { position: sticky; inset-inline-start: 0; z-index: 1; min-width: 240px; max-width: 260px; border-inline-end: 1px solid var(--line); }
+    table.sheet thead .first { z-index: 3; text-align: start; }
+    table.sheet td.first { white-space: normal; }
+    @media (max-width: 640px) { table.sheet .first { min-width: 140px; max-width: 150px; } table.sheet td.first img { display: none; } }
+    table.sheet td.first .pc { display: flex; align-items: center; gap: 8px; }
+    table.sheet td.first img { width: 34px; height: 34px; object-fit: contain; flex-shrink: 0; background: #F7F5EE; border-radius: 8px; mix-blend-mode: multiply; }
+    table.sheet td.first b { font-weight: 600; font-size: .86rem; line-height: 1.25; }
+    table.sheet td.first small { display: block; color: var(--muted); font-size: .74rem; }
+    table.sheet input.cell { width: 74px; min-height: 32px; padding: 4px 6px; text-align: end; font-variant-numeric: tabular-nums; border-radius: 8px; border: 1px solid transparent; background: var(--surface-2); direction: ltr; }
+    table.sheet input.cell:hover { border-color: var(--line-strong); }
+    table.sheet input.cell:focus { border-color: var(--teal); background: var(--surface); outline: none; }
+    table.sheet input.cell.changed { border-color: var(--amber); background: var(--amber-soft); }
+    table.sheet tr.bad input.cell.changed { border-color: var(--coral); background: var(--coral-soft); }
+    table.sheet tr.off td { opacity: .5; }
+    table.sheet td.acts { text-align: end; padding-inline: 8px; }
+    table.sheet td.acts button { margin-inline-start: 4px; }
+    .b-verified { background: var(--sage-soft); color: var(--sage); }
+    .b-needs { background: var(--amber-soft); color: var(--amber); }
+    .row-error { color: var(--coral); font-size: .74rem; white-space: normal; display: block; max-width: 240px; }
+
+    .savebar { position: sticky; bottom: 14px; z-index: 20; display: flex; gap: 12px; align-items: center; background: var(--deep); color: var(--deep-ink); border-radius: 999px; padding: 8px 8px 8px 22px; box-shadow: var(--shadow-lift); width: fit-content; margin-inline: auto; }
+    .savebar[hidden] { display: none; }
+
+    /* Product dialog */
+    .fgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    @media (max-width: 640px) { .fgrid { grid-template-columns: 1fr 1fr; } .fgrid [style*="span 2"] { grid-column: 1 / -1 !important; } }
+    .photo-row { display: flex; gap: 14px; align-items: center; }
+    .photo-row img { width: 84px; height: 84px; object-fit: contain; background: #F7F5EE; border-radius: 14px; padding: 4px; mix-blend-mode: multiply; }
+
+    /* Import preview */
+    table.preview { width: 100%; border-collapse: collapse; font-size: .86rem; }
+    table.preview td { padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .sum { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 14px; }
+    .b-add { background: var(--teal-soft); color: var(--teal); }
+    .b-update { background: var(--amber-soft); color: var(--amber); }
+    .b-error { background: var(--coral-soft); color: var(--coral); }
+</style>
+</head>
+<body>
+<main class="wrap stack page">
+    <div class="page-head">
+        <div>
+            <span class="eyebrow">Admin</span>
+            <h1>Formulary editor</h1>
+            <p class="lede">Add products, change label values and photos, or update many at once with Excel. Changing any number removes the product's verification until someone checks it against the pack again.</p>
+        </div>
+        <a class="btn ghost" href="/formulas.html">View formulary <span class="flip" aria-hidden="true">→</span></a>
+    </div>
+
+    <div class="notice" id="denied" hidden>Only admins can use this page.</div>
+
+    <section class="card" id="excel-card" aria-labelledby="excel-title">
+        <div class="section-head"><h2 id="excel-title">Update with Excel</h2></div>
+        <div class="excel">
+            <div class="step"><b><span class="n">1</span>Download</b><p>The spreadsheet has every product and its current values. Use the blank one to add new products only.</p>
+                <div class="tools"><button class="small primary" type="button" id="xl-all">Download all products</button><button class="small ghost" type="button" id="xl-blank">Blank template</button></div></div>
+            <div class="step"><b><span class="n">2</span>Fill in</b><p>Type values from the label. Add new products in empty rows and leave their ID empty. Don't change the headers.</p></div>
+            <div class="step"><b><span class="n">3</span>Upload</b><p>You will see every change before anything is saved.</p>
+                <div class="tools"><label class="btn small primary" style="cursor:pointer">Upload Excel file<input type="file" id="xl-file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label></div></div>
+        </div>
+    </section>
+
+    <section class="card stack" aria-labelledby="list-title" id="list-card">
+        <div class="section-head">
+            <h2 id="list-title">Products</h2>
+            <button class="small primary" type="button" id="f-add">＋ Add product</button>
+        </div>
+        <div class="filters">
+            <input type="search" id="q" placeholder="Search name, maker or type" aria-label="Search products">
+            <div class="segmented" role="tablist" aria-label="Show">
+                <button role="tab" data-show="all" aria-selected="true">All</button>
+                <button role="tab" data-show="needs" aria-selected="false">Needs label</button>
+                <button role="tab" data-show="verified" aria-selected="false">Verified</button>
+                <button role="tab" data-show="hidden" aria-selected="false">Hidden</button>
+            </div>
+        </div>
+        <p class="small muted" style="margin:0">Values are per 100 mL as prepared (modules: per 100 g). Click a number to change it; changed cells turn amber until saved.</p>
+        <div class="grid-wrap"><table class="sheet"><thead id="g-head"></thead><tbody id="g-body"><tr><td class="muted">Loading…</td></tr></tbody></table></div>
+        <div class="savebar" id="savebar" hidden>
+            <span id="savebar-text"></span>
+            <button type="button" class="small ghost" id="discard" style="color:#fff">Discard</button>
+            <button type="button" class="small" id="save-all" style="background:var(--lime);border-color:var(--lime);color:#06393B">Save changes</button>
+        </div>
+    </section>
+</main>
+
+<dialog id="f-dlg" style="width:min(760px, calc(100% - 24px))">
+    <form id="f-form" novalidate>
+        <div class="dialog-head">
+            <div><span class="eyebrow">Formulary</span><h2 id="f-title">Product</h2></div>
+            <button type="button" class="icon-btn" data-close aria-label="Close">✕</button>
+        </div>
+        <div class="form-grid">
+            <div class="photo-row">
+                <img id="f-photo" src="/img/mark.png" alt="">
+                <div>
+                    <label class="btn small ghost" style="cursor:pointer">Choose photo<input type="file" id="f-photo-file" accept="image/*" hidden></label>
+                    <p class="small muted" style="margin:6px 0 0">A clear photo of the pack front. It is resized automatically.</p>
+                </div>
+            </div>
+            <div class="fgrid">
+                <label class="field" style="grid-column: span 2">Name<input type="text" name="name" required maxlength="80"></label>
+                <label class="field">Maker<input type="text" name="maker" maxlength="60"></label>
+                <label class="field">Group<select name="grp"><option value="infant">Infant</option><option value="paediatric">Paediatric</option><option value="adult">Adult</option><option value="module">Module</option></select></label>
+                <label class="field">Form<select name="form"><option value="liquid">Liquid</option><option value="powder">Powder</option></select></label>
+                <label class="field">Values given<select name="basis"><option value="100ml">per 100 mL (as prepared)</option><option value="100g">per 100 g (modules)</option></select></label>
+                <label class="field">Type<input type="text" name="category" maxlength="60" placeholder="e.g. Peptide-based"></label>
+                <label class="field">Age / weight<input type="text" name="age" maxlength="60"></label>
+                <label class="field">Pack<input type="text" name="pack" maxlength="40" placeholder="e.g. 400 g"></label>
+                <label class="field">Bottle size mL<input type="number" step="any" name="serving_ml" placeholder="one bottle as sold"></label>
+                <label class="field" style="grid-column: span 2">Tags (comma-separated)<input type="text" name="flags" maxlength="200" placeholder="FSMP, Lactose-free, Tube or sip"></label>
+                <input type="hidden" name="photo">
+            </div>
+            <fieldset><legend>Nutrition panel</legend>
+                <div class="fgrid">
+                    <label class="field">Energy kcal<input type="number" step="any" name="kcal"></label>
+                    <label class="field">Protein g<input type="number" step="any" name="protein"></label>
+                    <label class="field">Carbohydrate g<input type="number" step="any" name="cho"></label>
+                    <label class="field">Fat g<input type="number" step="any" name="fat"></label>
+                    <label class="field">Fibre g<input type="number" step="any" name="fibre"></label>
+                    <label class="field">Free water mL<input type="number" step="any" name="water"></label>
+                    <label class="field">Sodium mg<input type="number" step="any" name="sodium"></label>
+                    <label class="field">Potassium mg<input type="number" step="any" name="potassium"></label>
+                    <label class="field">Chloride mg<input type="number" step="any" name="chloride"></label>
+                    <label class="field">Calcium mg<input type="number" step="any" name="calcium"></label>
+                    <label class="field">Magnesium mg<input type="number" step="any" name="magnesium"></label>
+                    <label class="field">Phosphate mg<input type="number" step="any" name="phosphate"></label>
+                    <label class="field">Osmolality mOsm/kg<input type="number" step="any" name="osmolality"></label>
+                    <label class="field">Osmolarity mOsm/L<input type="number" step="any" name="osmolarity"></label>
+                    <label class="field">Powder g per 100 mL<input type="number" step="any" name="g_per_100ml"></label>
+                    <label class="field">Scoop g<input type="number" step="any" name="scoop_g"></label>
+                </div>
+            </fieldset>
+            <label class="field">Source<input type="text" name="source" maxlength="120" placeholder="e.g. Pack label, Oct 2026 / Manufacturer datasheet v3"></label>
+            <label class="field">Source link (optional)<input type="url" name="source_url" maxlength="300" placeholder="https://"></label>
+            <label class="field">Notes<textarea name="notes" rows="3" maxlength="600"></textarea></label>
+        </div>
+        <p class="form-error" id="f-error" role="alert"></p>
+        <div class="dialog-actions">
+            <button type="button" class="ghost" data-close>Cancel</button>
+            <button type="submit" class="primary" id="f-save">Save</button>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="imp-dlg" style="width:min(820px, calc(100% - 24px))">
+    <div class="dialog-head">
+        <div><span class="eyebrow" id="imp-file"></span><h2>Check before saving</h2></div>
+        <button type="button" class="icon-btn" data-close aria-label="Close">✕</button>
+    </div>
+    <div class="sum" id="imp-sum"></div>
+    <div class="table-scroll" style="max-height:52vh"><table class="preview"><tbody id="imp-body"></tbody></table></div>
+    <p class="form-error" id="imp-error" role="alert"></p>
+    <div class="dialog-actions">
+        <button type="button" class="ghost" data-close>Cancel</button>
+        <button type="button" class="primary" id="imp-apply">Save changes</button>
+    </div>
+</dialog>
+
+<script type="module" src="/js/formulary-edit.js"></script>
+</body>
+</html>

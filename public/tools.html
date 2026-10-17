@@ -3,200 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SQH Clinical Nutrition Toolkit</title>
+<title>Calculators · SQH Nutrition Hub</title>
 <meta name="description" content="Bedside nutrition assessment, screening, enteral feeding and patient education toolkit for the Clinical Nutrition Department.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="icon" href="/img/mark.png">
+<link rel="stylesheet" href="/css/app.css">
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-ar.js"></script>
+
 <style>
+    /* Shares the hub's palette and fonts (css/app.css); these aliases keep the
+       calculator code's original variable names. */
     :root {
-        --bg: #f4f7f6;
-        --surface: #ffffff;
-        --surface-2: #eef3f1;
-        --text: #17312b;
-        --muted: #55706a;
-        --border: #d3e0dc;
-        --accent: #0f766e;
-        --accent-ink: #ffffff;
-        --accent-soft: #d8efeb;
-        --ok: #15803d;
-        --ok-soft: #dcfce7;
-        --warn: #a16207;
-        --warn-soft: #fef3c7;
-        --danger: #b91c1c;
-        --danger-soft: #fee2e2;
-        --radius: 14px;
-        --shadow: 0 1px 2px rgba(16, 40, 34, 0.06), 0 4px 16px rgba(16, 40, 34, 0.05);
+        --text: var(--ink);
+        --border: var(--line);
+        --accent: var(--teal);
+        --accent-ink: var(--teal-ink);
+        --accent-soft: var(--teal-soft);
+        --ok: var(--sage);
+        --ok-soft: var(--sage-soft);
+        --warn: var(--amber);
+        --warn-soft: var(--amber-soft);
+        --danger: var(--coral);
+        --danger-soft: var(--coral-soft);
     }
-    @media (prefers-color-scheme: dark) {
-        :root:not([data-theme="light"]) {
-            --bg: #0e1715;
-            --surface: #15211e;
-            --surface-2: #1b2a26;
-            --text: #e3eeeb;
-            --muted: #9db4ae;
-            --border: #2a3d38;
-            --accent: #2dd4bf;
-            --accent-ink: #062a25;
-            --accent-soft: #123a34;
-            --ok: #4ade80;
-            --ok-soft: #12321f;
-            --warn: #fbbf24;
-            --warn-soft: #3a2e0c;
-            --danger: #f87171;
-            --danger-soft: #3b1515;
-            --shadow: none;
-        }
-    }
-    :root[data-theme="dark"] {
-        --bg: #0e1715;
-        --surface: #15211e;
-        --surface-2: #1b2a26;
-        --text: #e3eeeb;
-        --muted: #9db4ae;
-        --border: #2a3d38;
-        --accent: #2dd4bf;
-        --accent-ink: #062a25;
-        --accent-soft: #123a34;
-        --ok: #4ade80;
-        --ok-soft: #12321f;
-        --warn: #fbbf24;
-        --warn-soft: #3a2e0c;
-        --danger: #f87171;
-        --danger-soft: #3b1515;
-        --shadow: none;
-    }
-
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
-    body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Tajawal", sans-serif;
-    }
-    [lang="ar"], .ar { font-family: "Tajawal", system-ui, sans-serif; }
-    h1, h2, h3 { line-height: 1.25; margin: 0; }
-    h2 { font-size: 1.15rem; }
-    h3 { font-size: 1rem; }
-    a { color: var(--accent); }
-
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
-
-    header.top {
-        background: var(--surface);
-        border-bottom: 1px solid var(--border);
-    }
-    header.top .wrap {
-        display: flex; align-items: center; justify-content: space-between; gap: 12px;
-        padding-top: 14px; padding-bottom: 14px; flex-wrap: wrap;
-    }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand-mark {
-        width: 40px; height: 40px; border-radius: 10px; background: var(--accent); color: var(--accent-ink);
-        display: grid; place-items: center; flex-shrink: 0;
-    }
-    .brand h1 { font-size: 1.1rem; }
-    .brand p { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    main.wrap { padding-bottom: 20px; }
 
     .privacy {
-        margin: 16px 0 0; padding: 10px 14px; border-radius: var(--radius);
-        background: var(--warn-soft); color: var(--text); border: 1px solid var(--border);
-        font-size: 0.88rem; display: flex; gap: 10px; align-items: flex-start;
+        margin: 10px 0 0; padding: 12px 16px; border-radius: var(--radius-sm);
+        background: var(--amber-soft); color: var(--ink); font-size: 0.9rem; display: flex; gap: 10px; align-items: flex-start;
     }
-    .privacy strong { color: var(--warn); }
+    .privacy strong { color: var(--amber); }
 
-    .card {
-        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-        box-shadow: var(--shadow); padding: 18px; margin-top: 16px;
-    }
-    .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .card { margin-top: 20px; }
+    .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
     .card-head p { margin: 0; color: var(--muted); font-size: 0.85rem; }
 
-    .grid { display: grid; gap: 12px; }
-    .g2 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-    .g3 { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
-    .g6 { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+    .g2 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .g3 { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+    .g6 { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+    .check { align-items: flex-start; padding: 8px 0; }
+    .check input { margin-top: 3px; accent-color: var(--teal); flex-shrink: 0; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 
-    label.field { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; color: var(--muted); font-weight: 500; }
-    input[type="number"], input[type="text"], select, textarea {
-        font: inherit; color: var(--text); background: var(--surface-2);
-        border: 1px solid var(--border); border-radius: 10px; padding: 9px 10px; width: 100%; min-width: 0;
-    }
-    textarea { resize: vertical; }
-    input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
-        outline: 2px solid var(--accent); outline-offset: 2px;
-    }
-    .check { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; font-size: 0.92rem; cursor: pointer; }
-    .check input { margin-top: 4px; width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; }
-
-    button {
-        font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid var(--border);
-        background: var(--surface-2); color: var(--text); padding: 8px 14px; font-weight: 500;
-    }
-    button:hover { border-color: var(--accent); }
-    button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-    button.small { padding: 5px 10px; font-size: 0.82rem; }
-    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-
-    nav.tabs {
-        display: flex; gap: 6px; overflow-x: auto; margin-top: 16px; padding-bottom: 2px;
-        scrollbar-width: thin;
-    }
-    nav.tabs button {
-        white-space: nowrap; border-radius: 999px; background: var(--surface);
-    }
-    nav.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    nav.tabs { display: inline-flex; gap: 2px; padding: 4px; margin-top: 22px; background: var(--bg-2); border-radius: 999px; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+    nav.tabs button { white-space: nowrap; border: 0; background: transparent; color: var(--ink-2); min-height: 36px; padding: 6px 16px; }
+    nav.tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); font-weight: 600; }
     [role="tabpanel"][hidden] { display: none; }
 
-    .stat-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-    .stat {
-        background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px;
-    }
+    .stat-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    .stat { background: var(--surface-2); border-radius: 16px; padding: 12px 14px; }
     .stat .k { font-size: 0.78rem; color: var(--muted); }
-    .stat .v { font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .stat .v { font-family: var(--display); font-size: 1.3rem; font-weight: 500; font-variant-numeric: tabular-nums; }
     .stat .s { font-size: 0.78rem; color: var(--muted); }
 
-    .result {
-        margin-top: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border);
-        background: var(--surface-2);
-    }
-    .result.ok { background: var(--ok-soft); }
-    .result.warn { background: var(--warn-soft); }
-    .result.danger { background: var(--danger-soft); }
-    .result .big { font-size: 1.15rem; font-weight: 700; }
+    .result { margin-top: 14px; padding: 14px 16px; border-radius: 16px; background: var(--surface-2); }
+    .result.ok { background: var(--sage-soft); }
+    .result.warn { background: var(--amber-soft); }
+    .result.danger { background: var(--coral-soft); }
+    .result .big { font-family: var(--display); font-size: 1.15rem; font-weight: 500; }
     .result ul { margin: 6px 0 0; padding-inline-start: 20px; }
 
-    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
-    .muted { color: var(--muted); }
+    .pill { display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--teal-soft); color: var(--teal); }
     .small-text { font-size: 0.82rem; }
-    .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 18px 0 8px; font-weight: 700; }
-    hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+    .section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin: 20px 0 8px; font-weight: 600; }
+    hr { border: none; border-top: 1px solid var(--line); margin: 16px 0; }
 
-    table.calc { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    table.calc th, table.calc td { text-align: start; padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    table.calc { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    table.calc th, table.calc td { text-align: start; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    table.calc th { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
     table.calc td.num { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
-    .table-scroll { overflow-x: auto; }
 
-    .handout {
-        background: #ffffff; color: #17312b; border: 1px solid var(--border); border-radius: var(--radius);
-        padding: 22px; margin-top: 12px;
-    }
-    .handout h2 { font-size: 1.2rem; margin-bottom: 6px; }
-    .handout .lang-block + .lang-block { border-top: 1px dashed #c6d6d1; margin-top: 16px; padding-top: 16px; }
+    .handout { background: #ffffff; color: #0B3B3D; border: 1px solid var(--line); border-radius: var(--radius); padding: 26px; margin-top: 16px; }
+    .handout h2 { font-size: 1.25rem; margin-bottom: 8px; }
+    .handout .lang-block + .lang-block { border-top: 1px dashed #D6CFBE; margin-top: 18px; padding-top: 18px; }
     .handout ul { padding-inline-start: 22px; margin: 8px 0 0; }
     .handout li { margin-bottom: 6px; }
-    .handout .foot { margin-top: 16px; font-size: 0.82rem; color: #55706a; }
+    .handout .foot { margin-top: 16px; font-size: 0.82rem; color: #6B7F78; }
 
-    footer { color: var(--muted); font-size: 0.8rem; padding: 28px 0 40px; }
+    footer { color: var(--muted); font-size: 0.82rem; padding: 32px 0 44px; max-width: 75ch; }
 
-    #toast {
-        position: fixed; inset-inline-start: 16px; bottom: 16px; z-index: 10;
-        background: var(--text); color: var(--bg); padding: 10px 14px; border-radius: 10px;
-        opacity: 0; transform: translateY(10px); transition: opacity .2s, transform .2s; pointer-events: none;
-        font-size: 0.9rem;
-    }
-    #toast.show { opacity: 1; transform: none; }
+    #toast { inset-inline-start: 50%; opacity: 0; transition: opacity .2s; pointer-events: none; }
+    #toast.show { opacity: 1; }
 
     @media print {
         body.print-handout > *:not(#print-area) { display: none !important; }
@@ -208,26 +95,13 @@
 </head>
 <body>
 
-<header class="top">
-    <div class="wrap">
-        <div class="brand">
-            <div class="brand-mark" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-            </div>
-            <div>
-                <h1 id="dept-name">Clinical Nutrition Toolkit</h1>
-                <p id="dept-sub">Clinical Nutrition Department · bedside calculators &amp; patient education</p>
-            </div>
-        </div>
-        <button id="theme-btn" class="small" type="button" aria-label="Toggle dark mode">Theme</button>
-    </div>
-</header>
-
-<main class="wrap">
+<main class="wrap page">
+    <span class="eyebrow">Clinical tools</span>
+    <h1>Calculators &amp; handouts</h1>
 
     <div class="privacy" role="note">
         <span aria-hidden="true">🔒</span>
-        <div><strong>Privacy:</strong> do not type patient names, MRNs or phone numbers here. Nothing you enter is saved or sent anywhere; it is cleared when you close the page. These tools support, and never replace, clinical judgement and hospital protocols.</div>
+        <div><strong>Privacy:</strong> do not type patient names, MRNs or phone numbers here. Nothing you enter on this page is saved or sent anywhere; it clears when you close it. These tools support, and never replace, clinical judgement and hospital protocols.</div>
     </div>
 
     <!-- Shared patient parameters -->
@@ -577,7 +451,7 @@
                 <button type="button" id="h-wa">Share via WhatsApp</button>
             </div>
             <p class="small-text muted">WhatsApp opens without a number, so you pick the contact yourself and no phone number is stored here. Check your hospital's policy on messaging patients first.</p>
-            <div id="h-preview" class="handout"></div>
+            <div id="h-preview" class="handout" data-no-i18n></div>
         </div>
     </section>
 
@@ -586,8 +460,9 @@
     </footer>
 </main>
 
-<div id="print-area"></div>
+<div id="print-area" data-no-i18n></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<script type="module">import { initPage } from '/js/common.js'; initPage('/tools.html').catch(() => {});</script>
 
 <script>
 // ---------------------------------------------------------------
@@ -602,6 +477,11 @@ const CONFIG = {
 };
 
 const $ = (id) => document.getElementById(id);
+// Interface language (i18n.js). Results show in the chosen language; the
+// ADIME note and the values kept in R stay in English for the EMR.
+const T = (en, ar) => (window.I18N ? window.I18N.L(en, ar) : en);
+const tr = (s) => (window.I18N ? window.I18N.t(s) : s);
+const optEn = (sel) => { const o = $(sel).selectedOptions[0]; return o ? (o.dataset.en || o.textContent) : ''; };
 const num = (id) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : NaN; };
 const ok = (...xs) => xs.every(Number.isFinite);
 const r0 = (x) => Math.round(x);
@@ -664,7 +544,7 @@ function computeAnthro() {
         if (ok(wt)) {
             R.pibw = (wt / R.ibw) * 100;
             R.adj = R.ibw + 0.25 * (wt - R.ibw);
-            $('o-pibw').textContent = r0(R.pibw) + '% of IBW';
+            $('o-pibw').textContent = r0(R.pibw) + T('% of IBW', '% من الوزن المثالي');
             $('o-adj').textContent = r1(R.adj) + ' kg';
         } else {
             $('o-pibw').innerHTML = '&nbsp;';
@@ -680,11 +560,11 @@ function computeAnthro() {
         R.wlPct = ((uwt - wt) / uwt) * 100;
         const label = $('period').selectedOptions[0].textContent;
         if (R.wlPct >= 0) {
-            $('o-wl').textContent = r1(R.wlPct) + '% loss';
-            $('o-wl-s').textContent = `${r1(uwt - wt)} kg over ${label}`;
+            $('o-wl').textContent = r1(R.wlPct) + T('% loss', '% نقص');
+            $('o-wl-s').textContent = T(`${r1(uwt - wt)} kg over ${label}`, `${r1(uwt - wt)} kg خلال ${label}`);
         } else {
-            $('o-wl').textContent = r1(-R.wlPct) + '% gain';
-            $('o-wl-s').textContent = `${r1(wt - uwt)} kg over ${label}`;
+            $('o-wl').textContent = r1(-R.wlPct) + T('% gain', '% زيادة');
+            $('o-wl-s').textContent = T(`${r1(wt - uwt)} kg over ${label}`, `${r1(wt - uwt)} kg خلال ${label}`);
         }
     } else {
         $('o-wl').textContent = '–';
@@ -716,7 +596,7 @@ function computeRequirements() {
     if (ok(dw.w, kLo, kHi)) {
         R.kcalLo = dw.w * kLo; R.kcalHi = dw.w * kHi;
         $('r-kcalkg').textContent = fmtRange(R.kcalLo, R.kcalHi, 'kcal/day');
-        $('r-kcalkg-n').textContent = `${kLo}–${kHi} kcal/kg × ${r1(dw.w)} kg ${dw.label}`;
+        $('r-kcalkg-n').textContent = `${kLo}–${kHi} kcal/kg × ${r1(dw.w)} kg ${tr(dw.label)}`;
     } else {
         $('r-kcalkg').textContent = '–'; $('r-kcalkg-n').textContent = 'Needs weight';
     }
@@ -728,9 +608,9 @@ function computeRequirements() {
             : 655.1 + 9.563 * R.wt + 1.850 * R.ht - 4.676 * R.age;
         R.msj = msj * factor; R.hb = hb * factor;
         $('r-msj').textContent = r0(R.msj) + ' kcal/day';
-        $('r-msj-n').textContent = `REE ${r0(msj)} × ${factor} · uses actual weight`;
+        $('r-msj-n').textContent = `REE ${r0(msj)} × ${factor} · ${T('uses actual weight', 'بالوزن الفعلي')}`;
         $('r-hb').textContent = r0(R.hb) + ' kcal/day';
-        $('r-hb-n').textContent = `BEE ${r0(hb)} × ${factor} · uses actual weight`;
+        $('r-hb-n').textContent = `BEE ${r0(hb)} × ${factor} · ${T('uses actual weight', 'بالوزن الفعلي')}`;
     } else {
         ['r-msj', 'r-hb'].forEach(id => $(id).textContent = '–');
         ['r-msj-n', 'r-hb-n'].forEach(id => $(id).textContent = 'Needs age, height and weight');
@@ -739,7 +619,7 @@ function computeRequirements() {
     if (ok(dw.w, pLo, pHi)) {
         R.protLo = dw.w * pLo; R.protHi = dw.w * pHi;
         $('r-prot').textContent = fmtRange(R.protLo, R.protHi, 'g/day');
-        $('r-prot-n').textContent = `${pLo}–${pHi} g/kg × ${r1(dw.w)} kg ${dw.label}`;
+        $('r-prot-n').textContent = `${pLo}–${pHi} g/kg × ${r1(dw.w)} kg ${tr(dw.label)}`;
     } else {
         $('r-prot').textContent = '–'; $('r-prot-n').textContent = 'Needs weight';
     }
@@ -747,7 +627,7 @@ function computeRequirements() {
     if (ok(R.wt, fLo, fHi)) {
         R.flLo = R.wt * fLo; R.flHi = R.wt * fHi;
         $('r-fl').textContent = fmtRange(R.flLo, R.flHi, 'mL/day');
-        $('r-fl-n').textContent = `${fLo}–${fHi} mL/kg × ${r1(R.wt)} kg actual weight. Adjust for fluid restriction or losses.`;
+        $('r-fl-n').textContent = T(`${fLo}–${fHi} mL/kg × ${r1(R.wt)} kg actual weight. Adjust for fluid restriction or losses.`, `${fLo}–${fHi} mL/kg × ${r1(R.wt)} kg الوزن الفعلي. عدّل حسب تقييد السوائل أو الفقد.`);
     } else {
         $('r-fl').textContent = '–'; $('r-fl-n').textContent = 'Needs weight';
     }
@@ -756,11 +636,11 @@ function computeRequirements() {
     const icuBox = $('r-icu-obese');
     if ($('icu').checked && ok(R.bmi, R.wt, R.ibw) && R.bmi >= 30) {
         const lines = [];
-        if (R.bmi <= 50) lines.push(`Energy: 11–14 kcal/kg actual weight = <strong>${fmtRange(11 * R.wt, 14 * R.wt, 'kcal/day')}</strong>`);
-        else lines.push(`Energy: 22–25 kcal/kg IBW = <strong>${fmtRange(22 * R.ibw, 25 * R.ibw, 'kcal/day')}</strong>`);
-        if (R.bmi < 40) lines.push(`Protein: 2.0 g/kg IBW = <strong>${r0(2 * R.ibw)} g/day</strong>`);
-        else lines.push(`Protein: up to 2.5 g/kg IBW = <strong>${r0(2.5 * R.ibw)} g/day</strong>`);
-        icuBox.innerHTML = `<div class="big">Critically ill with obesity (BMI ${r1(R.bmi)})</div><ul><li>${lines.join('</li><li>')}</li></ul><div class="small-text muted" style="margin-top:6px">ASPEN/SCCM 2016 hypocaloric, high-protein approach. Use instead of the table above if it fits your unit's protocol.</div>`;
+        if (R.bmi <= 50) lines.push(T('Energy: 11–14 kcal/kg actual weight', 'الطاقة: 11–14 kcal/kg من الوزن الفعلي') + ` = <strong>${fmtRange(11 * R.wt, 14 * R.wt, 'kcal/day')}</strong>`);
+        else lines.push(T('Energy: 22–25 kcal/kg IBW', 'الطاقة: 22–25 kcal/kg من الوزن المثالي') + ` = <strong>${fmtRange(22 * R.ibw, 25 * R.ibw, 'kcal/day')}</strong>`);
+        if (R.bmi < 40) lines.push(T('Protein: 2.0 g/kg IBW', 'البروتين: 2.0 g/kg من الوزن المثالي') + ` = <strong>${r0(2 * R.ibw)} g/day</strong>`);
+        else lines.push(T('Protein: up to 2.5 g/kg IBW', 'البروتين: حتى 2.5 g/kg من الوزن المثالي') + ` = <strong>${r0(2.5 * R.ibw)} g/day</strong>`);
+        icuBox.innerHTML = `<div class="big">${T('Critically ill with obesity', 'مريض حرج مع سمنة')} (BMI ${r1(R.bmi)})</div><ul><li>${lines.join('</li><li>')}</li></ul><div class="small-text muted" style="margin-top:6px">${T("ASPEN/SCCM 2016 hypocaloric, high-protein approach. Use instead of the table above if it fits your unit's protocol.", 'نهج ASPEN/SCCM 2016 منخفض السعرات عالي البروتين. استخدمه بدلاً من الجدول أعلاه إذا كان يناسب بروتوكول وحدتك.')}</div>`;
         icuBox.hidden = false;
     } else {
         icuBox.hidden = true;
@@ -771,7 +651,8 @@ function computeRequirements() {
     if (ok(R.age, R.wt) && R.age < 18) {
         const w = R.wt;
         const hs = w <= 10 ? 100 * w : w <= 20 ? 1000 + 50 * (w - 10) : 1500 + 20 * (w - 20);
-        pedsBox.innerHTML = `<div class="big">Patient is under 18</div>Adult equations above do not apply. Holliday-Segar maintenance fluid: <strong>${r0(hs)} mL/day</strong>. Use paediatric references (e.g. Schofield, DRIs) for energy and protein.`;
+        pedsBox.innerHTML = T(`<div class="big">Patient is under 18</div>Adult equations above do not apply. Holliday-Segar maintenance fluid: <strong>${r0(hs)} mL/day</strong>. Use paediatric references (e.g. Schofield, DRIs) for energy and protein.`,
+            `<div class="big">المريض دون 18 عاماً</div>معادلات البالغين أعلاه لا تنطبق. سوائل الصيانة حسب Holliday-Segar: <strong>${r0(hs)} mL/day</strong>. استخدم مراجع الأطفال (مثل Schofield وDRIs) للطاقة والبروتين.`);
         pedsBox.hidden = false;
     } else {
         pedsBox.hidden = true;
@@ -811,7 +692,7 @@ function computeMUST() {
         plan = ['Treat: refer to dietitian / nutrition support team', 'Set goals, improve and increase overall nutritional intake', 'Monitor and review the care plan weekly'];
     }
     R.must = { total, risk, bmiScore, wlScore: ok(wlScore) ? wlScore : 0, ad };
-    setResult(out, tone, `<div class="big">MUST ${total} · ${risk}</div><ul><li>${plan.join('</li><li>')}</li></ul>${wlNote}`);
+    setResult(out, tone, `<div class="big">MUST ${total} · ${tr(risk)}</div><ul><li>${plan.join('</li><li>')}</li></ul>${wlNote}`);
 }
 
 // ---------------------------------------------------------------
@@ -834,8 +715,8 @@ function computeNRS() {
     const atRisk = total >= 3;
     R.nrs = { total, risk: atRisk ? 'At nutritional risk' : 'Not currently at risk', status, sev, ageAdd };
     setResult(out, atRisk ? 'danger' : 'ok',
-        `<div class="big">NRS-2002 ${total} · ${R.nrs.risk}</div>` +
-        `<div class="small-text">Nutritional status ${status} + disease severity ${sev}${ageAdd ? ' + age ≥ 70 (1)' : ''}</div>` +
+        `<div class="big">NRS-2002 ${total} · ${tr(R.nrs.risk)}</div>` +
+        `<div class="small-text">${T(`Nutritional status ${status} + disease severity ${sev}${ageAdd ? ' + age ≥ 70 (1)' : ''}`, `الحالة الغذائية ${status} + شدة المرض ${sev}${ageAdd ? ' + العمر ≥ 70 (1)' : ''}`)}</div>` +
         (atRisk ? '<ul><li>Start a nutrition care plan</li></ul>' : '<ul><li>Re-screen weekly</li></ul>'));
 }
 
@@ -861,45 +742,46 @@ function computeEnteral() {
         const rate = Math.max(5, Math.round(exactRate / 5) * 5); // pumps are set in whole numbers; round to 5 mL/h
         vol = rate * hours;
         regimen = `${rate} mL/h × ${hours} h`;
-        lines.push(`Rate: <strong>${rate} mL/h</strong> for ${hours} h/day (exact ${r1(exactRate)} mL/h, rounded to nearest 5)`);
+        lines.push(T(`Rate: <strong>${rate} mL/h</strong> for ${hours} h/day (exact ${r1(exactRate)} mL/h, rounded to nearest 5)`, `المعدل: <strong>${rate} mL/h</strong> لمدة ${hours} ساعة يومياً (الدقيق ${r1(exactRate)} mL/h، مقرّب لأقرب 5)`));
     } else {
         if (!ok(feeds) || feeds <= 0) { setResult(out, 'warn', 'Enter feeds per day.'); return; }
         const perFeed = Math.round(kcal / dens / feeds / 10) * 10;
         vol = perFeed * feeds;
         regimen = `${perFeed} mL × ${feeds} feeds/day`;
-        lines.push(`Bolus: <strong>${perFeed} mL × ${feeds} feeds/day</strong> (every ${r1(24 / feeds)} h)`);
+        lines.push(T(`Bolus: <strong>${perFeed} mL × ${feeds} feeds/day</strong> (every ${r1(24 / feeds)} h)`, `دفعات: <strong>${perFeed} mL × ${feeds} وجبات يومياً</strong> (كل ${r1(24 / feeds)} ساعة)`));
     }
 
     const kcalDel = vol * dens;
     const protDel = ok(pl) ? vol * pl / 1000 : NaN;
     const freeWater = ok(water) ? vol * water / 100 : NaN;
-    lines.push(`Volume: <strong>${r0(vol)} mL/day</strong> → ${r0(kcalDel)} kcal (${r0(kcalDel / kcal * 100)}% of goal)`);
+    lines.push(T(`Volume: <strong>${r0(vol)} mL/day</strong> → ${r0(kcalDel)} kcal (${r0(kcalDel / kcal * 100)}% of goal)`, `الحجم: <strong>${r0(vol)} mL/day</strong> ← ${r0(kcalDel)} kcal (${r0(kcalDel / kcal * 100)}% من الهدف)`));
 
     let tone = 'ok';
     if (ok(protDel)) {
-        let pLine = `Protein: <strong>${r0(protDel)} g/day</strong>`;
+        let pLine = T('Protein: ', 'البروتين: ') + `<strong>${r0(protDel)} g/day</strong>`;
         if (ok(protGoal) && protGoal > 0) {
             const gap = protGoal - protDel;
-            pLine += ` (${r0(protDel / protGoal * 100)}% of ${r0(protGoal)} g goal)`;
-            if (gap > 5) { pLine += ` – add ≈ <strong>${r0(gap)} g</strong> protein modular or choose a higher-protein formula`; tone = 'warn'; }
+            pLine += T(` (${r0(protDel / protGoal * 100)}% of ${r0(protGoal)} g goal)`, ` (${r0(protDel / protGoal * 100)}% من هدف ${r0(protGoal)} g)`);
+            if (gap > 5) { pLine += T(` – add ≈ <strong>${r0(gap)} g</strong> protein modular or choose a higher-protein formula`, ` – أضف ≈ <strong>${r0(gap)} g</strong> من مكمّل البروتين أو اختر تركيبة أعلى بروتيناً`); tone = 'warn'; }
         }
         lines.push(pLine);
     }
     if (ok(freeWater)) {
-        let wLine = `Free water from formula: <strong>${r0(freeWater)} mL/day</strong>`;
+        let wLine = T('Free water from formula: ', 'الماء الحر من التركيبة: ') + `<strong>${r0(freeWater)} mL/day</strong>`;
         if (ok(fluid) && fluid > 0) {
             const extra = fluid - freeWater;
             if (extra > 0 && ok(flushes) && flushes > 0) {
                 const perFlush = Math.round(extra / flushes / 10) * 10;
-                wLine += ` → additional water ≈ <strong>${r0(extra)} mL/day</strong> (e.g. ${perFlush} mL × ${flushes} flushes, including medication flushes)`;
+                wLine += T(` → additional water ≈ <strong>${r0(extra)} mL/day</strong> (e.g. ${perFlush} mL × ${flushes} flushes, including medication flushes)`, ` ← ماء إضافي ≈ <strong>${r0(extra)} mL/day</strong> (مثلاً ${perFlush} mL × ${flushes} دفعات غسيل، تشمل غسيل الأدوية)`);
             } else if (extra <= 0) {
-                wLine += ' → formula alone meets the fluid target; review if fluid-restricted';
+                wLine += T(' → formula alone meets the fluid target; review if fluid-restricted', ' ← التركيبة وحدها تغطي هدف السوائل؛ راجع إذا كانت السوائل مقيّدة');
             }
         }
         lines.push(wLine);
     }
-    R.en = { regimen, vol, kcalDel, protDel, freeWater, formula: $('e-preset').selectedOptions[0].textContent, dens };
-    setResult(out, tone, `<div class="big">${regimen}</div><ul><li>${lines.join('</li><li>')}</li></ul>` +
+    R.en = { regimen, vol, kcalDel, protDel, freeWater, formula: optEn('e-preset'), dens };
+    const regimenShown = mode === 'cont' ? regimen : T(regimen, regimen.replace('feeds/day', 'وجبات يومياً'));
+    setResult(out, tone, `<div class="big">${regimenShown}</div><ul><li>${lines.join('</li><li>')}</li></ul>` +
         '<div class="small-text muted" style="margin-top:6px">Start and advance per local protocol. If refeeding risk is present, start low (see Refeeding tab).</div>');
 }
 
@@ -933,7 +815,7 @@ function computeRefeeding() {
     R.rf = { level: extreme ? 'Extreme refeeding risk' : 'High refeeding risk', start: startKcal, kcalPerKg };
     setResult(out, 'danger',
         `<div class="big">${R.rf.level}</div><ul>` +
-        `<li>Start at max <strong>${kcalPerKg} kcal/kg/day</strong>${ok(R.wt) ? ` ≈ <strong>${startKcal}</strong>` : ''}, increasing slowly to full needs over 4–7 days</li>` +
+        T(`<li>Start at max <strong>${kcalPerKg} kcal/kg/day</strong>${ok(R.wt) ? ` ≈ <strong>${startKcal}</strong>` : ''}, increasing slowly to full needs over 4–7 days</li>`, `<li>ابدأ بحد أقصى <strong>${kcalPerKg} kcal/kg/day</strong>${ok(R.wt) ? ` ≈ <strong>${startKcal}</strong>` : ''}، مع الزيادة تدريجياً إلى الاحتياج الكامل خلال 4–7 أيام</li>`) +
         '<li>Thiamine and vitamin supplementation before and during the first 10 days, per hospital protocol</li>' +
         '<li>Check and replace potassium, phosphate and magnesium; monitor daily initially</li>' +
         '<li>Monitor fluid balance and cardiovascular status</li></ul>');
@@ -957,7 +839,7 @@ function buildNote() {
     if (ok(R.bmi)) anthro.push(`BMI ${r1(R.bmi)} (${bmiCategory(R.bmi)})`);
     if (ok(R.ibw)) anthro.push(`IBW ${r1(R.ibw)} kg (${ok(R.pibw) ? r0(R.pibw) + '%' : '–'})`);
     if (anthro.length) L.push('Anthropometrics: ' + anthro.join(', '));
-    if (ok(R.wlPct)) L.push(`Weight change: ${R.wlPct >= 0 ? '−' : '+'}${r1(Math.abs(R.wlPct))}% (usual ${r1(R.uwt)} kg) over ${$('period').selectedOptions[0].textContent}`);
+    if (ok(R.wlPct)) L.push(`Weight change: ${R.wlPct >= 0 ? '−' : '+'}${r1(Math.abs(R.wlPct))}% (usual ${r1(R.uwt)} kg) over ${optEn('period')}`);
     if (v('t-hx')) L.push(`Intake history: ${v('t-hx')}`);
     if (v('t-labs')) L.push(`Labs / meds / NFPE: ${v('t-labs')}`);
     if ($('inc-must').checked && R.must) L.push(`MUST: ${R.must.total} (${R.must.risk})`);
@@ -1224,28 +1106,10 @@ function initTabs() {
     });
 }
 
-function initTheme() {
-    const root = document.documentElement;
-    let saved = null;
-    try { saved = localStorage.getItem('cn_theme'); } catch (e) {}
-    if (saved) root.dataset.theme = saved;
-    $('theme-btn').addEventListener('click', () => {
-        const dark = root.dataset.theme
-            ? root.dataset.theme === 'dark'
-            : window.matchMedia('(prefers-color-scheme: dark)').matches;
-        root.dataset.theme = dark ? 'light' : 'dark';
-        try { localStorage.setItem('cn_theme', root.dataset.theme); } catch (e) {}
-    });
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    document.title = CONFIG.deptName;
-    $('dept-name').textContent = CONFIG.deptName;
-    $('dept-sub').textContent = CONFIG.deptSub;
     $('foot-dept').textContent = CONFIG.footerDept;
 
     initTabs();
-    initTheme();
 
     // Any input change anywhere recalculates (cheap: a few dozen arithmetic ops).
     document.querySelectorAll('main input, main select').forEach(n => {
@@ -1287,7 +1151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('t-build').addEventListener('click', () => { recalcAll(); buildNote(); });
     $('t-copy').addEventListener('click', () => copyText($('t-out').value));
 
-    HANDOUTS.forEach(h => $('h-topic').append(el('option', { value: h.id }, h.en.title)));
+    HANDOUTS.forEach(h => $('h-topic').append(el('option', { value: h.id }, T(h.en.title, h.ar.title))));
     ['h-topic', 'h-lang', 'h-extra', 'h-contact'].forEach(id => $(id).addEventListener('input', () => renderHandout($('h-preview'))));
     $('h-copy').addEventListener('click', () => copyText(handoutText()));
     $('h-wa').addEventListener('click', () => window.open('https://wa.me/?text=' + encodeURIComponent(handoutText()), '_blank', 'noopener'));
@@ -1302,7 +1166,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderHandout($('h-preview'));
     recalcAll();
+    loadFormulary();
 });
+
+// Verified products from the department formulary join the enteral formula list.
+// /tools.html?formula=<slug> (from the Formulary page) opens it pre-selected.
+function loadFormulary() {
+    fetch('/api/formulas', { cache: 'no-store' })
+        .then(r => (r.ok ? r.json() : null))
+        .then(data => {
+            if (!data) return;
+            const ready = data.formulas.filter(f => f.verified && f.basis === '100ml' && f.kcal > 0);
+            if (ready.length) {
+                const group = el('optgroup', { label: 'SQH formulary (verified)' });
+                ready.forEach(f => group.append(el('option', {
+                    value: [f.kcal / 100, f.protein !== null ? Math.round(f.protein * 100) / 10 : '', f.water ?? ''].join(','),
+                    'data-slug': f.slug
+                }, f.name)));
+                $('e-preset').append(group);
+            }
+            const want = new URLSearchParams(location.search).get('formula');
+            if (!want) return;
+            const opt = Array.from($('e-preset').options).find(o => o.dataset.slug === want);
+            if (opt) {
+                opt.selected = true;
+                $('e-preset').dispatchEvent(new Event('change'));
+            } else {
+                toast('That product is not verified yet, so it is not available in the calculator');
+            }
+            $('tab-en').click();
+        })
+        .catch(() => { /* offline or signed out: generic presets still work */ });
+}
 </script>
 </body>
 </html>

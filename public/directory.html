@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phone directory · SQH Nutrition Hub</title>
+<link rel="icon" href="/img/mark.png">
+<link rel="stylesheet" href="/css/app.css">
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-ar.js"></script>
+
+<style>
+    .dir-card { max-width: 760px; }
+    .dir-card input[type="search"] { font-size: 1.02rem; min-height: 50px; }
+</style>
+</head>
+<body>
+<main class="wrap stack page">
+    <div class="page-head">
+        <div>
+            <span class="eyebrow">Phone directory</span>
+            <h1>Extensions</h1>
+            <p class="lede">Department, wards, clinics and support services. Tap ☆ to keep a number on your home page.</p>
+        </div>
+    </div>
+
+    <section class="card dir-card" aria-label="Phone directory">
+        <input type="search" id="dir-search" placeholder="Search ward, department or name (e.g. ICU, pharmacy, kitchen)" aria-label="Search the phone directory" autofocus>
+        <div id="directory"><p class="empty-note">Loading…</p></div>
+    </section>
+
+    <footer class="site">Work extensions only. Spotted a wrong number? Tell an admin; they can fix it under Admin → Phone directory.</footer>
+</main>
+<script type="module">
+    import { $, api, initPage } from '/js/common.js';
+    import { mountDirectory } from '/js/directory-view.js';
+    try {
+        await initPage('/directory.html');
+        const { entries } = await api('/api/directory');
+        mountDirectory({ search: $('#dir-search'), box: $('#directory'), entries });
+    } catch (e) {
+        $('#directory').textContent = e.message;
+    }
+</script>
+</body>
+</html>

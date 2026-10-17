@@ -1,0 +1,129 @@
+// Shared helpers for every page: API calls, escaping, toast, header, theme.
+
+export const $ = (sel, root = document) => root.querySelector(sel);
+export const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+export async function api(path, body) {
+    const opts = body === undefined
+        ? { cache: 'no-store' }
+        : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
+    let res;
+    try {
+        res = await fetch(path, opts);
+    } catch {
+        throw new Error('No connection. Check the network and try again.');
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+        const err = new Error(data.error || `Request failed (${res.status}).`);
+        err.status = res.status;
+        throw err;
+    }
+    return data;
+}
+
+let toastTimer;
+export function toast(msg) {
+    let t = $('#toast');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = 'toast';
+        t.setAttribute('role', 'status');
+        document.body.append(t);
+    }
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, 3200);
+}
+
+// Interface language helpers (see i18n.js). L(english, arabic) picks one;
+// t(text) looks a fixed English string up in the Arabic dictionary.
+const I = window.I18N || { lang: 'en', isAr: false, t: (s) => s, L: (en) => en, locale: 'en-GB', set() {}, hasSaved: () => true };
+export const LANG = I.lang;
+export const isAr = I.isAr;
+export const L = I.L;
+export const t = I.t;
+export const LOCALE = I.locale;
+
+export const fmtDate = (s) => s ? new Date(s + 'T12:00:00Z').toLocaleDateString(LOCALE, { day: 'numeric', month: 'short' }) : '';
+export const fmtDateTime = (iso) => new Date(iso).toLocaleString(LOCALE, { timeZone: 'Asia/Muscat', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+/** Saves the interface language for this browser and the signed-in member, then reloads. */
+export async function setLanguage(lang) {
+    I.set(lang);
+    try { await api('/api/me', { lang }); } catch { /* the local choice still applies */ }
+    location.reload();
+}
+
+export function initTheme() {
+    try {
+        const saved = localStorage.getItem('cn_theme');
+        if (saved) document.documentElement.dataset.theme = saved;
+    } catch { /* storage unavailable */ }
+}
+
+export function toggleTheme() {
+    const root = document.documentElement;
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+    try { localStorage.setItem('cn_theme', root.dataset.theme); } catch { /* ignore */ }
+}
+
+const NAV = [
+    { href: '/', label: 'Home' },
+    { href: '/followup.html', label: 'Follow-ups' },
+    { href: '/formulas.html', label: 'Formulary' },
+    { href: '/directory.html', label: 'Directory' },
+    { href: '/tools.html', label: 'Tools' },
+    { href: '/admin.html', label: 'Admin', admin: true }
+];
+
+/** Renders the shared top bar and returns /api/me data. */
+export async function initPage(current) {
+    initTheme();
+    const header = document.createElement('header');
+    header.className = 'topbar';
+    header.innerHTML = `
+        <div class="wrap">
+            <a class="brand" href="/">
+                <img src="/img/mark.png" alt="" width="36" height="36">
+                <span><strong>SQH Nutrition Hub</strong><small>Clinical Nutrition Department</small></span>
+            </a>
+            <nav class="mainnav" aria-label="Main"></nav>
+            <div class="who">
+                <button class="lang-btn" id="lang-btn" type="button" data-no-i18n lang="${isAr ? 'en' : 'ar'}"
+                    aria-label="${isAr ? 'Switch to English' : 'التبديل إلى العربية'}" title="${isAr ? 'English' : 'العربية'}">${isAr ? 'EN' : 'ع'}</button>
+                <button class="icon-btn" id="theme-btn" type="button" aria-label="Switch light or dark mode" title="Light / dark">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                </button>
+                <span class="avatar" id="me-avatar" title="Signing in…">·</span>
+            </div>
+        </div>`;
+    document.body.prepend(header);
+    $('#theme-btn').onclick = toggleTheme;
+    $('#lang-btn').onclick = () => setLanguage(isAr ? 'en' : 'ar');
+
+    const me = await api('/api/me');
+    // A member's saved language follows them to a new browser or device.
+    if (!I.hasSaved() && me.me.lang && me.me.lang !== LANG) {
+        I.set(me.me.lang);
+        location.reload();
+        return new Promise(() => {});
+    }
+    $('.mainnav').innerHTML = NAV
+        .filter(n => !n.admin || me.me.role === 'admin')
+        .map(n => `<a href="${n.href}" ${n.href === current ? 'aria-current="page"' : ''}>${esc(t(n.label))}</a>`).join('');
+    const avatar = $('#me-avatar');
+    avatar.textContent = me.me.name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    avatar.title = `${me.me.name} · ${me.me.email}`;
+    return me;
+}
+
+/** Display name for a member email. */
+export function nameOf(members, email) {
+    const m = members.find(x => x.email === email);
+    return m ? m.name : (email || '—');
+}

@@ -1,0 +1,17 @@
+{
+  "name": "sqh-nutrition-hub",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Clinical Nutrition Department hub: daily follow-up list, handovers, phone directory and bedside calculators.",
+  "scripts": {
+    "dev": "wrangler dev --local --var DEV_USER_EMAIL:dietitian@example.com",
+    "db:migrate:local": "wrangler d1 migrations apply sqh-nutrition-hub --local",
+    "db:migrate:remote": "wrangler d1 migrations apply sqh-nutrition-hub --remote",
+    "deploy": "wrangler deploy",
+    "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "wrangler": "4.151.0"
+  }
+}
